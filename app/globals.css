@@ -2628,6 +2628,7 @@ button {
 .manga-inner__review-score-val--green { color: #2de02f; }
 .manga-inner__review-score-val--red   { color: #f44336; }
 .manga-inner__review-score-val--gray  { color: #808080; }
+.manga-inner__review-score-val--yellow { color: #ffc107; }
 
 .manga-inner__review-reactions {
   display: flex;

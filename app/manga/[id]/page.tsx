@@ -969,7 +969,7 @@ export default function MangaPage({ params }: { params: { id: string } }) {
                       {/* Список отзывов */}
                       <div className="manga-inner__reviews-list">
                         {REVIEWS.filter((r) => reviewFilter === "all" || r.type === reviewFilter).map((r) => {
-                          const scoreColor = r.rating > 5 ? "green" : r.rating === 5 ? "gray" : "red";
+                          const scoreColor = r.type === "positive" ? "green" : r.type === "negative" ? "red" : "yellow";
                           return (
                             <div key={r.id} className={`manga-inner__review manga-inner__review--${r.type}`}>
                               <div className="manga-inner__review-top">

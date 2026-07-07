@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 interface ReportModalProps {
   onClose: () => void;
@@ -40,6 +40,7 @@ export default function ReportModal({ onClose }: ReportModalProps) {
   const [reason, setReason] = useState("");
   const [message, setMessage] = useState("");
   const [selectOpen, setSelectOpen] = useState(false);
+  const selectRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -53,6 +54,19 @@ export default function ReportModal({ onClose }: ReportModalProps) {
     };
   }, [onClose]);
 
+  useEffect(() => {
+    if (!selectOpen) return;
+
+    const onPointerDown = (e: PointerEvent) => {
+      if (!selectRef.current?.contains(e.target as Node)) {
+        setSelectOpen(false);
+      }
+    };
+
+    document.addEventListener("pointerdown", onPointerDown, true);
+    return () => document.removeEventListener("pointerdown", onPointerDown, true);
+  }, [selectOpen]);
+
   return (
     <div className="report-overlay" onMouseDown={onClose}>
       <div className="report-modal" onMouseDown={(e) => e.stopPropagation()}>
@@ -64,7 +78,14 @@ export default function ReportModal({ onClose }: ReportModalProps) {
 
         <div className="report-modal__fields">
           {/* Custom select */}
-          <div className="report-modal__field report-modal__field--select" onClick={() => setSelectOpen((v) => !v)}>
+          <div
+            ref={selectRef}
+            className="report-modal__field report-modal__field--select"
+            onClick={(e) => {
+              e.stopPropagation();
+              setSelectOpen((v) => !v);
+            }}
+          >
             <span className={`report-modal__select-value${!reason ? " report-modal__select-value--placeholder" : ""}`}>
               {reason || "Причина жалобы"}
             </span>
@@ -72,12 +93,21 @@ export default function ReportModal({ onClose }: ReportModalProps) {
               <ChevronIcon />
             </span>
             {selectOpen && (
-              <div className="report-modal__options" onMouseDown={(e) => e.stopPropagation()}>
+              <div
+                className="report-modal__options"
+                onMouseDown={(e) => e.stopPropagation()}
+                onClick={(e) => e.stopPropagation()}
+              >
                 {REASONS.map((r) => (
                   <button
                     key={r}
+                    type="button"
                     className={`report-modal__option${reason === r ? " report-modal__option--active" : ""}`}
-                    onClick={() => { setReason(r); setSelectOpen(false); }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setReason(r);
+                      setSelectOpen(false);
+                    }}
                   >
                     {r}
                   </button>
@@ -98,7 +128,7 @@ export default function ReportModal({ onClose }: ReportModalProps) {
           </div>
         </div>
 
-        <button className="report-modal__submit">Отправить</button>
+        <button className="report-modal__submit" type="button" onClick={onClose}>Отправить</button>
       </div>
     </div>
   );

@@ -60,6 +60,30 @@ const CARD_GENRES = [
   ["Детектив", "Мистика"],
 ];
 
+const CATEGORIES = ["Манга", "Манхва", "Маньхуа", "Руманга", "Комикс"];
+
+type FilterState = "any" | "include" | "exclude";
+
+const FILTER_STATE_LABEL: Record<FilterState, string> = {
+  any: "Не учитывать",
+  include: "Включить",
+  exclude: "Исключить",
+};
+
+const nextFilterState = (state: FilterState): FilterState => {
+  if (state === "any") return "include";
+  if (state === "include") return "exclude";
+  return "any";
+};
+
+const getActiveFilters = (
+  states: Record<string, FilterState>,
+  targetState: FilterState,
+) =>
+  Object.entries(states)
+    .filter(([, state]) => state === targetState)
+    .map(([value]) => value);
+
 function StarIcon() {
   return (
     <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
@@ -196,7 +220,8 @@ export default function CatalogPage() {
   const [sortLabel, setSortLabel] = useState("По популярности ↓");
   const [genreSearch, setGenreSearch] = useState("");
   const [nameSearch, setNameSearch] = useState("");
-  const [selectedGenres, setSelectedGenres] = useState<string[]>([]);
+  const [genreStates, setGenreStates] = useState<Record<string, FilterState>>({});
+  const [categoryStates, setCategoryStates] = useState<Record<string, FilterState>>({});
   const [categoryOpen, setCategoryOpen] = useState(false);
   const [genresOpen, setGenresOpen] = useState(true);
   const [yearFrom, setYearFrom] = useState("");
@@ -212,14 +237,70 @@ export default function CatalogPage() {
     g.toLowerCase().includes(genreSearch.toLowerCase()),
   );
 
-  const toggleGenre = (g: string) => {
-    setSelectedGenres((prev) =>
-      prev.includes(g) ? prev.filter((x) => x !== g) : [...prev, g],
-    );
+  const toggleGenre = (genre: string) => {
+    setGenreStates((prev) => {
+      const next = nextFilterState(prev[genre] ?? "any");
+      if (next === "any") {
+        const { [genre]: _removed, ...rest } = prev;
+        return rest;
+      }
+      return { ...prev, [genre]: next };
+    });
   };
 
+  const toggleCategory = (category: string) => {
+    setCategoryStates((prev) => {
+      const next = nextFilterState(prev[category] ?? "any");
+      if (next === "any") {
+        const { [category]: _removed, ...rest } = prev;
+        return rest;
+      }
+      return { ...prev, [category]: next };
+    });
+  };
+
+  const renderTriStateFilter = (
+    value: string,
+    state: FilterState,
+    onToggle: () => void,
+  ) => (
+    <button
+      key={value}
+      type="button"
+      className={`catalog-filter__checkbox-row catalog-filter__checkbox-row--${state}`}
+      role="checkbox"
+      aria-checked={state === "exclude" ? "mixed" : state === "include"}
+      aria-label={`${value}: ${FILTER_STATE_LABEL[state]}`}
+      title={`${value}: ${FILTER_STATE_LABEL[state]}`}
+      onClick={onToggle}
+    >
+      <span
+        className={`catalog-filter__checkbox catalog-filter__checkbox--${state}`}
+        aria-hidden="true"
+      >
+        {state === "include" ? "✓" : state === "exclude" ? "−" : ""}
+      </span>
+      <span className="catalog-filter__checkbox-label">{value}</span>
+    </button>
+  );
+
+  const renderGenreFilter = (genre: string) =>
+    renderTriStateFilter(
+      genre,
+      genreStates[genre] ?? "any",
+      () => toggleGenre(genre),
+    );
+
+  const renderCategoryFilter = (category: string) =>
+    renderTriStateFilter(
+      category,
+      categoryStates[category] ?? "any",
+      () => toggleCategory(category),
+    );
+
   const resetFilters = () => {
-    setSelectedGenres([]);
+    setGenreStates({});
+    setCategoryStates({});
     setGenreSearch("");
     setNameSearch("");
     setYearFrom("");
@@ -241,18 +322,27 @@ export default function CatalogPage() {
     "По алфавиту Я-А",
   ];
 
+  const includedGenres = getActiveFilters(genreStates, "include");
+  const excludedGenres = getActiveFilters(genreStates, "exclude");
+  const includedCategories = getActiveFilters(categoryStates, "include");
+  const excludedCategories = getActiveFilters(categoryStates, "exclude");
+
   const allCards = Array.from({ length: 12 }, (_, i) => ({
     id: i,
     coverIdx: (i % 12) + 1,
     title: MANGA_TITLES[i % MANGA_TITLES.length],
     rating: RATINGS[i],
     genres: CARD_GENRES[i % CARD_GENRES.length],
+    category: CATEGORIES[i % CATEGORIES.length],
     year: 2020 + (i % 5),
   }));
 
   const cards = allCards.filter((card) => {
     if (nameSearch && !card.title.toLowerCase().includes(nameSearch.toLowerCase())) return false;
-    if (selectedGenres.length > 0 && !selectedGenres.some((g) => card.genres.includes(g))) return false;
+    if (includedGenres.length > 0 && !includedGenres.some((g) => card.genres.includes(g))) return false;
+    if (excludedGenres.some((g) => card.genres.includes(g))) return false;
+    if (includedCategories.length > 0 && !includedCategories.includes(card.category)) return false;
+    if (excludedCategories.includes(card.category)) return false;
     if (ratingFrom && card.rating < parseFloat(ratingFrom)) return false;
     if (ratingTo && card.rating > parseFloat(ratingTo)) return false;
     if (yearFrom && card.year < parseInt(yearFrom)) return false;
@@ -374,7 +464,7 @@ export default function CatalogPage() {
                         </div>
                         <div className="manga-card__info">
                           <h3 className="manga-card__title">{card.title}</h3>
-                          <span className="manga-card__genre">{card.genres.join(", ")}</span>
+                          <span className="manga-card__genre">{card.category}, {card.genres.join(", ")}</span>
                         </div>
                       </Link>
                     ))}
@@ -463,22 +553,7 @@ export default function CatalogPage() {
                         />
                       </div>
                       <div className="catalog-filter__genres-list">
-                        {filteredGenres.map((genre) => (
-                          <label
-                            key={genre}
-                            className="catalog-filter__checkbox-row"
-                          >
-                            <input
-                              type="checkbox"
-                              className="catalog-filter__checkbox"
-                              checked={selectedGenres.includes(genre)}
-                              onChange={() => toggleGenre(genre)}
-                            />
-                            <span className="catalog-filter__checkbox-label">
-                              {genre}
-                            </span>
-                          </label>
-                        ))}
+                        {filteredGenres.map(renderGenreFilter)}
                       </div>
                     </>
                   )}
@@ -498,22 +573,7 @@ export default function CatalogPage() {
                   </button>
                   {categoryOpen && (
                     <div className="catalog-filter__category-content">
-                      {["Манга", "Манхва", "Маньхуа", "Руманга", "Комикс"].map(
-                        (cat) => (
-                          <label
-                            key={cat}
-                            className="catalog-filter__checkbox-row"
-                          >
-                            <input
-                              type="checkbox"
-                              className="catalog-filter__checkbox"
-                            />
-                            <span className="catalog-filter__checkbox-label">
-                              {cat}
-                            </span>
-                          </label>
-                        ),
-                      )}
+                      {CATEGORIES.map(renderCategoryFilter)}
                     </div>
                   )}
                 </div>
@@ -739,22 +799,7 @@ export default function CatalogPage() {
                       />
                     </div>
                     <div className="catalog-filter__genres-list">
-                      {filteredGenres.map((genre) => (
-                        <label
-                          key={genre}
-                          className="catalog-filter__checkbox-row"
-                        >
-                          <input
-                            type="checkbox"
-                            className="catalog-filter__checkbox"
-                            checked={selectedGenres.includes(genre)}
-                            onChange={() => toggleGenre(genre)}
-                          />
-                          <span className="catalog-filter__checkbox-label">
-                            {genre}
-                          </span>
-                        </label>
-                      ))}
+                      {filteredGenres.map(renderGenreFilter)}
                     </div>
                   </>
                 )}
@@ -773,22 +818,7 @@ export default function CatalogPage() {
                 </button>
                 {categoryOpen && (
                   <div className="catalog-filter__category-content">
-                    {["Манга", "Манхва", "Маньхуа", "Руманга", "Комикс"].map(
-                      (cat) => (
-                        <label
-                          key={cat}
-                          className="catalog-filter__checkbox-row"
-                        >
-                          <input
-                            type="checkbox"
-                            className="catalog-filter__checkbox"
-                          />
-                          <span className="catalog-filter__checkbox-label">
-                            {cat}
-                          </span>
-                        </label>
-                      ),
-                    )}
+                    {CATEGORIES.map(renderCategoryFilter)}
                   </div>
                 )}
               </div>

@@ -5423,10 +5423,24 @@ button {
   display: flex;
   align-items: center;
   gap: 10px;
+  width: 100%;
   padding: 9px 2px;
-  cursor: pointer;
+  border: 0;
   border-radius: 8px;
+  background: transparent;
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
   transition: background-color 0.15s;
+}
+
+.catalog-filter__checkbox-row:hover {
+  background-color: rgba(86, 44, 240, 0.06);
+}
+
+.catalog-filter__checkbox-row:focus-visible {
+  outline: 2px solid rgba(86, 44, 240, 0.35);
+  outline-offset: 2px;
 }
 
 .catalog-filter__checkbox {
@@ -5461,6 +5475,38 @@ button {
   border-top: none;
   border-left: none;
   transform: rotate(45deg);
+}
+
+.catalog-filter__checkbox--include,
+.catalog-filter__checkbox--exclude {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  font-weight: 700;
+}
+
+.catalog-filter__checkbox--include {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+  color: var(--color-white);
+  font-size: 15px;
+}
+
+.catalog-filter__checkbox--exclude {
+  background-color: #fff1f1;
+  border-color: #f04438;
+  color: #d92d20;
+  font-size: 18px;
+}
+
+.catalog-filter__checkbox-row--include .catalog-filter__checkbox-label,
+.catalog-filter__checkbox-row--exclude .catalog-filter__checkbox-label {
+  font-weight: 600;
+}
+
+.catalog-filter__checkbox-row--exclude .catalog-filter__checkbox-label {
+  color: #b42318;
 }
 
 .catalog-filter__checkbox-label {
@@ -6280,6 +6326,17 @@ button {
   }
 }
 
+.search-dropdown__card-img--user {
+  aspect-ratio: 1 / 1;
+  height: auto;
+  border-radius: 50%;
+  background: var(--color-white);
+}
+
+.search-dropdown__card-img--user img {
+  padding: 4px;
+  border-radius: 50%;
+}
 /* ==========================================
    LOGIN MODAL
    ========================================== */

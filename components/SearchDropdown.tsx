@@ -23,14 +23,41 @@ const ALL_ITEMS = [
   { id: 12, cover: '/images/cover_12.jpg', type: 'Манга', title: 'Присцилла просит о замужестве' },
 ];
 
+const ALL_USERS = [
+  { id: 1, cover: '/images/avatar_default.png', type: 'Пользователь', title: 'Jul_Mol', subtitle: 'читатель' },
+  { id: 2, cover: '/images/avatar2.png', type: 'Пользователь', title: 'ZafarovPolat', subtitle: 'администратор' },
+  { id: 3, cover: '/images/avatar3.png', type: 'Пользователь', title: 'Reader_2026', subtitle: 'комментатор' },
+];
+
+const ALL_RESULTS = [
+  ...ALL_ITEMS.map((item) => ({
+    ...item,
+    key: `manga-${item.id}`,
+    href: `/manga/${item.id}`,
+    searchText: `${item.title} ${item.type}`,
+  })),
+  ...ALL_USERS.map((user) => ({
+    ...user,
+    key: `user-${user.id}`,
+    href: `/profile?user=${user.id}`,
+    searchText: `${user.title} ${user.type} ${user.subtitle}`,
+  })),
+];
+
+const DEFAULT_RESULTS = [
+  ...ALL_RESULTS.filter((item) => item.key.startsWith('manga-')).slice(0, 4),
+  ...ALL_RESULTS.filter((item) => item.key.startsWith('user-')).slice(0, 2),
+];
+
 export default function SearchDropdown({ onClose }: SearchDropdownProps) {
   const [query, setQuery] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
 
-  const results = query.trim()
-    ? ALL_ITEMS.filter(item => item.title.toLowerCase().includes(query.toLowerCase()))
-    : ALL_ITEMS.slice(0, 4);
+  const normalizedQuery = query.trim().toLowerCase();
+  const results = normalizedQuery
+    ? ALL_RESULTS.filter((item) => item.searchText.toLowerCase().includes(normalizedQuery))
+    : DEFAULT_RESULTS;
 
   useEffect(() => {
     inputRef.current?.focus();
@@ -66,7 +93,7 @@ export default function SearchDropdown({ onClose }: SearchDropdownProps) {
             ref={inputRef}
             className="search-dropdown__input"
             type="text"
-            placeholder="Поиск по Жанрам"
+            placeholder="Поиск по произведениям и пользователям"
             value={query}
             onChange={e => setQuery(e.target.value)}
           />
@@ -86,17 +113,27 @@ export default function SearchDropdown({ onClose }: SearchDropdownProps) {
         <p className="search-dropdown__empty">Ничего не найдено</p>
       ) : (
         <div className="search-dropdown__grid">
-          {results.map(item => (
-            <Link key={item.id} href={`/manga/${item.id}`} className="search-dropdown__card" onClick={onClose}>
-              <div className="search-dropdown__card-img">
-                <Image src={item.cover} alt={item.title} fill sizes="72px" style={{ objectFit: 'cover' }} />
-              </div>
-              <div className="search-dropdown__card-info">
-                <span className="search-dropdown__card-type">{item.type}</span>
-                <span className="search-dropdown__card-title">{item.title}</span>
-              </div>
-            </Link>
-          ))}
+          {results.map((item) => {
+            const isUserResult = item.type === 'Пользователь';
+
+            return (
+              <Link key={item.key} href={item.href} className="search-dropdown__card" onClick={onClose}>
+                <div className={`search-dropdown__card-img${isUserResult ? ' search-dropdown__card-img--user' : ''}`}>
+                  <Image
+                    src={item.cover}
+                    alt={item.title}
+                    fill
+                    sizes="72px"
+                    style={{ objectFit: isUserResult ? 'contain' : 'cover' }}
+                  />
+                </div>
+                <div className="search-dropdown__card-info">
+                  <span className="search-dropdown__card-type">{item.type}</span>
+                  <span className="search-dropdown__card-title">{item.title}</span>
+                </div>
+              </Link>
+            );
+          })}
         </div>
       )}
     </div>

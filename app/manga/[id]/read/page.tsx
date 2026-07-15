@@ -14,7 +14,7 @@ const CHAPTERS = Array.from({ length: 15 }, (_, i) => ({
   likes: "2 640",
 }));
 
-const COMMENTS = Array.from({ length: 6 }, (_, i) => ({
+const INITIAL_COMMENTS = Array.from({ length: 6 }, (_, i) => ({
   id: i,
   avatar: "/images/avatar_default.png",
   username: "Jul_Mol",
@@ -376,12 +376,31 @@ function ChaptersPanel({
 function CommentsPanel({
   onClose,
   comments,
+  setComments,
   onReport,
 }: {
   onClose: () => void;
-  comments: typeof COMMENTS;
+  comments: typeof INITIAL_COMMENTS;
+  setComments: (comments: typeof INITIAL_COMMENTS) => void;
   onReport: () => void;
 }) {
+  const [newComment, setNewComment] = useState("");
+
+  const handleSend = () => {
+    if (newComment.trim()) {
+      setComments([{
+        id: Date.now(),
+        avatar: "/images/avatar_default.png",
+        username: "Вы",
+        text: newComment,
+        time: "Только что",
+        likes: 0,
+        dislikes: 0,
+      }, ...comments]);
+      setNewComment("");
+    }
+  };
+
   return (
     <>
       <div className="reader__panel-header">
@@ -399,8 +418,13 @@ function CommentsPanel({
           type="text"
           placeholder="Оставить комментарий"
           className="reader__panel-comments-input"
+          value={newComment}
+          onChange={(e) => setNewComment(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') handleSend();
+          }}
         />
-        <button className="reader__panel-comments-send" aria-label="Отправить">
+        <button className="reader__panel-comments-send" aria-label="Отправить" onClick={handleSend}>
           <SendIcon />
         </button>
       </div>
@@ -450,6 +474,7 @@ export default function MangaReadPage({ params }: { params: { id: string } }) {
   const [activePanel, setActivePanel] = useState<
     "chapters" | "comments" | null
   >(null);
+  const [comments, setComments] = useState(INITIAL_COMMENTS);
   const [searchQuery, setSearchQuery] = useState("");
   const [reversed, setReversed] = useState(false);
   const [bookmarkOption, setBookmarkOption] = useState<string | null>("Читаю");
@@ -579,7 +604,8 @@ export default function MangaReadPage({ params }: { params: { id: string } }) {
             {activePanel === "comments" && (
               <CommentsPanel
                 onClose={() => setActivePanel(null)}
-                comments={COMMENTS}
+                comments={comments}
+                setComments={setComments}
                 onReport={() => setReportOpen(true)}
               />
             )}

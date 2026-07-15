@@ -32,7 +32,7 @@ const CHAPTERS_LIST = Array.from({ length: 13 }, (_, i) => ({
   views: "3 646",
 }));
 
-const COMMENTS = Array.from({ length: 7 }, (_, i) => ({
+const INITIAL_COMMENTS = Array.from({ length: 7 }, (_, i) => ({
   id: i,
   avatar: "/images/avatar_default.png",
   username: "Jul_Mol",
@@ -523,6 +523,8 @@ export default function MangaPage({ params }: { params: { id: string } }) {
   const [activeTab, setActiveTab] = useState<"main" | "chapters" | "comments" | "reviews">(
     "main",
   );
+  const [comments, setComments] = useState(INITIAL_COMMENTS);
+  const [newComment, setNewComment] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [reversed, setReversed] = useState(false);
   const [reviewOpen, setReviewOpen] = useState(false);
@@ -876,15 +878,50 @@ export default function MangaPage({ params }: { params: { id: string } }) {
 
                       {/* Comment input */}
                       <div className="manga-inner__comment-input">
-                        <input type="text" placeholder="Оставить комментарий" />
-                        <button className="manga-inner__comment-send">
+                        <input
+                          type="text"
+                          placeholder="Оставить комментарий"
+                          value={newComment}
+                          onChange={(e) => setNewComment(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter' && newComment.trim()) {
+                              setComments([{
+                                id: Date.now(),
+                                avatar: "/images/avatar_default.png",
+                                username: "Вы",
+                                text: newComment,
+                                time: "Только что",
+                                likes: 0,
+                                dislikes: 0,
+                              }, ...comments]);
+                              setNewComment("");
+                            }
+                          }}
+                        />
+                        <button
+                          className="manga-inner__comment-send"
+                          onClick={() => {
+                            if (newComment.trim()) {
+                              setComments([{
+                                id: Date.now(),
+                                avatar: "/images/avatar_default.png",
+                                username: "Вы",
+                                text: newComment,
+                                time: "Только что",
+                                likes: 0,
+                                dislikes: 0,
+                              }, ...comments]);
+                              setNewComment("");
+                            }
+                          }}
+                        >
                           <SendIcon />
                         </button>
                       </div>
 
                       {/* Comments list */}
                       <div className="manga-inner__comments-list">
-                        {COMMENTS.map((c) => (
+                        {comments.map((c) => (
                           <div key={c.id} className="manga-inner__comment">
                             <div className="manga-inner__comment-avatar">
                               <img

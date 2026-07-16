@@ -35,6 +35,16 @@ const BOOKMARK_OPTIONS = [
 type Panel = null | "chapters" | "comments";
 
 /* ══ Icons ══ */
+
+function EditIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" stroke="#9B9FAA" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" stroke="#9B9FAA" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+    </svg>
+  );
+}
+
 function ChaptersIcon() {
   return (
     <svg
@@ -385,6 +395,8 @@ function CommentsPanel({
   onReport: () => void;
 }) {
   const [newComment, setNewComment] = useState("");
+  const [editingCommentId, setEditingCommentId] = useState<number | null>(null);
+  const [editingCommentText, setEditingCommentText] = useState("");
 
   const handleSend = () => {
     if (newComment.trim()) {
@@ -440,11 +452,56 @@ function CommentsPanel({
                   <span className="reader__panel-comment-name">
                     {c.username}
                   </span>
-                  <button className="reader__panel-comment-menu" onClick={onReport}>
-                    <ReportIcon />
-                  </button>
+                  {c.username === "Вы" ? (
+                    <button 
+                      className="reader__panel-comment-menu" 
+                      onClick={() => {
+                        if (editingCommentId === c.id) {
+                          setEditingCommentId(null);
+                        } else {
+                          setEditingCommentId(c.id);
+                          setEditingCommentText(c.text);
+                        }
+                      }}
+                      title="Редактировать"
+                      aria-label="Редактировать"
+                    >
+                      <EditIcon />
+                    </button>
+                  ) : (
+                    <button className="reader__panel-comment-menu" onClick={onReport} title="Пожаловаться" aria-label="Пожаловаться">
+                      <ReportIcon />
+                    </button>
+                  )}
                 </div>
-                <p className="reader__panel-comment-text">{c.text}</p>
+                {editingCommentId === c.id ? (
+                  <div style={{ display: "flex", gap: "8px", marginTop: "8px", marginBottom: "8px" }}>
+                    <input 
+                      type="text" 
+                      value={editingCommentText} 
+                      onChange={(e) => setEditingCommentText(e.target.value)} 
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          setComments(comments.map(comment => comment.id === c.id ? { ...comment, text: editingCommentText } : comment));
+                          setEditingCommentId(null);
+                        }
+                      }}
+                      style={{ flex: 1, padding: "8px 12px", borderRadius: "10px", border: "1px solid #E5E7EB", outline: "none", fontSize: "13px", fontFamily: "var(--font-body)" }}
+                      autoFocus
+                    />
+                    <button 
+                      style={{ background: "#5B35E8", color: "white", padding: "0 16px", borderRadius: "10px", fontWeight: 500, fontSize: "13px", border: "none", cursor: "pointer", fontFamily: "var(--font-body)" }}
+                      onClick={() => {
+                        setComments(comments.map(comment => comment.id === c.id ? { ...comment, text: editingCommentText } : comment));
+                        setEditingCommentId(null);
+                      }}
+                    >
+                      Сохранить
+                    </button>
+                  </div>
+                ) : (
+                  <p className="reader__panel-comment-text">{c.text}</p>
+                )}
               </div>
               <div className="reader__panel-comment-footer">
                 <span className="reader__panel-comment-time">{c.time}</span>

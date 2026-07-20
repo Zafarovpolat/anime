@@ -6,6 +6,7 @@ import ReviewModal from "@/components/ReviewModal";
 import ReportModal from "@/components/ReportModal";
 import Link from "next/link";
 import { useState, useRef, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 
 /* ── mock data ── */
 const DEFAULT_DATA = {
@@ -537,6 +538,20 @@ const [comments, setComments] = useState(INITIAL_COMMENTS);
   const [newComment, setNewComment] = useState("");
   const [editingCommentId, setEditingCommentId] = useState<number | null>(null);
   const [editingCommentText, setEditingCommentText] = useState("");
+  const [commentMenuOpen, setCommentMenuOpen] = useState<number | null>(null);
+  const commentInputRef = useRef<HTMLInputElement>(null);
+  const searchParams = useSearchParams();
+  const edittext = searchParams.get('edittext');
+
+  useEffect(() => {
+    if (edittext) {
+      setActiveTab('comments');
+      setNewComment(edittext);
+      setTimeout(() => {
+        if (commentInputRef.current) commentInputRef.current.focus();
+      }, 100);
+    }
+  }, [edittext]);
   const [searchQuery, setSearchQuery] = useState("");
   const [reversed, setReversed] = useState(false);
   const [reviewOpen, setReviewOpen] = useState(false);
@@ -893,6 +908,7 @@ const [comments, setComments] = useState(INITIAL_COMMENTS);
                         <input
                           type="text"
                           placeholder="Оставить комментарий"
+                          ref={commentInputRef}
                           value={newComment}
                           onChange={(e) => setNewComment(e.target.value)}
                           onKeyDown={(e) => {
@@ -948,21 +964,45 @@ const [comments, setComments] = useState(INITIAL_COMMENTS);
                                     {c.username}
                                   </span>
                                   {c.username === "Вы" ? (
-                                    <button 
-                                      className="manga-inner__comment-menu" 
-                                      onClick={() => {
-                                        if (editingCommentId === c.id) {
-                                          setEditingCommentId(null);
-                                        } else {
-                                          setEditingCommentId(c.id);
-                                          setEditingCommentText(c.text);
-                                        }
-                                      }}
-                                      aria-label="Редактировать"
-                                      title="Редактировать"
-                                    >
-                                      <EditIcon />
-                                    </button>
+                                    <div style={{ position: "relative" }}>
+                                      <button 
+                                        className="manga-inner__comment-menu" 
+                                        onClick={() => setCommentMenuOpen(commentMenuOpen === c.id ? null : c.id)}
+                                        aria-label="Меню"
+                                      >
+                                        <ThreeDotsIcon />
+                                      </button>
+                                      {commentMenuOpen === c.id && (
+                                        <>
+                                          <div style={{ position: "fixed", inset: 0, zIndex: 998 }} onClick={() => setCommentMenuOpen(null)} />
+                                          <div style={{ position: "absolute", top: "100%", right: 0, background: "white", boxShadow: "0 4px 15px rgba(0,0,0,0.1)", borderRadius: "10px", padding: "8px", display: "flex", flexDirection: "column", gap: "4px", zIndex: 999, minWidth: "140px" }}>
+                                            <button 
+                                              style={{ background: "none", border: "none", padding: "8px 12px", textAlign: "left", borderRadius: "6px", cursor: "pointer", fontSize: "14px", fontFamily: "var(--font-body)", color: "#180F2A" }}
+                                              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#F5F5F7"}
+                                              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "transparent"}
+                                              onClick={() => {
+                                                setCommentMenuOpen(null);
+                                                setEditingCommentId(c.id);
+                                                setEditingCommentText(c.text);
+                                              }}
+                                            >
+                                              Редактировать
+                                            </button>
+                                            <button 
+                                              style={{ background: "none", border: "none", padding: "8px 12px", textAlign: "left", borderRadius: "6px", cursor: "pointer", fontSize: "14px", fontFamily: "var(--font-body)", color: "#EF4444" }}
+                                              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#FEE2E2"}
+                                              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "transparent"}
+                                              onClick={() => {
+                                                setCommentMenuOpen(null);
+                                                setComments(comments.filter(comment => comment.id !== c.id));
+                                              }}
+                                            >
+                                              Удалить
+                                            </button>
+                                          </div>
+                                        </>
+                                      )}
+                                    </div>
                                   ) : (
                                     <button className="manga-inner__comment-menu" onClick={() => setReportOpen(true)} title="Пожаловаться" aria-label="Пожаловаться">
                                       <ThreeDotsIcon />
@@ -1004,7 +1044,14 @@ const [comments, setComments] = useState(INITIAL_COMMENTS);
                                 <span className="manga-inner__comment-time">
                                   {c.time}
                                 </span>
-                                <span className="manga-inner__comment-reply">
+                                <span 
+                                  className="manga-inner__comment-reply"
+                                  style={{ cursor: "pointer" }}
+                                  onClick={() => {
+                                    setNewComment(c.username + ", ");
+                                    if (commentInputRef.current) commentInputRef.current.focus();
+                                  }}
+                                >
                                   Ответить
                                 </span>
                                 <div className="manga-inner__comment-reactions">

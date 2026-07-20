@@ -3,7 +3,7 @@
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { useState, useRef, useEffect, Suspense } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 
 /* ── SVG Icons ── */
 function ProfileIcon() {
@@ -809,7 +809,7 @@ function ProfilePageInner() {
                   <div className="profile-tab-comments">
                     <h2 className="profile-content__title">МОИ КОММЕНТАРИИ</h2>
                     <div className="profile-comments__list">
-                      {MY_COMMENTS.map((c) => (
+                      {myComments.map((c) => (
                         <div key={c.id} className="profile-comment-item">
                           <div className="profile-comment-item__avatar">
                             <img src="/images/avatar_default.png" alt={c.username} />
@@ -829,10 +829,22 @@ function ProfilePageInner() {
                                     <>
                                       <div className="comment-menu-overlay" onClick={() => setCommentMenuOpen(null)} />
                                       <div className="comment-menu-dropdown">
-                                        <button className="comment-menu-dropdown__item comment-menu-dropdown__item--active">
+                                        <button 
+                                          className="comment-menu-dropdown__item comment-menu-dropdown__item--active"
+                                          onClick={() => {
+                                            setCommentMenuOpen(null);
+                                            router.push('/manga/1?edittext=' + encodeURIComponent(c.text));
+                                          }}
+                                        >
                                           Редактировать
                                         </button>
-                                        <button className="comment-menu-dropdown__item">
+                                        <button 
+                                          className="comment-menu-dropdown__item"
+                                          onClick={() => {
+                                            setMyComments(myComments.filter(comment => comment.id !== c.id));
+                                            setCommentMenuOpen(null);
+                                          }}
+                                        >
                                           Удалить
                                         </button>
                                       </div>

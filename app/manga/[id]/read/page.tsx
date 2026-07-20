@@ -3,7 +3,7 @@
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ReportModal from "@/components/ReportModal";
-import { useState } from "react";
+import React, { useState } from "react";
 
 /* ── Mock Data ── */
 const CHAPTERS = Array.from({ length: 15 }, (_, i) => ({
@@ -45,6 +45,31 @@ function EditIcon() {
   );
 }
 
+function ThreeDotsIcon() {
+  return (
+    <svg
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        opacity="0.4"
+        d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z"
+        fill="#180F2A"
+      />
+      <path
+        d="M12 13.75C12.41 13.75 12.75 13.41 12.75 13V8C12.75 7.59 12.41 7.25 12 7.25C11.59 7.25 11.25 7.59 11.25 8V13C11.25 13.41 11.59 13.75 12 13.75Z"
+        fill="#180F2A"
+      />
+      <path
+        d="M12.92 15.6199C12.87 15.4999 12.8 15.3899 12.71 15.2899C12.61 15.1999 12.5 15.1299 12.38 15.0799C12.14 14.9799 11.86 14.9799 11.62 15.0799C11.5 15.1299 11.39 15.1999 11.29 15.2899C11.2 15.3899 11.13 15.4999 11.08 15.6199C11.03 15.7399 11 15.8699 11 15.9999C11 16.1299 11.03 16.2599 11.08 16.3799C11.13 16.5099 11.2 16.6099 11.29 16.7099C11.39 16.7999 11.5 16.8699 11.62 16.9199C11.74 16.9699 11.87 16.9999 12 16.9999C12.13 16.9999 12.26 16.9699 12.38 16.9199C12.5 16.8699 12.61 16.7999 12.71 16.7099C12.8 16.6099 12.87 16.5099 12.92 16.3799C12.97 16.2599 13 16.1299 13 15.9999C13 15.8699 12.97 15.7399 12.92 15.6199Z"
+        fill="#180F2A"
+      />
+    </svg>
+  );
+}
 function ChaptersIcon() {
   return (
     <svg
@@ -397,6 +422,8 @@ function CommentsPanel({
   const [newComment, setNewComment] = useState("");
   const [editingCommentId, setEditingCommentId] = useState<number | null>(null);
   const [editingCommentText, setEditingCommentText] = useState("");
+  const [commentMenuOpen, setCommentMenuOpen] = useState<number | null>(null);
+  const commentInputRef = React.useRef<HTMLInputElement>(null);
 
   const handleSend = () => {
     if (newComment.trim()) {
@@ -430,6 +457,7 @@ function CommentsPanel({
           type="text"
           placeholder="Оставить комментарий"
           className="reader__panel-comments-input"
+          ref={commentInputRef}
           value={newComment}
           onChange={(e) => setNewComment(e.target.value)}
           onKeyDown={(e) => {
@@ -453,21 +481,45 @@ function CommentsPanel({
                     {c.username}
                   </span>
                   {c.username === "Вы" ? (
-                    <button 
-                      className="reader__panel-comment-menu" 
-                      onClick={() => {
-                        if (editingCommentId === c.id) {
-                          setEditingCommentId(null);
-                        } else {
-                          setEditingCommentId(c.id);
-                          setEditingCommentText(c.text);
-                        }
-                      }}
-                      title="Редактировать"
-                      aria-label="Редактировать"
-                    >
-                      <EditIcon />
-                    </button>
+                    <div style={{ position: "relative" }}>
+                      <button 
+                        className="reader__panel-comment-menu" 
+                        onClick={() => setCommentMenuOpen(commentMenuOpen === c.id ? null : c.id)}
+                        aria-label="Меню"
+                      >
+                        <ThreeDotsIcon />
+                      </button>
+                      {commentMenuOpen === c.id && (
+                        <>
+                          <div style={{ position: "fixed", inset: 0, zIndex: 998 }} onClick={() => setCommentMenuOpen(null)} />
+                          <div style={{ position: "absolute", top: "100%", right: 0, background: "white", boxShadow: "0 4px 15px rgba(0,0,0,0.1)", borderRadius: "10px", padding: "8px", display: "flex", flexDirection: "column", gap: "4px", zIndex: 999, minWidth: "140px" }}>
+                            <button 
+                              style={{ background: "none", border: "none", padding: "8px 12px", textAlign: "left", borderRadius: "6px", cursor: "pointer", fontSize: "13px", fontFamily: "var(--font-body)", color: "#180F2A" }}
+                              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#F5F5F7"}
+                              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "transparent"}
+                              onClick={() => {
+                                setCommentMenuOpen(null);
+                                setEditingCommentId(c.id);
+                                setEditingCommentText(c.text);
+                              }}
+                            >
+                              Редактировать
+                            </button>
+                            <button 
+                              style={{ background: "none", border: "none", padding: "8px 12px", textAlign: "left", borderRadius: "6px", cursor: "pointer", fontSize: "13px", fontFamily: "var(--font-body)", color: "#EF4444" }}
+                              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#FEE2E2"}
+                              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "transparent"}
+                              onClick={() => {
+                                setCommentMenuOpen(null);
+                                setComments(comments.filter(comment => comment.id !== c.id));
+                              }}
+                            >
+                              Удалить
+                            </button>
+                          </div>
+                        </>
+                      )}
+                    </div>
                   ) : (
                     <button className="reader__panel-comment-menu" onClick={onReport} title="Пожаловаться" aria-label="Пожаловаться">
                       <ReportIcon />
@@ -505,7 +557,13 @@ function CommentsPanel({
               </div>
               <div className="reader__panel-comment-footer">
                 <span className="reader__panel-comment-time">{c.time}</span>
-                <button className="reader__panel-comment-reply">
+                <button 
+                  className="reader__panel-comment-reply"
+                  onClick={() => {
+                    setNewComment(c.username + ", ");
+                    if (commentInputRef.current) commentInputRef.current.focus();
+                  }}
+                >
                   Ответить
                 </button>
                 <div className="reader__panel-comment-reactions">

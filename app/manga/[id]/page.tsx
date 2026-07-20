@@ -241,6 +241,17 @@ function EditIcon() {
   );
 }
 
+
+function HorizontalDotsIcon() {
+  return (
+    <svg width="16" height="4" viewBox="0 0 16 4" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M13 2C13 2.55228 13.4477 3 14 3C14.5523 3 15 2.55228 15 2C15 1.44772 14.5523 1 14 1C13.4477 1 13 1.44772 13 2Z" stroke="#9B9FAA" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d="M7 2C7 2.55228 7.44772 3 8 3C8.55228 3 9 2.55228 9 2C9 1.44772 8.55228 1 8 1C7.44772 1 7 1.44772 7 2Z" stroke="#9B9FAA" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d="M1 2C1 2.55228 1.44772 3 2 3C2.55228 3 3 2.55228 3 2C3 1.44772 2.55228 1 2 1C1.44772 1 1 1.44772 1 2Z" stroke="#9B9FAA" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+    </svg>
+  );
+}
+
 function ThreeDotsIcon() {
   return (
     <svg
@@ -546,10 +557,18 @@ const [comments, setComments] = useState(INITIAL_COMMENTS);
   useEffect(() => {
     if (edittext) {
       setActiveTab('comments');
-      setNewComment(edittext);
-      setTimeout(() => {
-        if (commentInputRef.current) commentInputRef.current.focus();
-      }, 100);
+      const fakeId = Date.now();
+      setComments(prev => [{
+        id: fakeId,
+        avatar: "/images/avatar_default.png",
+        username: "Вы",
+        text: edittext,
+        time: "Только что",
+        likes: 0,
+        dislikes: 0,
+      }, ...prev]);
+      setEditingCommentId(fakeId);
+      setEditingCommentText(edittext);
     }
   }, [edittext]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -970,16 +989,14 @@ const [comments, setComments] = useState(INITIAL_COMMENTS);
                                         onClick={() => setCommentMenuOpen(commentMenuOpen === c.id ? null : c.id)}
                                         aria-label="Меню"
                                       >
-                                        <ThreeDotsIcon />
+                                        <HorizontalDotsIcon />
                                       </button>
                                       {commentMenuOpen === c.id && (
                                         <>
-                                          <div style={{ position: "fixed", inset: 0, zIndex: 998 }} onClick={() => setCommentMenuOpen(null)} />
-                                          <div style={{ position: "absolute", top: "100%", right: 0, background: "white", boxShadow: "0 4px 15px rgba(0,0,0,0.1)", borderRadius: "10px", padding: "8px", display: "flex", flexDirection: "column", gap: "4px", zIndex: 999, minWidth: "140px" }}>
+                                          <div className="comment-menu-overlay" onClick={() => setCommentMenuOpen(null)} />
+                                          <div className="comment-menu-dropdown">
                                             <button 
-                                              style={{ background: "none", border: "none", padding: "8px 12px", textAlign: "left", borderRadius: "6px", cursor: "pointer", fontSize: "14px", fontFamily: "var(--font-body)", color: "#180F2A" }}
-                                              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#F5F5F7"}
-                                              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "transparent"}
+                                              className="comment-menu-dropdown__item comment-menu-dropdown__item--active"
                                               onClick={() => {
                                                 setCommentMenuOpen(null);
                                                 setEditingCommentId(c.id);
@@ -989,9 +1006,8 @@ const [comments, setComments] = useState(INITIAL_COMMENTS);
                                               Редактировать
                                             </button>
                                             <button 
-                                              style={{ background: "none", border: "none", padding: "8px 12px", textAlign: "left", borderRadius: "6px", cursor: "pointer", fontSize: "14px", fontFamily: "var(--font-body)", color: "#EF4444" }}
-                                              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#FEE2E2"}
-                                              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "transparent"}
+                                              className="comment-menu-dropdown__item"
+                                              style={{ color: "#EF4444" }}
                                               onClick={() => {
                                                 setCommentMenuOpen(null);
                                                 setComments(comments.filter(comment => comment.id !== c.id));
@@ -1044,16 +1060,18 @@ const [comments, setComments] = useState(INITIAL_COMMENTS);
                                 <span className="manga-inner__comment-time">
                                   {c.time}
                                 </span>
-                                <span 
-                                  className="manga-inner__comment-reply"
-                                  style={{ cursor: "pointer" }}
-                                  onClick={() => {
-                                    setNewComment(c.username + ", ");
-                                    if (commentInputRef.current) commentInputRef.current.focus();
-                                  }}
-                                >
-                                  Ответить
-                                </span>
+                                {c.username !== "Вы" && (
+                                  <span 
+                                    className="manga-inner__comment-reply"
+                                    style={{ cursor: "pointer" }}
+                                    onClick={() => {
+                                      setNewComment(c.username + ", ");
+                                      if (commentInputRef.current) commentInputRef.current.focus();
+                                    }}
+                                  >
+                                    Ответить
+                                  </span>
+                                )}
                                 <div className="manga-inner__comment-reactions">
                                   <span className="manga-inner__comment-like">
                                     <ThumbUpIcon /> {c.likes}

@@ -6,7 +6,7 @@ import ReviewModal from "@/components/ReviewModal";
 import ReportModal from "@/components/ReportModal";
 import Link from "next/link";
 import { useState, useRef, useEffect } from "react";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 
 /* ── mock data ── */
 const DEFAULT_DATA = {
@@ -553,6 +553,7 @@ const [comments, setComments] = useState(INITIAL_COMMENTS);
   const commentInputRef = useRef<HTMLInputElement>(null);
   const searchParams = useSearchParams();
   const edittext = searchParams.get('edittext');
+  const router = useRouter();
 
   useEffect(() => {
     if (edittext) {
@@ -569,6 +570,9 @@ const [comments, setComments] = useState(INITIAL_COMMENTS);
       }, ...prev]);
       setEditingCommentId(fakeId);
       setEditingCommentText(edittext);
+      
+      // Очищаем URL от параметра edittext без перезагрузки страницы
+      window.history.replaceState(null, '', window.location.pathname);
     }
   }, [edittext]);
   const [searchQuery, setSearchQuery] = useState("");

@@ -597,6 +597,8 @@ function ProfilePageInner() {
   const searchParams = useSearchParams();
   const initialTab = searchParams.get('tab') === 'bookmarks' ? 'bookmarks' : 'profile';
   const [activeTab, setActiveTab] = useState(initialTab);
+  const [myComments, setMyComments] = useState(MY_COMMENTS);
+  const router = useRouter();
   const [activeBookmarkFilter, setActiveBookmarkFilter] = useState('Читаю');
   const [reviewFilter, setReviewFilter] = useState('all');
   const [gender, setGender] = useState('Мужской');

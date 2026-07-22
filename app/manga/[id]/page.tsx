@@ -41,6 +41,7 @@ const INITIAL_COMMENTS = Array.from({ length: 7 }, (_, i) => ({
   time: "14 часов назад",
   likes: 20,
   dislikes: 1,
+  userReaction: null as null | "like" | "dislike",
 }));
 
 const REVIEWS = Array.from({ length: 5 }, (_, i) => ({
@@ -567,6 +568,7 @@ const [comments, setComments] = useState(INITIAL_COMMENTS);
         time: "Только что",
         likes: 0,
         dislikes: 0,
+        userReaction: null,
       }, ...prev]);
       setEditingCommentId(fakeId);
       setEditingCommentText(edittext);
@@ -944,6 +946,7 @@ const [comments, setComments] = useState(INITIAL_COMMENTS);
                                 time: "Только что",
                                 likes: 0,
                                 dislikes: 0,
+                                userReaction: null,
                               }, ...comments]);
                               setNewComment("");
                             }
@@ -961,6 +964,7 @@ const [comments, setComments] = useState(INITIAL_COMMENTS);
                                 time: "Только что",
                                 likes: 0,
                                 dislikes: 0,
+                                userReaction: null,
                               }, ...comments]);
                               setNewComment("");
                             }
@@ -1077,10 +1081,42 @@ const [comments, setComments] = useState(INITIAL_COMMENTS);
                                   </span>
                                 )}
                                 <div className="manga-inner__comment-reactions">
-                                  <span className="manga-inner__comment-like">
+                                  <span
+                                    className={`manga-inner__comment-like${c.userReaction === "like" ? " manga-inner__comment-like--active" : ""}`}
+                                    onClick={() => {
+                                      if (c.username === "Вы") return;
+                                      setComments(comments.map(comment => {
+                                        if (comment.id !== c.id) return comment;
+                                        const wasLiked = comment.userReaction === "like";
+                                        const wasDisliked = comment.userReaction === "dislike";
+                                        return {
+                                          ...comment,
+                                          userReaction: wasLiked ? null : "like",
+                                          likes: comment.likes + (wasLiked ? -1 : 1),
+                                          dislikes: comment.dislikes + (wasDisliked ? -1 : 0),
+                                        };
+                                      }));
+                                    }}
+                                  >
                                     <ThumbUpIcon /> {c.likes}
                                   </span>
-                                  <span className="manga-inner__comment-dislike">
+                                  <span
+                                    className={`manga-inner__comment-dislike${c.userReaction === "dislike" ? " manga-inner__comment-dislike--active" : ""}`}
+                                    onClick={() => {
+                                      if (c.username === "Вы") return;
+                                      setComments(comments.map(comment => {
+                                        if (comment.id !== c.id) return comment;
+                                        const wasLiked = comment.userReaction === "like";
+                                        const wasDisliked = comment.userReaction === "dislike";
+                                        return {
+                                          ...comment,
+                                          userReaction: wasDisliked ? null : "dislike",
+                                          dislikes: comment.dislikes + (wasDisliked ? -1 : 1),
+                                          likes: comment.likes + (wasLiked ? -1 : 0),
+                                        };
+                                      }));
+                                    }}
+                                  >
                                     <ThumbDownIcon /> {c.dislikes}
                                   </span>
                                 </div>

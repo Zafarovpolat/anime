@@ -2,7 +2,7 @@
 
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import { useState, useRef, useEffect, Suspense } from 'react';
+import { useState, useRef, useEffect, Suspense, type Dispatch, type SetStateAction } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 
 /* ── SVG Icons ── */
@@ -200,13 +200,15 @@ function CustomSelect({ options, value, onChange }: {
 }
 
 /* ── Mock data ── */
-const BOOKMARKS = Array.from({ length: 5 }, (_, i) => ({
-  id: i,
-  title: 'НАНОМАШИНЫ',
-  tags: ['Боевые искусства', '🔥', '2024', '📅'],
-  volume: 1,
-  chapter: 240,
-}));
+const BOOKMARKS = [
+  { id: 0, title: 'НАНОМАШИНЫ',          status: 'Читаю',       genre: 'Боевые искусства', year: 2024, added: 2, updated: 5, volume: 1, chapter: 240 },
+  { id: 1, title: 'СОЛО ЛЕВЕЛИНГ',       status: 'Читаю',       genre: 'Экшен',            year: 2021, added: 0, updated: 3, volume: 2, chapter: 110 },
+  { id: 2, title: 'БАШНЯ БОГА',          status: 'Читаю',       genre: 'Фэнтези',          year: 2010, added: 4, updated: 1, volume: 3, chapter: 88 },
+  { id: 3, title: 'ВЫБЕРИ МЕНЯ',         status: 'Буду читать', genre: 'Романтика',        year: 2023, added: 1, updated: 4, volume: 1, chapter: 12 },
+  { id: 4, title: 'НАЧАЛО ПОСЛЕ КОНЦА',  status: 'Прочитано',   genre: 'Приключения',      year: 2018, added: 3, updated: 2, volume: 5, chapter: 300 },
+  { id: 5, title: 'МАГИЧЕСКАЯ БИТВА',    status: 'Брошено',     genre: 'Сёнэн',            year: 2020, added: 5, updated: 0, volume: 2, chapter: 45 },
+  { id: 6, title: 'КЛИНОК ДЕМОНОВ',      status: 'Избранное',   genre: 'Экшен',            year: 2019, added: 6, updated: 6, volume: 4, chapter: 205 },
+];
 
 const MY_COMMENTS = [
   {
@@ -310,10 +312,15 @@ function PlusIcon() {
 const BOOKMARK_COLORS = ['#562CF0', '#3B82F6', '#22C55E', '#EF4444', '#F59E0B', '#e91e63'];
 
 /* ── Bookmark Edit Modal ── */
-function BookmarkEditModal({ onClose }: { onClose: () => void }) {
-  const [items, setItems] = useState(
-    BOOKMARK_TABS.map(t => ({ id: t.id, label: t.label, color: t.color }))
-  );
+function BookmarkEditModal({
+  onClose,
+  items,
+  setItems,
+}: {
+  onClose: () => void;
+  items: typeof BOOKMARK_TABS;
+  setItems: Dispatch<SetStateAction<typeof BOOKMARK_TABS>>;
+}) {
   const [inputValue, setInputValue] = useState('');
   const [selectedColor, setSelectedColor] = useState(BOOKMARK_COLORS[0]);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -600,6 +607,9 @@ function ProfilePageInner() {
   const [myComments, setMyComments] = useState(MY_COMMENTS);
   const router = useRouter();
   const [activeBookmarkFilter, setActiveBookmarkFilter] = useState('Читаю');
+  // Список типов закладок вынесен в состояние, чтобы правки из модалки
+  // редактирования сразу отражались в фильтрах (profile-bookmarks__filters)
+  const [bookmarkTabs, setBookmarkTabs] = useState(BOOKMARK_TABS);
   const [reviewFilter, setReviewFilter] = useState('all');
   const [gender, setGender] = useState('Мужской');
   const [bookmarkEditOpen, setBookmarkEditOpen] = useState(false);
@@ -612,6 +622,29 @@ function ProfilePageInner() {
   const [showRepeatPwd, setShowRepeatPwd] = useState(false);
   const [excludedGenres, setExcludedGenres] = useState<string[]>([]);
   const toggleExcludeGenre = (g: string) => setExcludedGenres(prev => prev.includes(g) ? prev.filter(x => x !== g) : [...prev, g]);
+
+  // Если активный тип закладки удалили в модалке — переключаемся на первый доступный
+  useEffect(() => {
+    if (bookmarkTabs.length && !bookmarkTabs.some(t => t.id === activeBookmarkFilter)) {
+      setActiveBookmarkFilter(bookmarkTabs[0].id);
+    }
+  }, [bookmarkTabs, activeBookmarkFilter]);
+
+  // Фильтрация по активному типу закладки + сортировка по выбранной опции
+  const visibleBookmarks = BOOKMARKS
+    .filter(b => b.status === activeBookmarkFilter)
+    .slice()
+    .sort((a, b) => {
+      switch (sortLabel) {
+        case 'По добавлению ↓': return a.added - b.added;      // новые сверху
+        case 'По добавлению ↑': return b.added - a.added;      // старые сверху
+        case 'По обновлению ↓': return a.updated - b.updated;
+        case 'По обновлению ↑': return b.updated - a.updated;
+        case 'По названию А-Я': return a.title.localeCompare(b.title, 'ru');
+        case 'По названию Я-А': return b.title.localeCompare(a.title, 'ru');
+        default: return 0;
+      }
+    });
 
   return (
     <>
@@ -716,7 +749,7 @@ function ProfilePageInner() {
                   <div className="profile-tab-bookmarks">
                     <h2 className="profile-content__title">МОИ ЗАКЛАДКИ</h2>
                     <div className="profile-bookmarks__filters">
-                      {BOOKMARK_TABS.map((tab) => (
+                      {bookmarkTabs.map((tab) => (
                         <button
                           key={tab.id}
                           className={`profile-bookmarks__filter${activeBookmarkFilter === tab.id ? ' profile-bookmarks__filter--active' : ''}`}
@@ -734,7 +767,11 @@ function ProfilePageInner() {
                       </button>
                     </div>
                     {bookmarkEditOpen && (
-                      <BookmarkEditModal onClose={() => setBookmarkEditOpen(false)} />
+                      <BookmarkEditModal
+                        onClose={() => setBookmarkEditOpen(false)}
+                        items={bookmarkTabs}
+                        setItems={setBookmarkTabs}
+                      />
                     )}
                     <div className="catalog-title-row__actions">
                       <div className="catalog-sort-wrapper">
@@ -783,7 +820,10 @@ function ProfilePageInner() {
                       </button>
                     </div>
                     <div className="profile-bookmarks__list">
-                      {BOOKMARKS.map((b) => (
+                      {visibleBookmarks.length === 0 && (
+                        <p className="profile-bookmarks__empty">В этой закладке пока нет произведений.</p>
+                      )}
+                      {visibleBookmarks.map((b) => (
                         <div key={b.id} className="profile-bookmark-item">
                           <div className="profile-bookmark-item__cover">
                             <img src={`/images/cover_${(b.id % 12) + 1}.jpg`} alt={b.title} />
@@ -791,13 +831,16 @@ function ProfilePageInner() {
                           <div className="profile-bookmark-item__info">
                             <h4 className="profile-bookmark-item__title">{b.title}</h4>
                             <p className="profile-bookmark-item__tags">
-                              Боевые искусства
+                              {b.genre}
                               <svg width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0.75 8.75L8.75 0.75M8.75 7.15V0.75H2.35" stroke="#999999" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                              2024
+                              {b.year}
                               <svg width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0.75 8.75L8.75 0.75M8.75 7.15V0.75H2.35" stroke="#999999" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
                             </p>
                           </div>
-                          <button className="profile-bookmark-item__continue">
+                          <button
+                            className="profile-bookmark-item__continue"
+                            onClick={() => router.push(`/manga/${b.id}/read`)}
+                          >
                             Продолжить Том {b.volume} Глава {b.chapter}
                           </button>
                         </div>

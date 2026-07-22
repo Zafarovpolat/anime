@@ -2453,20 +2453,24 @@ button {
   transition: color 0.15s;
 }
 
-.manga-inner__comment-like:hover {
+.manga-inner__comment-like:hover,
+.manga-inner__comment-like--active {
   color: #562cf0;
 }
 
-.manga-inner__comment-like:hover svg path {
+.manga-inner__comment-like:hover svg path,
+.manga-inner__comment-like--active svg path {
   fill: #562cf0;
   transition: fill 0.15s;
 }
 
-.manga-inner__comment-dislike:hover {
+.manga-inner__comment-dislike:hover,
+.manga-inner__comment-dislike--active {
   color: #ff4444;
 }
 
-.manga-inner__comment-dislike:hover svg path {
+.manga-inner__comment-dislike:hover svg path,
+.manga-inner__comment-dislike--active svg path {
   fill: #ff4444;
   transition: fill 0.15s;
 }
@@ -3699,6 +3703,13 @@ button {
   gap: 10px;
 }
 
+.profile-bookmarks__empty {
+  font-family: "Golos Text", sans-serif;
+  font-size: 16px;
+  color: #97989b;
+  padding: 24px 4px;
+}
+
 .profile-bookmark-item {
   display: flex;
   align-items: center;
@@ -3955,12 +3966,29 @@ button {
   color: #97989b;
   padding: 4px 8px;
   border-radius: 8px;
-  transition: background 0.15s;
+  transition: color 0.15s;
 }
 
 .profile-comment-item__like:hover,
-.profile-comment-item__dislike:hover {
-  background: #f5f5f7;
+.profile-comment-item__like--active {
+  color: #562cf0;
+}
+
+.profile-comment-item__like:hover svg path,
+.profile-comment-item__like--active svg path {
+  fill: #562cf0;
+  transition: fill 0.15s;
+}
+
+.profile-comment-item__dislike:hover,
+.profile-comment-item__dislike--active {
+  color: #ff4444;
+}
+
+.profile-comment-item__dislike:hover svg path,
+.profile-comment-item__dislike--active svg path {
+  fill: #ff4444;
+  transition: fill 0.15s;
 }
 
 /* ── History tab ── */
@@ -7929,6 +7957,28 @@ button {
   font-size: 16px;
   color: #97989b;
   transition: color 0.15s;
+}
+
+.reader__panel-comment-like:hover,
+.reader__panel-comment-like--active {
+  color: #562cf0;
+}
+
+.reader__panel-comment-like:hover svg path,
+.reader__panel-comment-like--active svg path {
+  fill: #562cf0;
+  transition: fill 0.15s;
+}
+
+.reader__panel-comment-dislike:hover,
+.reader__panel-comment-dislike--active {
+  color: #ff4444;
+}
+
+.reader__panel-comment-dislike:hover svg path,
+.reader__panel-comment-dislike--active svg path {
+  fill: #ff4444;
+  transition: fill 0.15s;
 }
 
 /* ── Bookmark panel ── */

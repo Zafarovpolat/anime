@@ -22,6 +22,7 @@ const INITIAL_COMMENTS = Array.from({ length: 6 }, (_, i) => ({
   time: "34 часа назад",
   likes: 20,
   dislikes: 1,
+  userReaction: null as null | "like" | "dislike",
 }));
 
 const BOOKMARK_OPTIONS = [
@@ -446,6 +447,7 @@ function CommentsPanel({
         time: "Только что",
         likes: 0,
         dislikes: 0,
+        userReaction: null,
       }, ...comments]);
       setNewComment("");
     }
@@ -577,10 +579,42 @@ function CommentsPanel({
                   </button>
                 )}
                 <div className="reader__panel-comment-reactions">
-                  <button className="reader__panel-comment-like">
+                  <button
+                    className={`reader__panel-comment-like${c.userReaction === "like" ? " reader__panel-comment-like--active" : ""}`}
+                    onClick={() => {
+                      if (c.username === "Вы") return;
+                      setComments(comments.map(comment => {
+                        if (comment.id !== c.id) return comment;
+                        const wasLiked = comment.userReaction === "like";
+                        const wasDisliked = comment.userReaction === "dislike";
+                        return {
+                          ...comment,
+                          userReaction: wasLiked ? null : "like",
+                          likes: comment.likes + (wasLiked ? -1 : 1),
+                          dislikes: comment.dislikes + (wasDisliked ? -1 : 0),
+                        };
+                      }));
+                    }}
+                  >
                     <ThumbUpIcon /> {c.likes}
                   </button>
-                  <button className="reader__panel-comment-dislike">
+                  <button
+                    className={`reader__panel-comment-dislike${c.userReaction === "dislike" ? " reader__panel-comment-dislike--active" : ""}`}
+                    onClick={() => {
+                      if (c.username === "Вы") return;
+                      setComments(comments.map(comment => {
+                        if (comment.id !== c.id) return comment;
+                        const wasLiked = comment.userReaction === "like";
+                        const wasDisliked = comment.userReaction === "dislike";
+                        return {
+                          ...comment,
+                          userReaction: wasDisliked ? null : "dislike",
+                          dislikes: comment.dislikes + (wasDisliked ? -1 : 1),
+                          likes: comment.likes + (wasLiked ? -1 : 0),
+                        };
+                      }));
+                    }}
+                  >
                     <ThumbDownIcon /> {c.dislikes}
                   </button>
                 </div>

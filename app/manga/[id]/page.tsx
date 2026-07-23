@@ -547,6 +547,8 @@ export default function MangaPage({ params }: { params: { id: string } }) {
     "main",
   );
 const [comments, setComments] = useState(INITIAL_COMMENTS);
+  const [visibleCommentsCount, setVisibleCommentsCount] = useState(3);
+  const [visibleReviewsCount, setVisibleReviewsCount] = useState(3);
   const [reviews, setReviews] = useState(REVIEWS.map(r => ({ ...r, userReaction: null as 'like' | null })));
   const [newComment, setNewComment] = useState("");
   const [editingCommentId, setEditingCommentId] = useState<number | null>(null);
@@ -977,7 +979,7 @@ const [comments, setComments] = useState(INITIAL_COMMENTS);
 
                       {/* Comments list */}
                       <div className="manga-inner__comments-list">
-                        {comments.map((c) => (
+                        {comments.slice(0, visibleCommentsCount).map((c) => (
                           <div key={c.id} className="manga-inner__comment">
                             <div className="manga-inner__comment-avatar">
                               <img
@@ -1127,9 +1129,11 @@ const [comments, setComments] = useState(INITIAL_COMMENTS);
                         ))}
                       </div>
 
-                      <button className="manga-inner__show-more">
-                        Показать ещё
-                      </button>
+                      {visibleCommentsCount < comments.length && (
+                        <button className="manga-inner__show-more" onClick={() => setVisibleCommentsCount(prev => prev + 5)}>
+                          Показать ещё
+                        </button>
+                      )}
                     </div>
                   )}
                   {/* ── Tab: Отзывы ── */}
@@ -1168,7 +1172,7 @@ const [comments, setComments] = useState(INITIAL_COMMENTS);
 
                       {/* Список отзывов */}
                       <div className="manga-inner__reviews-list">
-                        {reviews.filter((r) => reviewFilter === "all" || r.type === reviewFilter).map((r) => {
+                        {reviews.filter((r) => reviewFilter === "all" || r.type === reviewFilter).slice(0, visibleReviewsCount).map((r) => {
                           const scoreColor = r.type === "positive" ? "green" : r.type === "negative" ? "red" : "yellow";
                           return (
                             <div key={r.id} className={`manga-inner__review manga-inner__review--${r.type}`}>
@@ -1220,9 +1224,11 @@ const [comments, setComments] = useState(INITIAL_COMMENTS);
                         })}
                       </div>
 
-                      <button className="manga-inner__show-more">
-                        Показать ещё
-                      </button>
+                      {visibleReviewsCount < reviews.filter((r) => reviewFilter === "all" || r.type === reviewFilter).length && (
+                        <button className="manga-inner__show-more" onClick={() => setVisibleReviewsCount(prev => prev + 5)}>
+                          Показать ещё
+                        </button>
+                      )}
                     </div>
                   )}
                 </div>

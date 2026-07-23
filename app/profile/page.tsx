@@ -609,6 +609,7 @@ function ProfilePageInner() {
   const [activeBookmarkFilter, setActiveBookmarkFilter] = useState('Читаю');
   // Список типов закладок вынесен в состояние, чтобы правки из модалки
   // редактирования сразу отражались в фильтрах (profile-bookmarks__filters)
+  const [visibleBookmarksCount, setVisibleBookmarksCount] = useState(3);
   const [bookmarkTabs, setBookmarkTabs] = useState(BOOKMARK_TABS);
   const [reviewFilter, setReviewFilter] = useState('all');
   const [gender, setGender] = useState('Мужской');
@@ -823,7 +824,7 @@ function ProfilePageInner() {
                       {visibleBookmarks.length === 0 && (
                         <p className="profile-bookmarks__empty">В этой закладке пока нет произведений.</p>
                       )}
-                      {visibleBookmarks.map((b) => (
+                      {visibleBookmarks.slice(0, visibleBookmarksCount).map((b) => (
                         <div key={b.id} className="profile-bookmark-item">
                           <div className="profile-bookmark-item__cover">
                             <img src={`/images/cover_${(b.id % 12) + 1}.jpg`} alt={b.title} />

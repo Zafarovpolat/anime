@@ -847,6 +847,11 @@ function ProfilePageInner() {
                         </div>
                       ))}
                     </div>
+                    {visibleBookmarksCount < BOOKMARKS.length && (
+                      <button className="profile-content__show-more manga-inner__show-more" onClick={() => setVisibleBookmarksCount(prev => prev + 3)}>
+                        Показать ещё
+                      </button>
+                    )}
                   </div>
                 )}
 
@@ -991,9 +996,11 @@ function ProfilePageInner() {
                       })}
                     </div>
 
-                    <button className="manga-inner__show-more">
-                      Показать ещё
-                    </button>
+                    {visibleReviewsCount < REVIEWS.filter(r => reviewFilter === 'all' || r.type === reviewFilter).length && (
+                      <button className="manga-inner__show-more" onClick={() => setVisibleReviewsCount(prev => prev + 5)}>
+                        Показать ещё
+                      </button>
+                    )}
                   </div>
                 )}
 

@@ -10923,10 +10923,13 @@ button {
   gap: 10px;
   margin: 10px 0;
   width: 100%;
+  max-width: 100%; /* Убеждаемся что не вылазит за пределы */
+  box-sizing: border-box;
 }
 
 .comment-inline-input {
-  flex: 1;
+  flex: 1 1 auto;
+  width: 100%; /* Заставляем инпут сжиматься */
   padding: 10px 16px;
   border-radius: 15px;
   border: 1.5px solid #e5e7eb;
@@ -10935,7 +10938,7 @@ button {
   font-family: var(--font-body);
   background: transparent;
   color: var(--color-black);
-  min-width: 0; /* Prevents overflow */
+  min-width: 0; 
 }
 
 .comment-inline-input:focus {

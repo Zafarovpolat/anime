@@ -997,7 +997,7 @@ function ProfilePageInner() {
                       })}
                     </div>
 
-                    {visibleReviewsCount < REVIEWS.filter(r => reviewFilter === 'all' || r.type === reviewFilter).length && (
+                    {visibleReviewsCount < PROFILE_REVIEWS.filter(r => reviewFilter === 'all' || r.type === reviewFilter).length && (
                       <button className="manga-inner__show-more" onClick={() => setVisibleReviewsCount(prev => prev + 5)}>
                         Показать ещё
                       </button>

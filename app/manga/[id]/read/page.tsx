@@ -537,7 +537,7 @@ function CommentsPanel({
                   )}
                 </div>
                 {editingCommentId === c.id ? (
-                  <div style={{ display: "flex", gap: "8px", marginTop: "8px", marginBottom: "8px" }}>
+                  <div className="comment-inline-edit">
                     <input 
                       type="text" 
                       value={editingCommentText} 
@@ -548,11 +548,11 @@ function CommentsPanel({
                           setEditingCommentId(null);
                         }
                       }}
-                      style={{ flex: 1, padding: "8px 12px", borderRadius: "10px", border: "1px solid #E5E7EB", outline: "none", fontSize: "13px", fontFamily: "var(--font-body)" }}
+                      className="comment-inline-input"
                       autoFocus
                     />
                     <button 
-                      style={{ background: "#5B35E8", color: "white", padding: "0 16px", borderRadius: "10px", fontWeight: 500, fontSize: "13px", border: "none", cursor: "pointer", fontFamily: "var(--font-body)" }}
+                      className="comment-inline-save"
                       onClick={() => {
                         setComments(comments.map(comment => comment.id === c.id ? { ...comment, text: editingCommentText } : comment));
                         setEditingCommentId(null);

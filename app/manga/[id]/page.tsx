@@ -1034,7 +1034,7 @@ const [comments, setComments] = useState(INITIAL_COMMENTS);
                                   )}
                                 </div>
                                 {editingCommentId === c.id ? (
-                                  <div style={{ display: "flex", gap: "10px", marginTop: "10px", marginBottom: "10px" }}>
+                                  <div className="comment-inline-edit">
                                     <input 
                                       type="text" 
                                       value={editingCommentText} 
@@ -1045,11 +1045,11 @@ const [comments, setComments] = useState(INITIAL_COMMENTS);
                                           setEditingCommentId(null);
                                         }
                                       }}
-                                      style={{ flex: 1, padding: "8px 16px", borderRadius: "15px", border: "1px solid #E5E7EB", outline: "none", fontSize: "14px", fontFamily: "var(--font-body)" }}
+                                      className="comment-inline-input"
                                       autoFocus
                                     />
                                     <button 
-                                      style={{ background: "#5B35E8", color: "white", padding: "0 20px", borderRadius: "15px", fontWeight: 500, fontSize: "14px", border: "none", cursor: "pointer", fontFamily: "var(--font-body)" }}
+                                      className="comment-inline-save"
                                       onClick={() => {
                                         setComments(comments.map(comment => comment.id === c.id ? { ...comment, text: editingCommentText } : comment));
                                         setEditingCommentId(null);

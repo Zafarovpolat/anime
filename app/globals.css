@@ -10916,3 +10916,53 @@ button {
   .admin-content .custom-select__trigger { font-size: 12px; padding: 0 12px; }
   .admin-breadcrumb { font-size: 12px; margin-bottom: 8px; }
 }
+
+/* -- Inline Comment Edit -- */
+.comment-inline-edit {
+  display: flex;
+  gap: 10px;
+  margin: 10px 0;
+  width: 100%;
+}
+
+.comment-inline-input {
+  flex: 1;
+  padding: 10px 16px;
+  border-radius: 15px;
+  border: 1.5px solid #e5e7eb;
+  outline: none;
+  font-size: 14px;
+  font-family: var(--font-body);
+  background: transparent;
+  color: var(--color-black);
+  min-width: 0; /* Prevents overflow */
+}
+
+.comment-inline-input:focus {
+  border-color: #5b35e8;
+}
+
+.comment-inline-save {
+  background: #5b35e8;
+  color: white;
+  padding: 0 20px;
+  border-radius: 15px;
+  font-weight: 500;
+  font-size: 14px;
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-body);
+  flex-shrink: 0;
+  min-height: 40px;
+}
+
+@media (max-width: 540px) {
+  .comment-inline-edit {
+    flex-direction: column;
+    gap: 8px;
+  }
+  .comment-inline-save {
+    width: 100%;
+    padding: 12px 20px;
+  }
+}

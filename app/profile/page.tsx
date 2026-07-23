@@ -610,6 +610,7 @@ function ProfilePageInner() {
   // Список типов закладок вынесен в состояние, чтобы правки из модалки
   // редактирования сразу отражались в фильтрах (profile-bookmarks__filters)
   const [visibleBookmarksCount, setVisibleBookmarksCount] = useState(3);
+  const [visibleReviewsCount, setVisibleReviewsCount] = useState(3);
   const [bookmarkTabs, setBookmarkTabs] = useState(BOOKMARK_TABS);
   const [reviewFilter, setReviewFilter] = useState('all');
   const [gender, setGender] = useState('Мужской');

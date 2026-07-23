@@ -547,6 +547,7 @@ export default function MangaPage({ params }: { params: { id: string } }) {
     "main",
   );
 const [comments, setComments] = useState(INITIAL_COMMENTS);
+  const [reviews, setReviews] = useState(REVIEWS.map(r => ({ ...r, userReaction: null as 'like' | null })));
   const [newComment, setNewComment] = useState("");
   const [editingCommentId, setEditingCommentId] = useState<number | null>(null);
   const [editingCommentText, setEditingCommentText] = useState("");
@@ -1167,7 +1168,7 @@ const [comments, setComments] = useState(INITIAL_COMMENTS);
 
                       {/* Список отзывов */}
                       <div className="manga-inner__reviews-list">
-                        {REVIEWS.filter((r) => reviewFilter === "all" || r.type === reviewFilter).map((r) => {
+                        {reviews.filter((r) => reviewFilter === "all" || r.type === reviewFilter).map((r) => {
                           const scoreColor = r.type === "positive" ? "green" : r.type === "negative" ? "red" : "yellow";
                           return (
                             <div key={r.id} className={`manga-inner__review manga-inner__review--${r.type}`}>
@@ -1196,7 +1197,20 @@ const [comments, setComments] = useState(INITIAL_COMMENTS);
                                   <span className="manga-inner__review-stat">
                                     <ReviewEyeIcon /> {r.views}
                                   </span>
-                                  <span className="manga-inner__review-stat">
+                                  <span 
+                                    className={`manga-inner__review-stat manga-inner__review-like${r.userReaction === 'like' ? ' manga-inner__review-like--active' : ''}`}
+                                    onClick={() => {
+                                      setReviews(reviews.map(review => {
+                                        if (review.id !== r.id) return review;
+                                        const wasLiked = review.userReaction === 'like';
+                                        return {
+                                          ...review,
+                                          userReaction: wasLiked ? null : 'like',
+                                          likes: review.likes + (wasLiked ? -1 : 1)
+                                        };
+                                      }));
+                                    }}
+                                  >
                                     <ReviewHeartIcon /> {r.likes}
                                   </span>
                                 </div>

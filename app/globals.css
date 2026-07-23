@@ -10972,3 +10972,31 @@ button {
     font-size: 13px;
   }
 }
+
+/* -- Reviews Like Hover -- */
+.manga-inner__review-like {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  transition: color 0.15s;
+}
+
+.manga-inner__review-like:hover {
+  color: #562cf0;
+}
+
+.manga-inner__review-like:hover svg path {
+  fill: #562cf0;
+  stroke: #562cf0;
+  transition: all 0.15s;
+}
+
+.manga-inner__review-like--active {
+  color: #562cf0;
+}
+
+.manga-inner__review-like--active svg path {
+  fill: #562cf0;
+  stroke: #562cf0;
+}

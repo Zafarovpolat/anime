@@ -10958,11 +10958,14 @@ button {
 
 @media (max-width: 540px) {
   .comment-inline-edit {
-    flex-direction: column;
-    gap: 8px;
+    gap: 6px;
+  }
+  .comment-inline-input {
+    padding: 8px 12px;
+    font-size: 13px;
   }
   .comment-inline-save {
-    width: 100%;
-    padding: 12px 20px;
+    padding: 0 14px;
+    font-size: 13px;
   }
 }

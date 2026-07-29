@@ -11053,6 +11053,60 @@ button {
   }
 }
 
+/* -- Комментарии в панели чтения: узкие экраны (<=400px и <=340px) --
+   Та же задача, что и на странице манги, но у читалки своя разметка
+   (.reader__panel-comment*), поэтому правила отдельные. Общие
+   .comment-inline-* уже сжаты в блоках выше и подхватываются здесь.
+   Главный пожиратель ширины в читалке — padding самой панели (на <=540px
+   он 20px), поэтому на узких экранах ужимаем и его. */
+@media (max-width: 400px) {
+  .reader__panel {
+    padding: 14px;
+  }
+
+  .reader__panel-comment-avatar {
+    width: 32px;
+    height: 32px;
+  }
+
+  .reader__panel-comment-top {
+    padding: 10px;
+    border-radius: 16px;
+  }
+
+  .reader__panel-comment-header {
+    margin-bottom: 10px;
+  }
+
+  .reader__panel-comment-name {
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 340px) {
+  .reader__panel {
+    padding: 12px;
+  }
+
+  .reader__panel-comment-avatar {
+    width: 28px;
+    height: 28px;
+  }
+
+  .reader__panel-comment-top {
+    padding: 8px;
+    border-radius: 14px;
+  }
+
+  .reader__panel-comment-header {
+    margin-bottom: 8px;
+  }
+
+  .reader__panel-comment-name {
+    font-size: 13px;
+  }
+}
+
 /* -- Reviews Like Hover -- */
 .manga-inner__review-like {
   display: flex;

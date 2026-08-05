@@ -115,7 +115,6 @@ function SendIcon() {
 const RichTextEditor = forwardRef<RichTextEditorHandle, RichTextEditorProps>(
   ({ value, onChange, onSubmit, placeholder = "Написать комментарий...", className = "" }, ref) => {
     const editorRef = useRef<HTMLDivElement>(null);
-    const [showToolbar, setShowToolbar] = useState(false);
     const [formatMenu, setFormatMenu] = useState(false);
     const [emojiPicker, setEmojiPicker] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -245,7 +244,6 @@ const RichTextEditor = forwardRef<RichTextEditorHandle, RichTextEditorProps>(
       if (editorRef.current) {
         editorRef.current.innerHTML = "";
         onChange("");
-        setShowToolbar(false);
       }
     };
 
@@ -258,20 +256,18 @@ const RichTextEditor = forwardRef<RichTextEditorHandle, RichTextEditorProps>(
             contentEditable
             onInput={handleInput}
             onKeyDown={handleKeyDown}
-            onFocus={() => setShowToolbar(true)}
             data-placeholder={placeholder}
             suppressContentEditableWarning
           />
 
-          {showToolbar && (
-            <div className="richtext-editor-v2__toolbar">
+          <div className="richtext-editor-v2__toolbar">
               {/* Форматування */}
               <div className="richtext-editor-v2__toolbar-group">
                 <button
                   type="button"
                   className="richtext-editor-v2__btn"
                   onClick={() => setFormatMenu(!formatMenu)}
-                  title="Форматування"
+                  title="Форматирование"
                 >
                   <TextFormatIcon />
                 </button>
@@ -281,13 +277,13 @@ const RichTextEditor = forwardRef<RichTextEditorHandle, RichTextEditorProps>(
                     <div className="format-menu-overlay-v2" onClick={() => setFormatMenu(false)} />
                     <div className="format-menu-dropdown-v2">
                       <button type="button" onClick={() => execCmd("bold")}>
-                        <strong>Жирний</strong>
+                        <strong>Жирный</strong>
                       </button>
                       <button type="button" onClick={() => execCmd("italic")}>
                         <em>Курсив</em>
                       </button>
                       <button type="button" onClick={() => execCmd("strikeThrough")}>
-                        <s>Зачеркнутий</s>
+                        <s>Зачеркнутый</s>
                       </button>
                     </div>
                   </>
@@ -301,23 +297,23 @@ const RichTextEditor = forwardRef<RichTextEditorHandle, RichTextEditorProps>(
                   <SpoilerIcon />
                 </button>
 
-                <button type="button" className="richtext-editor-v2__btn" onClick={() => execCmd("strikeThrough")} title="Зачеркнутий">
+                <button type="button" className="richtext-editor-v2__btn" onClick={() => execCmd("strikeThrough")} title="Зачеркнутый">
                   <StrikeIcon />
                 </button>
               </div>
 
               {/* Медіа */}
               <div className="richtext-editor-v2__toolbar-group">
-                <button type="button" className="richtext-editor-v2__btn" onClick={() => fileInputRef.current?.click()} title="Зображення">
+                <button type="button" className="richtext-editor-v2__btn" onClick={() => fileInputRef.current?.click()} title="Изображение">
                   <ImageIcon />
                 </button>
                 <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageUpload} style={{ display: "none" }} />
 
-                <button type="button" className="richtext-editor-v2__btn" onClick={insertBook} title="Оформлення">
+                <button type="button" className="richtext-editor-v2__btn" onClick={insertBook} title="Книга">
                   <BookIcon />
                 </button>
 
-                <button type="button" className="richtext-editor-v2__btn" onClick={() => setEmojiPicker(!emojiPicker)} title="Емодзі">
+                <button type="button" className="richtext-editor-v2__btn" onClick={() => setEmojiPicker(!emojiPicker)} title="Смайлик">
                   <StickerIcon />
                 </button>
 
@@ -337,16 +333,15 @@ const RichTextEditor = forwardRef<RichTextEditorHandle, RichTextEditorProps>(
 
               {/* Дії */}
               <div className="richtext-editor-v2__toolbar-group">
-                <button type="button" className="richtext-editor-v2__btn" onClick={handleClear} title="Очистити">
+                <button type="button" className="richtext-editor-v2__btn" onClick={handleClear} title="Очистить">
                   <CloseIcon />
                 </button>
 
-                <button type="button" className="richtext-editor-v2__btn richtext-editor-v2__btn--send" onClick={onSubmit} title="Відправити">
+                <button type="button" className="richtext-editor-v2__btn richtext-editor-v2__btn--send" onClick={onSubmit} title="Отправить">
                   <SendIcon />
                 </button>
               </div>
             </div>
-          )}
         </div>
       </div>
     );

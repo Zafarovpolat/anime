@@ -10960,6 +10960,7 @@ button {
 /* -- Rich Text Editor v2 (WYSIWYG) -- */
 .richtext-editor-v2 {
   width: 100%;
+  margin-bottom: 24px;
 }
 
 .richtext-editor-v2__wrapper {
@@ -10970,7 +10971,8 @@ button {
   border-radius: 20px;
   background: #fff;
   transition: border-color 0.2s;
-  overflow: hidden;
+  /* видимий overflow, щоб дропдауни не обрізались */
+  overflow: visible;
 }
 
 .richtext-editor-v2__wrapper:focus-within {
@@ -11045,6 +11047,7 @@ button {
   padding: 10px 12px;
   background: #f9f9fa;
   border-top: 1px solid #e8e8e8;
+  border-radius: 0 0 18px 18px;
   flex-wrap: wrap;
 }
 
@@ -11088,13 +11091,13 @@ button {
 }
 
 .richtext-editor-v2__btn--send {
-  background: linear-gradient(135deg, #ff6b35 0%, #ff8c42 100%);
+  background: #562cf0;
   color: #fff;
 }
 
 .richtext-editor-v2__btn--send:hover {
-  background: linear-gradient(135deg, #ff5722 0%, #ff7b29 100%);
-  box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
+  background: #4620d0;
+  box-shadow: 0 4px 12px rgba(86, 44, 240, 0.3);
 }
 
 /* Format dropdown */
@@ -11109,9 +11112,9 @@ button {
 
 .format-menu-dropdown-v2 {
   position: absolute;
-  bottom: 100%;
+  top: 100%;
   left: 0;
-  margin-bottom: 8px;
+  margin-top: 8px;
   background: #fff;
   border-radius: 12px;
   padding: 6px;
@@ -11153,18 +11156,18 @@ button {
 
 .emoji-picker-dropdown {
   position: absolute;
-  bottom: 100%;
+  top: 100%;
   left: 0;
-  margin-bottom: 8px;
+  margin-top: 8px;
   background: #fff;
   border-radius: 12px;
   padding: 12px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
   z-index: 100;
   display: grid;
-  grid-template-columns: repeat(8, 1fr);
+  grid-template-columns: repeat(10, 1fr);
   gap: 4px;
-  max-width: 320px;
+  max-width: 400px;
   border: 1px solid #e8e8e8;
 }
 
@@ -11337,21 +11340,24 @@ button {
 .comment-spoiler {
   display: inline-block;
   padding: 2px 8px;
-  background: #2a2a2e;
-  color: transparent;
+  background: #ececf0;
+  color: var(--color-black);
   border-radius: 4px;
   cursor: pointer;
   user-select: none;
-  transition: all 0.3s;
+  /* розмиваємо текст замість чорної плашки */
+  filter: blur(5px);
+  transition: filter 0.3s, background 0.2s;
 }
 
 .comment-spoiler:hover {
-  background: #3a3a3e;
+  background: #e0e0e6;
 }
 
 .comment-spoiler.revealed {
   background: #f3f0ff;
   color: var(--color-black);
+  filter: none;
 }
 
 .comment-image {

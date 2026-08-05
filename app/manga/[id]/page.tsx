@@ -4,7 +4,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ReviewModal from "@/components/ReviewModal";
 import ReportModal from "@/components/ReportModal";
-import RichTextEditor, { parseRichText } from "@/components/RichTextEditor";
+import RichTextEditor, { parseRichText, RichTextEditorHandle } from "@/components/RichTextEditor";
 import Link from "next/link";
 import { useState, useRef, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
@@ -556,7 +556,7 @@ const [comments, setComments] = useState(INITIAL_COMMENTS);
   const [editingCommentId, setEditingCommentId] = useState<number | null>(null);
   const [editingCommentText, setEditingCommentText] = useState("");
   const [commentMenuOpen, setCommentMenuOpen] = useState<number | null>(null);
-  const commentInputRef = useRef<HTMLInputElement>(null);
+  const commentInputRef = useRef<RichTextEditorHandle>(null);
   const searchParams = useSearchParams();
   const edittext = searchParams.get('edittext');
   const router = useRouter();
@@ -951,6 +951,7 @@ const [comments, setComments] = useState(INITIAL_COMMENTS);
 
                       {/* Comment input */}
                       <RichTextEditor
+                        ref={commentInputRef}
                         value={newComment}
                         onChange={setNewComment}
                         onSubmit={() => {

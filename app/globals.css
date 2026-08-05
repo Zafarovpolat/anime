@@ -2308,36 +2308,38 @@ button {
   justify-content: space-between;
   margin-bottom: 20px;
   gap: 16px;
+  flex-wrap: wrap;
 }
 
 .manga-inner__comments-filter {
   display: flex;
-  gap: 8px;
+  gap: 10px;
 }
 
 .manga-inner__filter-btn {
-  padding: 8px 16px;
-  border: 1px solid #e8e8e8;
-  border-radius: 12px;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 20px;
   background: #fff;
-  color: #6b7280;
-  font-size: 14px;
+  color: var(--color-black);
+  font-size: 15px;
   font-family: var(--font-body);
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: background-color 0.2s;
+  white-space: nowrap;
 }
 
 .manga-inner__filter-btn:hover {
-  border-color: #562cf0;
-  color: #562cf0;
+  background-color: rgba(86, 44, 240, 0.06);
 }
 
 .manga-inner__filter-btn--active {
-  border-color: #562cf0;
-  background: #562cf0;
-  color: #fff;
+  background-color: rgba(86, 44, 240, 0.08);
+  color: var(--color-primary);
+  font-weight: 600;
 }
+
 
 
 .manga-inner__comment-input {
@@ -10953,6 +10955,236 @@ button {
   .admin-content .profile-form__input,
   .admin-content .custom-select__trigger { font-size: 12px; padding: 0 12px; }
   .admin-breadcrumb { font-size: 12px; margin-bottom: 8px; }
+}
+
+/* -- Rich Text Editor v2 (WYSIWYG) -- */
+.richtext-editor-v2 {
+  width: 100%;
+}
+
+.richtext-editor-v2__wrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 120px;
+  border: 2px solid #e8e8e8;
+  border-radius: 20px;
+  background: #fff;
+  transition: border-color 0.2s;
+  overflow: hidden;
+}
+
+.richtext-editor-v2__wrapper:focus-within {
+  border-color: #562cf0;
+}
+
+.richtext-editor-v2__content {
+  flex: 1;
+  padding: 16px 20px;
+  min-height: 60px;
+  max-height: 200px;
+  overflow-y: auto;
+  font-size: 15px;
+  font-family: var(--font-body);
+  color: var(--color-black);
+  outline: none;
+  line-height: 1.5;
+}
+
+.richtext-editor-v2__content:empty:before {
+  content: attr(data-placeholder);
+  color: #9ca3af;
+  pointer-events: none;
+}
+
+/* Live preview стилі для edit */
+.richtext-editor-v2__content blockquote {
+  margin: 8px 0;
+  padding: 8px 12px;
+  border-left: 3px solid #562cf0;
+  background: #f3f0ff;
+  font-style: italic;
+}
+
+.richtext-editor-v2__content .comment-spoiler-edit {
+  background: #e8e8e8;
+  padding: 2px 6px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.richtext-editor-v2__content .comment-book-edit {
+  display: inline-block;
+  padding: 3px 10px;
+  background: linear-gradient(135deg, #562cf0 0%, #7c4dff 100%);
+  color: #fff;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.richtext-editor-v2__content .comment-sticker-edit {
+  display: inline-block;
+  font-size: 28px;
+  line-height: 1;
+  margin: 0 2px;
+  vertical-align: middle;
+}
+
+.richtext-editor-v2__content .comment-image-edit {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 8px 0;
+  border-radius: 8px;
+}
+
+.richtext-editor-v2__toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  background: #f9f9fa;
+  border-top: 1px solid #e8e8e8;
+  flex-wrap: wrap;
+}
+
+.richtext-editor-v2__toolbar-group {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  position: relative;
+}
+
+.richtext-editor-v2__toolbar-group:not(:last-child)::after {
+  content: "";
+  width: 1px;
+  height: 20px;
+  background: #d1d5db;
+  margin-left: 6px;
+}
+
+.richtext-editor-v2__btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: #6b7280;
+  cursor: pointer;
+  transition: all 0.2s;
+  padding: 0;
+}
+
+.richtext-editor-v2__btn:hover {
+  background: #e5e7eb;
+  color: #562cf0;
+}
+
+.richtext-editor-v2__btn:active {
+  transform: scale(0.95);
+}
+
+.richtext-editor-v2__btn--send {
+  background: linear-gradient(135deg, #ff6b35 0%, #ff8c42 100%);
+  color: #fff;
+}
+
+.richtext-editor-v2__btn--send:hover {
+  background: linear-gradient(135deg, #ff5722 0%, #ff7b29 100%);
+  box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
+}
+
+/* Format dropdown */
+.format-menu-overlay-v2 {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 99;
+}
+
+.format-menu-dropdown-v2 {
+  position: absolute;
+  bottom: 100%;
+  left: 0;
+  margin-bottom: 8px;
+  background: #fff;
+  border-radius: 12px;
+  padding: 6px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  z-index: 100;
+  min-width: 140px;
+  border: 1px solid #e8e8e8;
+}
+
+.format-menu-dropdown-v2 button {
+  display: block;
+  width: 100%;
+  padding: 8px 12px;
+  border: none;
+  background: transparent;
+  color: var(--color-black);
+  text-align: left;
+  font-size: 14px;
+  font-family: var(--font-body);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.format-menu-dropdown-v2 button:hover {
+  background: #f3f0ff;
+  color: #562cf0;
+}
+
+/* Emoji picker */
+.emoji-picker-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 99;
+}
+
+.emoji-picker-dropdown {
+  position: absolute;
+  bottom: 100%;
+  left: 0;
+  margin-bottom: 8px;
+  background: #fff;
+  border-radius: 12px;
+  padding: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  z-index: 100;
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 4px;
+  max-width: 320px;
+  border: 1px solid #e8e8e8;
+}
+
+.emoji-picker-dropdown button {
+  width: 36px;
+  height: 36px;
+  border: none;
+  background: transparent;
+  font-size: 22px;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: background 0.2s;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.emoji-picker-dropdown button:hover {
+  background: #f3f0ff;
 }
 
 /* -- Rich Text Editor -- */

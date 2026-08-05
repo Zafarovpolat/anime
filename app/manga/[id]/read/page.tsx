@@ -3,7 +3,7 @@
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ReportModal from "@/components/ReportModal";
-import RichTextEditor, { parseRichText } from "@/components/RichTextEditor";
+import RichTextEditor, { parseRichText, RichTextEditorHandle } from "@/components/RichTextEditor";
 import React, { useState } from "react";
 
 /* ── Mock Data ── */
@@ -436,7 +436,7 @@ function CommentsPanel({
   const [editingCommentId, setEditingCommentId] = useState<number | null>(null);
   const [editingCommentText, setEditingCommentText] = useState("");
   const [commentMenuOpen, setCommentMenuOpen] = useState<number | null>(null);
-  const commentInputRef = React.useRef<HTMLInputElement>(null);
+  const commentInputRef = React.useRef<RichTextEditorHandle>(null);
 
   const handleSend = () => {
     if (newComment.trim()) {
@@ -467,6 +467,7 @@ function CommentsPanel({
         </button>
       </div>
       <RichTextEditor
+        ref={commentInputRef}
         value={newComment}
         onChange={setNewComment}
         onSubmit={handleSend}

@@ -1,11 +1,16 @@
 "use client";
 
-import React, { useState, useRef, KeyboardEvent } from "react";
+import React, {
+  useRef,
+  useEffect,
+  useState,
+  forwardRef,
+  useImperativeHandle,
+} from "react";
 
-/* ── Типы ── */
-export type RichTextContent = {
-  text: string;
-  html: string; // для рендера с форматированием
+/* ── Типи ── */
+export type RichTextEditorHandle = {
+  focus: () => void;
 };
 
 type RichTextEditorProps = {
@@ -16,11 +21,19 @@ type RichTextEditorProps = {
   className?: string;
 };
 
-/* ── SVG иконки ── */
+/* ── Набір емодзі для пікера ── */
+const EMOJIS = [
+  "😀", "😁", "😂", "🤣", "😊", "😍", "😘", "😎",
+  "🤔", "😅", "😇", "🙂", "😉", "😌", "😔", "😢",
+  "😭", "😡", "🥰", "😴", "🤩", "😱", "👍", "👎",
+  "👏", "🙏", "💪", "🔥", "❤️", "💔", "✨", "🎉",
+];
+
+/* ── SVG іконки ── */
 function TextFormatIcon() {
   return (
     <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-      <path d="M5 4h10M10 4v12M7 16h6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+      <path d="M5 4h10M10 4v12M7 16h6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
     </svg>
   );
 }
@@ -28,7 +41,7 @@ function TextFormatIcon() {
 function QuoteIcon() {
   return (
     <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-      <path d="M8 10c0-1.5-1-2.5-2-2.5-1.5 0-2 1.5-2 3s.5 3 2 3c1 0 2-.5 2-2v-1.5zM16 10c0-1.5-1-2.5-2-2.5-1.5 0-2 1.5-2 3s.5 3 2 3c1 0 2-.5 2-2v-1.5z" fill="currentColor"/>
+      <path d="M8 10c0-1.5-1-2.5-2-2.5-1.5 0-2 1.5-2 3s.5 3 2 3c1 0 2-.5 2-2v-1.5zM16 10c0-1.5-1-2.5-2-2.5-1.5 0-2 1.5-2 3s.5 3 2 3c1 0 2-.5 2-2v-1.5z" fill="currentColor" />
     </svg>
   );
 }
@@ -36,9 +49,9 @@ function QuoteIcon() {
 function SpoilerIcon() {
   return (
     <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-      <path d="M10 7c-3 0-5.5 1.5-7 4 1.5 2.5 4 4 7 4s5.5-1.5 7-4c-1.5-2.5-4-4-7-4z" stroke="currentColor" strokeWidth="1.5" fill="none"/>
-      <path d="M3 3l14 14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-      <circle cx="10" cy="11" r="2" fill="currentColor"/>
+      <path d="M10 7c-3 0-5.5 1.5-7 4 1.5 2.5 4 4 7 4s5.5-1.5 7-4c-1.5-2.5-4-4-7-4z" stroke="currentColor" strokeWidth="1.5" fill="none" />
+      <path d="M3 3l14 14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+      <circle cx="10" cy="11" r="2" fill="currentColor" />
     </svg>
   );
 }
@@ -46,7 +59,7 @@ function SpoilerIcon() {
 function StrikeIcon() {
   return (
     <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-      <path d="M4 10h12M7 6h6c1.5 0 2 1 2 2M7 14h6c1.5 0 2-1 2-2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+      <path d="M4 10h12M7 6h6c1.5 0 2 1 2 2M7 14h6c1.5 0 2-1 2-2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
     </svg>
   );
 }
@@ -54,9 +67,9 @@ function StrikeIcon() {
 function ImageIcon() {
   return (
     <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-      <rect x="3" y="4" width="14" height="12" rx="2" stroke="currentColor" strokeWidth="1.5" fill="none"/>
-      <circle cx="7.5" cy="8.5" r="1.5" fill="currentColor"/>
-      <path d="M3 13l4-4 3 3 4-4 3 3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+      <rect x="3" y="4" width="14" height="12" rx="2" stroke="currentColor" strokeWidth="1.5" fill="none" />
+      <circle cx="7.5" cy="8.5" r="1.5" fill="currentColor" />
+      <path d="M3 13l4-4 3 3 4-4 3 3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
     </svg>
   );
 }
@@ -64,8 +77,8 @@ function ImageIcon() {
 function BookIcon() {
   return (
     <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-      <path d="M4 4h5c1 0 2 .5 2 1.5v10c0-1-1-1.5-2-1.5H4V4z" stroke="currentColor" strokeWidth="1.5" fill="none"/>
-      <path d="M16 4h-5c-1 0-2 .5-2 1.5v10c0-1 1-1.5 2-1.5h5V4z" stroke="currentColor" strokeWidth="1.5" fill="none"/>
+      <path d="M4 4h5c1 0 2 .5 2 1.5v10c0-1-1-1.5-2-1.5H4V4z" stroke="currentColor" strokeWidth="1.5" fill="none" />
+      <path d="M16 4h-5c-1 0-2 .5-2 1.5v10c0-1 1-1.5 2-1.5h5V4z" stroke="currentColor" strokeWidth="1.5" fill="none" />
     </svg>
   );
 }
@@ -73,10 +86,10 @@ function BookIcon() {
 function StickerIcon() {
   return (
     <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-      <circle cx="10" cy="10" r="7" stroke="currentColor" strokeWidth="1.5" fill="none"/>
-      <circle cx="7.5" cy="9" r="1" fill="currentColor"/>
-      <circle cx="12.5" cy="9" r="1" fill="currentColor"/>
-      <path d="M7 12c.5 1 1.5 2 3 2s2.5-1 3-2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+      <circle cx="10" cy="10" r="7" stroke="currentColor" strokeWidth="1.5" fill="none" />
+      <circle cx="7.5" cy="9" r="1" fill="currentColor" />
+      <circle cx="12.5" cy="9" r="1" fill="currentColor" />
+      <path d="M7 12c.5 1 1.5 2 3 2s2.5-1 3-2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
     </svg>
   );
 }
@@ -84,7 +97,7 @@ function StickerIcon() {
 function CloseIcon() {
   return (
     <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-      <path d="M5 5l10 10M15 5l-10 10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+      <path d="M5 5l10 10M15 5l-10 10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
     </svg>
   );
 }
@@ -92,246 +105,268 @@ function CloseIcon() {
 function SendIcon() {
   return (
     <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-      <path d="M18 2L9 11M18 2l-6 16-3-7-7-3 16-6z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+      <path d="M18 2L9 11M18 2l-6 16-3-7-7-3 16-6z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
     </svg>
   );
 }
+/* @@CHUNK2@@ */
 
 /* ── Компонент ── */
-export default function RichTextEditor({
-  value,
-  onChange,
-  onSubmit,
-  placeholder = "Написать комментарий...",
-  className = "",
-}: RichTextEditorProps) {
-  const [showToolbar, setShowToolbar] = useState(false);
-  const [formatMenu, setFormatMenu] = useState(false);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+const RichTextEditor = forwardRef<RichTextEditorHandle, RichTextEditorProps>(
+  ({ value, onChange, onSubmit, placeholder = "Написать комментарий...", className = "" }, ref) => {
+    const editorRef = useRef<HTMLDivElement>(null);
+    const [showToolbar, setShowToolbar] = useState(false);
+    const [formatMenu, setFormatMenu] = useState(false);
+    const [emojiPicker, setEmojiPicker] = useState(false);
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Вставка форматирования
-  const insertFormat = (prefix: string, suffix: string = "") => {
-    const textarea = textareaRef.current;
-    if (!textarea) return;
+    useImperativeHandle(ref, () => ({
+      focus: () => editorRef.current?.focus(),
+    }));
 
-    const start = textarea.selectionStart;
-    const end = textarea.selectionEnd;
-    const selectedText = value.substring(start, end) || "текст";
-    const newText =
-      value.substring(0, start) +
-      prefix +
-      selectedText +
-      suffix +
-      value.substring(end);
+    // Синхронізація value з contentEditable
+    useEffect(() => {
+      if (editorRef.current && editorRef.current.innerHTML !== value) {
+        editorRef.current.innerHTML = value || "";
+      }
+    }, [value]);
 
-    onChange(newText);
-    setFormatMenu(false);
+    // Обробка input в contentEditable
+    const handleInput = () => {
+      if (editorRef.current) {
+        onChange(editorRef.current.innerHTML);
+      }
+    };
 
-    // Восстанавливаем фокус
-    setTimeout(() => {
-      textarea.focus();
-      const newCursorPos = start + prefix.length + selectedText.length;
-      textarea.setSelectionRange(newCursorPos, newCursorPos);
-    }, 0);
-  };
+    // Виконання команди форматування
+    const execCmd = (command: string, value: string | undefined = undefined) => {
+      document.execCommand(command, false, value);
+      editorRef.current?.focus();
+      setFormatMenu(false);
+    };
 
-  const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      onSubmit();
-    }
-  };
+    // Вставка спойлера
+    const insertSpoiler = () => {
+      const selection = window.getSelection();
+      if (!selection || selection.rangeCount === 0) return;
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+      const range = selection.getRangeAt(0);
+      const selectedText = range.toString() || "текст";
 
-    // В реальном проекте здесь будет загрузка на сервер
-    // Сейчас просто вставляем placeholder
-    const imageUrl = URL.createObjectURL(file);
-    insertFormat(`[img]${imageUrl}[/img]`);
+      const spoiler = document.createElement("span");
+      spoiler.className = "comment-spoiler-edit";
+      spoiler.contentEditable = "true";
+      spoiler.textContent = selectedText;
 
-    // Очищаем input
-    e.target.value = "";
-  };
+      range.deleteContents();
+      range.insertNode(spoiler);
+      editorRef.current?.focus();
+      handleInput();
+    };
 
-  return (
-    <div className={`richtext-editor ${className}`}>
-      <textarea
-        ref={textareaRef}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        onKeyDown={handleKeyDown}
-        onFocus={() => setShowToolbar(true)}
-        placeholder={placeholder}
-        className="richtext-editor__textarea"
-        rows={1}
-      />
+    // Вставка книги
+    const insertBook = () => {
+      const selection = window.getSelection();
+      if (!selection || selection.rangeCount === 0) return;
 
-      {showToolbar && (
-        <div className="richtext-editor__toolbar">
-          {/* Форматирование текста */}
-          <div className="richtext-editor__toolbar-group">
-            <button
-              type="button"
-              className="richtext-editor__btn"
-              onClick={() => setFormatMenu(!formatMenu)}
-              title="Форматирование"
-            >
-              <TextFormatIcon />
-            </button>
+      const range = selection.getRangeAt(0);
+      const selectedText = range.toString() || "текст";
 
-            {formatMenu && (
-              <>
-                <div className="format-menu-overlay" onClick={() => setFormatMenu(false)} />
-                <div className="format-menu-dropdown">
-                  <button
-                    type="button"
-                    onClick={() => insertFormat("**", "**")}
-                    className="format-menu-dropdown__item"
-                  >
-                    <strong>Жирный</strong>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => insertFormat("*", "*")}
-                    className="format-menu-dropdown__item"
-                  >
-                    <em>Курсив</em>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => insertFormat("~~", "~~")}
-                    className="format-menu-dropdown__item"
-                  >
-                    <s>Зачеркнутый</s>
-                  </button>
-                </div>
-              </>
-            )}
+      const book = document.createElement("span");
+      book.className = "comment-book-edit";
+      book.contentEditable = "true";
+      book.textContent = selectedText;
 
-            <button
-              type="button"
-              className="richtext-editor__btn"
-              onClick={() => insertFormat("> ", "")}
-              title="Цитата"
-            >
-              <QuoteIcon />
-            </button>
+      range.deleteContents();
+      range.insertNode(book);
+      editorRef.current?.focus();
+      handleInput();
+    };
 
-            <button
-              type="button"
-              className="richtext-editor__btn"
-              onClick={() => insertFormat("[spoiler]", "[/spoiler]")}
-              title="Спойлер"
-            >
-              <SpoilerIcon />
-            </button>
+    // Вставка emoji
+    const insertEmoji = (emoji: string) => {
+      const sticker = document.createElement("span");
+      sticker.className = "comment-sticker-edit";
+      sticker.textContent = emoji;
 
-            <button
-              type="button"
-              className="richtext-editor__btn"
-              onClick={() => insertFormat("~~", "~~")}
-              title="Зачеркнутый"
-            >
-              <StrikeIcon />
-            </button>
-          </div>
+      const selection = window.getSelection();
+      if (selection && selection.rangeCount > 0) {
+        const range = selection.getRangeAt(0);
+        range.deleteContents();
+        range.insertNode(sticker);
+        range.setStartAfter(sticker);
+        range.collapse(true);
+        selection.removeAllRanges();
+        selection.addRange(range);
+      }
 
-          {/* Медиа */}
-          <div className="richtext-editor__toolbar-group">
-            <button
-              type="button"
-              className="richtext-editor__btn"
-              onClick={() => fileInputRef.current?.click()}
-              title="Изображение"
-            >
-              <ImageIcon />
-            </button>
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*"
-              onChange={handleImageUpload}
-              style={{ display: "none" }}
-            />
+      setEmojiPicker(false);
+      editorRef.current?.focus();
+      handleInput();
+    };
 
-            <button
-              type="button"
-              className="richtext-editor__btn"
-              onClick={() => insertFormat("[book]", "[/book]")}
-              title="Оформление"
-            >
-              <BookIcon />
-            </button>
+    // Завантаження зображення
+    const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
 
-            <button
-              type="button"
-              className="richtext-editor__btn"
-              onClick={() => insertFormat("[sticker]😊[/sticker]")}
-              title="Стикер"
-            >
-              <StickerIcon />
-            </button>
-          </div>
+      const imageUrl = URL.createObjectURL(file);
+      const img = document.createElement("img");
+      img.src = imageUrl;
+      img.className = "comment-image-edit";
+      img.alt = "Изображение";
 
-          {/* Действия */}
-          <div className="richtext-editor__toolbar-group">
-            <button
-              type="button"
-              className="richtext-editor__btn"
-              onClick={() => {
-                onChange("");
-                setShowToolbar(false);
-              }}
-              title="Очистить"
-            >
-              <CloseIcon />
-            </button>
+      const selection = window.getSelection();
+      if (selection && selection.rangeCount > 0) {
+        const range = selection.getRangeAt(0);
+        range.deleteContents();
+        range.insertNode(img);
+        range.setStartAfter(img);
+        range.collapse(true);
+        selection.removeAllRanges();
+        selection.addRange(range);
+      }
 
-            <button
-              type="button"
-              className="richtext-editor__btn richtext-editor__btn--send"
-              onClick={onSubmit}
-              title="Отправить"
-            >
-              <SendIcon />
-            </button>
-          </div>
+      e.target.value = "";
+      editorRef.current?.focus();
+      handleInput();
+    };
+
+    // Обробка Enter
+    const handleKeyDown = (e: React.KeyboardEvent) => {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        onSubmit();
+      }
+    };
+
+    // Очистити
+    const handleClear = () => {
+      if (editorRef.current) {
+        editorRef.current.innerHTML = "";
+        onChange("");
+        setShowToolbar(false);
+      }
+    };
+
+    return (
+      <div className={`richtext-editor-v2 ${className}`}>
+        <div className="richtext-editor-v2__wrapper">
+          <div
+            ref={editorRef}
+            className="richtext-editor-v2__content"
+            contentEditable
+            onInput={handleInput}
+            onKeyDown={handleKeyDown}
+            onFocus={() => setShowToolbar(true)}
+            data-placeholder={placeholder}
+            suppressContentEditableWarning
+          />
+
+          {showToolbar && (
+            <div className="richtext-editor-v2__toolbar">
+              {/* Форматування */}
+              <div className="richtext-editor-v2__toolbar-group">
+                <button
+                  type="button"
+                  className="richtext-editor-v2__btn"
+                  onClick={() => setFormatMenu(!formatMenu)}
+                  title="Форматування"
+                >
+                  <TextFormatIcon />
+                </button>
+
+                {formatMenu && (
+                  <>
+                    <div className="format-menu-overlay-v2" onClick={() => setFormatMenu(false)} />
+                    <div className="format-menu-dropdown-v2">
+                      <button type="button" onClick={() => execCmd("bold")}>
+                        <strong>Жирний</strong>
+                      </button>
+                      <button type="button" onClick={() => execCmd("italic")}>
+                        <em>Курсив</em>
+                      </button>
+                      <button type="button" onClick={() => execCmd("strikeThrough")}>
+                        <s>Зачеркнутий</s>
+                      </button>
+                    </div>
+                  </>
+                )}
+
+                <button type="button" className="richtext-editor-v2__btn" onClick={() => execCmd("formatBlock", "<blockquote>")} title="Цитата">
+                  <QuoteIcon />
+                </button>
+
+                <button type="button" className="richtext-editor-v2__btn" onClick={insertSpoiler} title="Спойлер">
+                  <SpoilerIcon />
+                </button>
+
+                <button type="button" className="richtext-editor-v2__btn" onClick={() => execCmd("strikeThrough")} title="Зачеркнутий">
+                  <StrikeIcon />
+                </button>
+              </div>
+
+              {/* Медіа */}
+              <div className="richtext-editor-v2__toolbar-group">
+                <button type="button" className="richtext-editor-v2__btn" onClick={() => fileInputRef.current?.click()} title="Зображення">
+                  <ImageIcon />
+                </button>
+                <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageUpload} style={{ display: "none" }} />
+
+                <button type="button" className="richtext-editor-v2__btn" onClick={insertBook} title="Оформлення">
+                  <BookIcon />
+                </button>
+
+                <button type="button" className="richtext-editor-v2__btn" onClick={() => setEmojiPicker(!emojiPicker)} title="Емодзі">
+                  <StickerIcon />
+                </button>
+
+                {emojiPicker && (
+                  <>
+                    <div className="emoji-picker-overlay" onClick={() => setEmojiPicker(false)} />
+                    <div className="emoji-picker-dropdown">
+                      {EMOJIS.map((emoji) => (
+                        <button key={emoji} type="button" onClick={() => insertEmoji(emoji)}>
+                          {emoji}
+                        </button>
+                      ))}
+                    </div>
+                  </>
+                )}
+              </div>
+
+              {/* Дії */}
+              <div className="richtext-editor-v2__toolbar-group">
+                <button type="button" className="richtext-editor-v2__btn" onClick={handleClear} title="Очистити">
+                  <CloseIcon />
+                </button>
+
+                <button type="button" className="richtext-editor-v2__btn richtext-editor-v2__btn--send" onClick={onSubmit} title="Відправити">
+                  <SendIcon />
+                </button>
+              </div>
+            </div>
+          )}
         </div>
-      )}
-    </div>
-  );
-}
+      </div>
+    );
+  }
+);
 
-/* ── Утилита для парсинга и рендера ── */
-export function parseRichText(text: string): string {
-  if (!text) return "";
+RichTextEditor.displayName = "RichTextEditor";
 
-  let html = text
-    // Экранируем HTML
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    // Жирный
-    .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
-    // Курсив
-    .replace(/\*(.*?)\*/g, "<em>$1</em>")
-    // Зачеркнутый
-    .replace(/~~(.*?)~~/g, "<s>$1</s>")
-    // Цитата
-    .replace(/^> (.+)$/gm, '<blockquote class="comment-quote">$1</blockquote>')
-    // Спойлер
-    .replace(/\[spoiler\](.*?)\[\/spoiler\]/g, '<span class="comment-spoiler" onclick="this.classList.toggle(\'revealed\')">$1</span>')
-    // Изображения
-    .replace(/\[img\](.*?)\[\/img\]/g, '<img src="$1" alt="Изображение" class="comment-image" />')
-    // Стикеры
-    .replace(/\[sticker\](.*?)\[\/sticker\]/g, '<span class="comment-sticker">$1</span>')
-    // Книга (оформление)
-    .replace(/\[book\](.*?)\[\/book\]/g, '<span class="comment-book">$1</span>')
-    // Переносы строк
-    .replace(/\n/g, "<br>");
+export default RichTextEditor;
 
-  return html;
+/* ── Утиліта для конвертації HTML в коментар ── */
+export function parseRichText(html: string): string {
+  if (!html) return "";
+
+  return html
+    // Конвертуємо edit-класи в display-класи
+    .replace(/comment-spoiler-edit/g, "comment-spoiler")
+    .replace(/comment-book-edit/g, "comment-book")
+    .replace(/comment-sticker-edit/g, "comment-sticker")
+    .replace(/comment-image-edit/g, "comment-image")
+    // Додаємо функціонал спойлерів
+    .replace(/<span class="comment-spoiler">(.*?)<\/span>/g, '<span class="comment-spoiler" onclick="this.classList.toggle(\'revealed\')">$1</span>');
 }

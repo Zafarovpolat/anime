@@ -549,6 +549,7 @@ export default function MangaPage({ params }: { params: { id: string } }) {
   );
 const [comments, setComments] = useState(INITIAL_COMMENTS);
   const [visibleCommentsCount, setVisibleCommentsCount] = useState(3);
+  const [commentSort, setCommentSort] = useState<"new" | "popular">("new");
   const [visibleReviewsCount, setVisibleReviewsCount] = useState(3);
   const [reviews, setReviews] = useState(REVIEWS.map(r => ({ ...r, userReaction: null as 'like' | null })));
   const [newComment, setNewComment] = useState("");
@@ -928,9 +929,25 @@ const [comments, setComments] = useState(INITIAL_COMMENTS);
                   {/* ── Tab: Комментарии ── */}
                   {activeTab === "comments" && (
                     <div className="manga-inner__content">
-                      <h3 className="manga-inner__comments-title">
-                        КОММЕНТАРИИ<span>{data.totalReviews}</span>
-                      </h3>
+                      <div className="manga-inner__comments-header">
+                        <h3 className="manga-inner__comments-title">
+                          КОММЕНТАРИИ<span>{data.totalReviews}</span>
+                        </h3>
+                        <div className="manga-inner__comments-filter">
+                          <button
+                            className={`manga-inner__filter-btn${commentSort === "new" ? " manga-inner__filter-btn--active" : ""}`}
+                            onClick={() => setCommentSort("new")}
+                          >
+                            Новые
+                          </button>
+                          <button
+                            className={`manga-inner__filter-btn${commentSort === "popular" ? " manga-inner__filter-btn--active" : ""}`}
+                            onClick={() => setCommentSort("popular")}
+                          >
+                            Популярные
+                          </button>
+                        </div>
+                      </div>
 
                       {/* Comment input */}
                       <RichTextEditor
@@ -956,7 +973,15 @@ const [comments, setComments] = useState(INITIAL_COMMENTS);
 
                       {/* Comments list */}
                       <div className="manga-inner__comments-list">
-                        {comments.slice(0, visibleCommentsCount).map((c) => (
+                        {[...comments]
+                          .sort((a, b) => {
+                            if (commentSort === "popular") {
+                              return b.likes - a.likes;
+                            }
+                            return 0; // "new" — зберігаємо порядок (найновіші зверху)
+                          })
+                          .slice(0, visibleCommentsCount)
+                          .map((c) => (
                           <div key={c.id} className="manga-inner__comment">
                             <div className="manga-inner__comment-avatar">
                               <img

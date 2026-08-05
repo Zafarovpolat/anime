@@ -2302,6 +2302,44 @@ button {
   color: #97989b;
 }
 
+.manga-inner__comments-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  gap: 16px;
+}
+
+.manga-inner__comments-filter {
+  display: flex;
+  gap: 8px;
+}
+
+.manga-inner__filter-btn {
+  padding: 8px 16px;
+  border: 1px solid #e8e8e8;
+  border-radius: 12px;
+  background: #fff;
+  color: #6b7280;
+  font-size: 14px;
+  font-family: var(--font-body);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.manga-inner__filter-btn:hover {
+  border-color: #562cf0;
+  color: #562cf0;
+}
+
+.manga-inner__filter-btn--active {
+  border-color: #562cf0;
+  background: #562cf0;
+  color: #fff;
+}
+
+
 .manga-inner__comment-input {
   display: flex;
   align-items: center;

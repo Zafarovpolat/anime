@@ -3,6 +3,7 @@
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ReportModal from "@/components/ReportModal";
+import RichTextEditor, { parseRichText } from "@/components/RichTextEditor";
 import React, { useState } from "react";
 
 /* ── Mock Data ── */
@@ -465,22 +466,12 @@ function CommentsPanel({
           <CloseIcon />
         </button>
       </div>
-      <div className="reader__panel-comments-input-wrap">
-        <input
-          type="text"
-          placeholder="Оставить комментарий"
-          className="reader__panel-comments-input"
-          ref={commentInputRef}
-          value={newComment}
-          onChange={(e) => setNewComment(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') handleSend();
-          }}
-        />
-        <button className="reader__panel-comments-send" aria-label="Отправить" onClick={handleSend}>
-          <SendIcon />
-        </button>
-      </div>
+      <RichTextEditor
+        value={newComment}
+        onChange={setNewComment}
+        onSubmit={handleSend}
+        placeholder="Оставить комментарий"
+      />
       <div className="reader__panel-comments-list">
         {comments.map((c) => (
           <div key={c.id} className="reader__panel-comment">
@@ -562,7 +553,10 @@ function CommentsPanel({
                     </button>
                   </div>
                 ) : (
-                  <p className="reader__panel-comment-text">{c.text}</p>
+                  <div
+                    className="reader__panel-comment-text"
+                    dangerouslySetInnerHTML={{ __html: parseRichText(c.text) }}
+                  />
                 )}
               </div>
               <div className="reader__panel-comment-footer">

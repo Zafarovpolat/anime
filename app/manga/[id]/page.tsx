@@ -4,6 +4,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ReviewModal from "@/components/ReviewModal";
 import ReportModal from "@/components/ReportModal";
+import RichTextEditor, { parseRichText } from "@/components/RichTextEditor";
 import Link from "next/link";
 import { useState, useRef, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
@@ -932,50 +933,26 @@ const [comments, setComments] = useState(INITIAL_COMMENTS);
                       </h3>
 
                       {/* Comment input */}
-                      <div className="manga-inner__comment-input">
-                        <input
-                          type="text"
-                          placeholder="Оставить комментарий"
-                          ref={commentInputRef}
-                          value={newComment}
-                          onChange={(e) => setNewComment(e.target.value)}
-                          onKeyDown={(e) => {
-                            if (e.key === 'Enter' && newComment.trim()) {
-                              setComments([{
-                                id: Date.now(),
-                                avatar: "/images/avatar_default.png",
-                                username: "Вы",
-                                text: newComment,
-                                time: "Только что",
-                                likes: 0,
-                                dislikes: 0,
-                                userReaction: null,
-                              }, ...comments]);
-                              setNewComment("");
-                            }
-                          }}
-                        />
-                        <button
-                          className="manga-inner__comment-send"
-                          onClick={() => {
-                            if (newComment.trim()) {
-                              setComments([{
-                                id: Date.now(),
-                                avatar: "/images/avatar_default.png",
-                                username: "Вы",
-                                text: newComment,
-                                time: "Только что",
-                                likes: 0,
-                                dislikes: 0,
-                                userReaction: null,
-                              }, ...comments]);
-                              setNewComment("");
-                            }
-                          }}
-                        >
-                          <SendIcon />
-                        </button>
-                      </div>
+                      <RichTextEditor
+                        value={newComment}
+                        onChange={setNewComment}
+                        onSubmit={() => {
+                          if (newComment.trim()) {
+                            setComments([{
+                              id: Date.now(),
+                              avatar: "/images/avatar_default.png",
+                              username: "Вы",
+                              text: newComment,
+                              time: "Только что",
+                              likes: 0,
+                              dislikes: 0,
+                              userReaction: null,
+                            }, ...comments]);
+                            setNewComment("");
+                          }
+                        }}
+                        placeholder="Оставить комментарий"
+                      />
 
                       {/* Comments list */}
                       <div className="manga-inner__comments-list">
@@ -1062,9 +1039,10 @@ const [comments, setComments] = useState(INITIAL_COMMENTS);
                                     </button>
                                   </div>
                                 ) : (
-                                  <p className="manga-inner__comment-text">
-                                    {c.text}
-                                  </p>
+                                  <div
+                                    className="manga-inner__comment-text"
+                                    dangerouslySetInnerHTML={{ __html: parseRichText(c.text) }}
+                                  />
                                 )}
                               </div>
                               <div className="manga-inner__comment-footer">

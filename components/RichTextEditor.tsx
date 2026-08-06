@@ -74,15 +74,6 @@ function ImageIcon() {
   );
 }
 
-function BookIcon() {
-  return (
-    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-      <path d="M4 4h5c1 0 2 .5 2 1.5v10c0-1-1-1.5-2-1.5H4V4z" stroke="currentColor" strokeWidth="1.5" fill="none" />
-      <path d="M16 4h-5c-1 0-2 .5-2 1.5v10c0-1 1-1.5 2-1.5h5V4z" stroke="currentColor" strokeWidth="1.5" fill="none" />
-    </svg>
-  );
-}
-
 function StickerIcon() {
   return (
     <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
@@ -191,38 +182,27 @@ const RichTextEditor = forwardRef<RichTextEditorHandle, RichTextEditorProps>(
       setTimeout(updateActiveFormats, 0);
     };
 
-    // Вставка спойлера
+    // Вставка спойлера — зберігає вміст виділення (текст + зображення)
     const insertSpoiler = () => {
       const selection = window.getSelection();
       if (!selection || selection.rangeCount === 0) return;
 
       const range = selection.getRangeAt(0);
-      const selectedText = range.toString() || "текст";
 
       const spoiler = document.createElement("span");
       spoiler.className = "comment-spoiler-edit";
-      spoiler.textContent = selectedText;
 
-      range.deleteContents();
-      range.insertNode(spoiler);
-      editorRef.current?.focus();
-      handleInput();
-    };
+      if (range.collapsed) {
+        // Нічого не виділено — вставляємо плейсхолдер
+        spoiler.textContent = "текст";
+        range.insertNode(spoiler);
+      } else {
+        // Переносимо виділений вміст (включно з картинками) у спойлер
+        const contents = range.extractContents();
+        spoiler.appendChild(contents);
+        range.insertNode(spoiler);
+      }
 
-    // Вставка книги
-    const insertBook = () => {
-      const selection = window.getSelection();
-      if (!selection || selection.rangeCount === 0) return;
-
-      const range = selection.getRangeAt(0);
-      const selectedText = range.toString() || "текст";
-
-      const book = document.createElement("span");
-      book.className = "comment-book-edit";
-      book.textContent = selectedText;
-
-      range.deleteContents();
-      range.insertNode(book);
       editorRef.current?.focus();
       handleInput();
     };
@@ -292,6 +272,17 @@ const RichTextEditor = forwardRef<RichTextEditorHandle, RichTextEditorProps>(
       }
     };
 
+    // Клік по контенту: видалення зображення при кліку на нього
+    const handleContentClick = (e: React.MouseEvent<HTMLDivElement>) => {
+      const target = e.target as HTMLElement;
+      if (target.tagName === "IMG" && target.classList.contains("comment-image-edit")) {
+        if (window.confirm("Удалить изображение?")) {
+          target.remove();
+          handleInput();
+        }
+      }
+    };
+
     return (
       <div className={`richtext-editor-v2 ${className}`}>
         <div className="richtext-editor-v2__wrapper">
@@ -301,6 +292,7 @@ const RichTextEditor = forwardRef<RichTextEditorHandle, RichTextEditorProps>(
             contentEditable
             onInput={handleInput}
             onKeyDown={handleKeyDown}
+            onClick={handleContentClick}
             data-placeholder={placeholder}
             suppressContentEditableWarning
           />
@@ -378,10 +370,6 @@ const RichTextEditor = forwardRef<RichTextEditorHandle, RichTextEditorProps>(
                   <ImageIcon />
                 </button>
                 <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageUpload} style={{ display: "none" }} />
-
-                <button type="button" className="richtext-editor-v2__btn" onClick={insertBook} title="Книга">
-                  <BookIcon />
-                </button>
 
                 <button type="button" className="richtext-editor-v2__btn" onClick={() => setEmojiPicker(!emojiPicker)} title="Смайлик">
                   <StickerIcon />

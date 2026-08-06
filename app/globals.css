@@ -7877,6 +7877,37 @@ button {
   gap: 30px;
 }
 
+/* Фільтр коментарів на сторінці читання */
+.reader__panel-comments-filter {
+  display: flex;
+  gap: 8px;
+  padding: 0 14px 14px;
+}
+
+.reader__panel-filter-btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 14px;
+  background: #f2f2f4;
+  color: var(--color-black);
+  font-size: 14px;
+  font-family: var(--font-body);
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s;
+  white-space: nowrap;
+}
+
+.reader__panel-filter-btn:hover {
+  background-color: rgba(86, 44, 240, 0.08);
+}
+
+.reader__panel-filter-btn--active {
+  background-color: rgba(86, 44, 240, 0.1);
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
 .reader__panel-comments-list::-webkit-scrollbar {
   width: 4px;
 }
@@ -11008,10 +11039,18 @@ button {
 }
 
 .richtext-editor-v2__content .comment-spoiler-edit {
-  background: #e8e8e8;
+  display: inline-block;
+  background: rgba(86, 44, 240, 0.06);
+  border: 1px dashed #562cf0;
   padding: 2px 6px;
   border-radius: 4px;
   cursor: pointer;
+}
+
+/* Картинка всередині спойлера в редакторі */
+.richtext-editor-v2__content .comment-spoiler-edit .comment-image-edit {
+  margin: 4px 0;
+  max-width: 200px;
 }
 
 .richtext-editor-v2__content .comment-book-edit {
@@ -11038,6 +11077,14 @@ button {
   height: auto;
   margin: 8px 0;
   border-radius: 8px;
+  cursor: pointer;
+  transition: outline 0.15s, opacity 0.15s;
+}
+
+.richtext-editor-v2__content .comment-image-edit:hover {
+  outline: 2px solid #ef4444;
+  outline-offset: 2px;
+  opacity: 0.85;
 }
 
 .richtext-editor-v2__toolbar {
@@ -11102,6 +11149,7 @@ button {
 
 .richtext-editor-v2__btn--send:hover {
   background: #4620d0;
+  color: #fff;
   box-shadow: 0 4px 12px rgba(86, 44, 240, 0.3);
 }
 
@@ -11170,7 +11218,7 @@ button {
 .emoji-picker-dropdown {
   position: absolute;
   top: 100%;
-  left: 0;
+  right: 0;
   margin-top: 8px;
   background: #fff;
   border-radius: 12px;
@@ -11374,7 +11422,7 @@ button {
   display: inline-block;
   padding: 2px 4px;
   background: transparent;
-  color: var(--color-black);
+  color: inherit;
   border-radius: 4px;
   cursor: pointer;
   user-select: none;
@@ -11389,7 +11437,7 @@ button {
 
 .comment-spoiler.revealed {
   background: transparent;
-  color: var(--color-black);
+  color: inherit;
   filter: none;
 }
 
@@ -11419,6 +11467,40 @@ button {
   font-weight: 600;
   font-size: 13px;
   margin: 0 4px;
+}
+
+/* Цитата в опублікованих коментарях */
+.manga-inner__comment-text blockquote,
+.reader__panel-comment-text blockquote,
+.profile-comment-item__text blockquote {
+  margin: 8px 0;
+  padding: 8px 12px;
+  border-left: 3px solid #562cf0;
+  background: #f3f0ff;
+  border-radius: 0 8px 8px 0;
+  font-style: italic;
+}
+
+/* Базове форматування тексту в коментарях */
+.manga-inner__comment-text b,
+.manga-inner__comment-text strong,
+.reader__panel-comment-text b,
+.reader__panel-comment-text strong {
+  font-weight: 700;
+}
+
+.manga-inner__comment-text i,
+.manga-inner__comment-text em,
+.reader__panel-comment-text i,
+.reader__panel-comment-text em {
+  font-style: italic;
+}
+
+.manga-inner__comment-text s,
+.manga-inner__comment-text strike,
+.reader__panel-comment-text s,
+.reader__panel-comment-text strike {
+  text-decoration: line-through;
 }
 
 /* -- Inline Comment Edit -- */
@@ -11474,6 +11556,15 @@ button {
   .comment-inline-save {
     padding: 0 14px;
     font-size: 13px;
+  }
+  /* Пікер емодзі: не виходить за межі екрану */
+  .emoji-picker-dropdown {
+    grid-template-columns: repeat(7, 34px);
+  }
+  .emoji-picker-dropdown button {
+    width: 34px;
+    height: 34px;
+    font-size: 20px;
   }
 }
 

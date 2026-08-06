@@ -436,6 +436,7 @@ function CommentsPanel({
   const [editingCommentId, setEditingCommentId] = useState<number | null>(null);
   const [editingCommentText, setEditingCommentText] = useState("");
   const [commentMenuOpen, setCommentMenuOpen] = useState<number | null>(null);
+  const [commentSort, setCommentSort] = useState<"new" | "popular">("new");
   const commentInputRef = React.useRef<RichTextEditorHandle>(null);
 
   const handleSend = () => {
@@ -473,8 +474,24 @@ function CommentsPanel({
         onSubmit={handleSend}
         placeholder="Оставить комментарий"
       />
+      <div className="reader__panel-comments-filter">
+        <button
+          className={`reader__panel-filter-btn${commentSort === "new" ? " reader__panel-filter-btn--active" : ""}`}
+          onClick={() => setCommentSort("new")}
+        >
+          Новые
+        </button>
+        <button
+          className={`reader__panel-filter-btn${commentSort === "popular" ? " reader__panel-filter-btn--active" : ""}`}
+          onClick={() => setCommentSort("popular")}
+        >
+          Популярные
+        </button>
+      </div>
       <div className="reader__panel-comments-list">
-        {comments.map((c) => (
+        {[...comments]
+          .sort((a, b) => (commentSort === "popular" ? b.likes - a.likes : 0))
+          .map((c) => (
           <div key={c.id} className="reader__panel-comment">
             <div className="reader__panel-comment-avatar">
               <img src={c.avatar} alt={c.username} />

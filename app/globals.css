@@ -11178,10 +11178,30 @@ button {
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
   z-index: 100;
   display: grid;
-  grid-template-columns: repeat(10, 1fr);
+  grid-template-columns: repeat(8, 36px);
   gap: 4px;
-  max-width: 400px;
+  width: max-content;
+  max-height: 220px;
+  overflow-y: auto;
   border: 1px solid #e8e8e8;
+}
+
+/* Скролбар для пікера емодзі */
+.emoji-picker-dropdown::-webkit-scrollbar {
+  width: 8px;
+}
+
+.emoji-picker-dropdown::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.emoji-picker-dropdown::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 4px;
+}
+
+.emoji-picker-dropdown::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
 }
 
 .emoji-picker-dropdown button {
@@ -11352,23 +11372,23 @@ button {
 
 .comment-spoiler {
   display: inline-block;
-  padding: 2px 8px;
-  background: #ececf0;
+  padding: 2px 4px;
+  background: transparent;
   color: var(--color-black);
   border-radius: 4px;
   cursor: pointer;
   user-select: none;
-  /* розмиваємо текст замість чорної плашки */
+  /* розмиваємо текст без плашки */
   filter: blur(5px);
-  transition: filter 0.3s, background 0.2s;
+  transition: filter 0.3s;
 }
 
 .comment-spoiler:hover {
-  background: #e0e0e6;
+  filter: blur(4px);
 }
 
 .comment-spoiler.revealed {
-  background: #f3f0ff;
+  background: transparent;
   color: var(--color-black);
   filter: none;
 }

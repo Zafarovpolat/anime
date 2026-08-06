@@ -11090,6 +11090,11 @@ button {
   transform: scale(0.95);
 }
 
+.richtext-editor-v2__btn--active {
+  background: #f3f0ff;
+  color: #562cf0;
+}
+
 .richtext-editor-v2__btn--send {
   background: #562cf0;
   color: #fff;
@@ -11137,9 +11142,17 @@ button {
   border-radius: 8px;
   cursor: pointer;
   transition: background 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .format-menu-dropdown-v2 button:hover {
+  background: #f3f0ff;
+  color: #562cf0;
+}
+
+.format-menu-dropdown-v2 button.is-active {
   background: #f3f0ff;
   color: #562cf0;
 }

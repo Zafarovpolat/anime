@@ -109,6 +109,14 @@ function SendIcon() {
     </svg>
   );
 }
+
+function CheckIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style={{ marginLeft: "auto" }}>
+      <path d="M3 8.5l3 3 7-7" stroke="#562cf0" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
 /* @@CHUNK2@@ */
 
 /* ── Компонент ── */
@@ -119,9 +127,46 @@ const RichTextEditor = forwardRef<RichTextEditorHandle, RichTextEditorProps>(
     const [emojiPicker, setEmojiPicker] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
+    // Активні стилі форматування (для підсвітки кнопок)
+    const [activeFormats, setActiveFormats] = useState({
+      bold: false,
+      italic: false,
+      strikeThrough: false,
+    });
+
     useImperativeHandle(ref, () => ({
       focus: () => editorRef.current?.focus(),
     }));
+
+    // Оновлення активних стилів на основі позиції курсора
+    const updateActiveFormats = () => {
+      try {
+        setActiveFormats({
+          bold: document.queryCommandState("bold"),
+          italic: document.queryCommandState("italic"),
+          strikeThrough: document.queryCommandState("strikeThrough"),
+        });
+      } catch {
+        /* queryCommandState може кинути помилку у деяких браузерах */
+      }
+    };
+
+    // Слідкуємо за виділенням, поки редактор у фокусі
+    useEffect(() => {
+      const handler = () => {
+        const sel = window.getSelection();
+        if (
+          sel &&
+          editorRef.current &&
+          sel.anchorNode &&
+          editorRef.current.contains(sel.anchorNode)
+        ) {
+          updateActiveFormats();
+        }
+      };
+      document.addEventListener("selectionchange", handler);
+      return () => document.removeEventListener("selectionchange", handler);
+    }, []);
 
     // Синхронізація value з contentEditable
     useEffect(() => {
@@ -142,6 +187,8 @@ const RichTextEditor = forwardRef<RichTextEditorHandle, RichTextEditorProps>(
       document.execCommand(command, false, value);
       editorRef.current?.focus();
       setFormatMenu(false);
+      // Оновлюємо активні стилі після застосування форматування
+      setTimeout(updateActiveFormats, 0);
     };
 
     // Вставка спойлера
@@ -154,7 +201,6 @@ const RichTextEditor = forwardRef<RichTextEditorHandle, RichTextEditorProps>(
 
       const spoiler = document.createElement("span");
       spoiler.className = "comment-spoiler-edit";
-      spoiler.contentEditable = "true";
       spoiler.textContent = selectedText;
 
       range.deleteContents();
@@ -173,7 +219,6 @@ const RichTextEditor = forwardRef<RichTextEditorHandle, RichTextEditorProps>(
 
       const book = document.createElement("span");
       book.className = "comment-book-edit";
-      book.contentEditable = "true";
       book.textContent = selectedText;
 
       range.deleteContents();
@@ -276,14 +321,29 @@ const RichTextEditor = forwardRef<RichTextEditorHandle, RichTextEditorProps>(
                   <>
                     <div className="format-menu-overlay-v2" onClick={() => setFormatMenu(false)} />
                     <div className="format-menu-dropdown-v2">
-                      <button type="button" onClick={() => execCmd("bold")}>
+                      <button
+                        type="button"
+                        className={activeFormats.bold ? "is-active" : ""}
+                        onClick={() => execCmd("bold")}
+                      >
                         <strong>Жирный</strong>
+                        {activeFormats.bold && <CheckIcon />}
                       </button>
-                      <button type="button" onClick={() => execCmd("italic")}>
+                      <button
+                        type="button"
+                        className={activeFormats.italic ? "is-active" : ""}
+                        onClick={() => execCmd("italic")}
+                      >
                         <em>Курсив</em>
+                        {activeFormats.italic && <CheckIcon />}
                       </button>
-                      <button type="button" onClick={() => execCmd("strikeThrough")}>
+                      <button
+                        type="button"
+                        className={activeFormats.strikeThrough ? "is-active" : ""}
+                        onClick={() => execCmd("strikeThrough")}
+                      >
                         <s>Зачеркнутый</s>
+                        {activeFormats.strikeThrough && <CheckIcon />}
                       </button>
                     </div>
                   </>
@@ -293,11 +353,21 @@ const RichTextEditor = forwardRef<RichTextEditorHandle, RichTextEditorProps>(
                   <QuoteIcon />
                 </button>
 
-                <button type="button" className="richtext-editor-v2__btn" onClick={insertSpoiler} title="Спойлер">
+                <button
+                  type="button"
+                  className="richtext-editor-v2__btn"
+                  onClick={insertSpoiler}
+                  title="Спойлер"
+                >
                   <SpoilerIcon />
                 </button>
 
-                <button type="button" className="richtext-editor-v2__btn" onClick={() => execCmd("strikeThrough")} title="Зачеркнутый">
+                <button
+                  type="button"
+                  className={`richtext-editor-v2__btn${activeFormats.strikeThrough ? " richtext-editor-v2__btn--active" : ""}`}
+                  onClick={() => execCmd("strikeThrough")}
+                  title="Зачеркнутый"
+                >
                   <StrikeIcon />
                 </button>
               </div>
@@ -361,7 +431,17 @@ export function parseRichText(html: string): string {
     .replace(/comment-spoiler-edit/g, "comment-spoiler")
     .replace(/comment-book-edit/g, "comment-book")
     .replace(/comment-sticker-edit/g, "comment-sticker")
-    .replace(/comment-image-edit/g, "comment-image")
-    // Додаємо функціонал спойлерів
-    .replace(/<span class="comment-spoiler">(.*?)<\/span>/g, '<span class="comment-spoiler" onclick="this.classList.toggle(\'revealed\')">$1</span>');
+    .replace(/comment-image-edit/g, "comment-image");
+  // Розкриття спойлерів обробляється через делегування подій (handleSpoilerClick)
+}
+
+/**
+ * Обробник кліку по контейнеру коментаря.
+ * Розкриває/ховає спойлер через делегування подій — надійніше за inline onclick.
+ */
+export function handleSpoilerClick(e: React.MouseEvent<HTMLDivElement>) {
+  const target = (e.target as HTMLElement).closest(".comment-spoiler");
+  if (target) {
+    target.classList.toggle("revealed");
+  }
 }

@@ -3,7 +3,7 @@
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ReportModal from "@/components/ReportModal";
-import RichTextEditor, { parseRichText, RichTextEditorHandle } from "@/components/RichTextEditor";
+import RichTextEditor, { parseRichText, handleSpoilerClick, RichTextEditorHandle } from "@/components/RichTextEditor";
 import React, { useState } from "react";
 
 /* ── Mock Data ── */
@@ -530,32 +530,20 @@ function CommentsPanel({
                 </div>
                 {editingCommentId === c.id ? (
                   <div className="comment-inline-edit">
-                    <input 
-                      type="text" 
-                      value={editingCommentText} 
-                      onChange={(e) => setEditingCommentText(e.target.value)} 
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter') {
-                          setComments(comments.map(comment => comment.id === c.id ? { ...comment, text: editingCommentText } : comment));
-                          setEditingCommentId(null);
-                        }
-                      }}
-                      className="comment-inline-input"
-                      autoFocus
-                    />
-                    <button 
-                      className="comment-inline-save"
-                      onClick={() => {
+                    <RichTextEditor
+                      value={editingCommentText}
+                      onChange={setEditingCommentText}
+                      onSubmit={() => {
                         setComments(comments.map(comment => comment.id === c.id ? { ...comment, text: editingCommentText } : comment));
                         setEditingCommentId(null);
                       }}
-                    >
-                      Сохранить
-                    </button>
+                      placeholder="Редактировать комментарий..."
+                    />
                   </div>
                 ) : (
                   <div
                     className="reader__panel-comment-text"
+                    onClick={handleSpoilerClick}
                     dangerouslySetInnerHTML={{ __html: parseRichText(c.text) }}
                   />
                 )}

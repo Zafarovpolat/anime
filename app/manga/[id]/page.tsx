@@ -47,6 +47,8 @@ type CommentType = {
   replies: CommentType[];
   /* Кому именно адресован этот ответ внутри ветки (root или другой ответ) — чтобы не терялся контекст, когда в ветке несколько ответов */
   replyToUsername: string | null;
+  /* id комментария, на который отвечают — для скролла к нему по клику на «Ответ для …» */
+  replyToId: number | null;
 };
 
 const INITIAL_COMMENTS: CommentType[] = Array.from({ length: 7 }, (_, i) => ({
@@ -59,6 +61,7 @@ const INITIAL_COMMENTS: CommentType[] = Array.from({ length: 7 }, (_, i) => ({
   dislikes: 1,
   userReaction: null,
   replyToUsername: null,
+  replyToId: null,
   replies: i === 0 ? [
     {
       id: 1000,
@@ -70,10 +73,28 @@ const INITIAL_COMMENTS: CommentType[] = Array.from({ length: 7 }, (_, i) => ({
       dislikes: 0,
       userReaction: null,
       replyToUsername: "Jul_Mol",
+      replyToId: 0,
       replies: [],
     },
   ] : [],
 }));
+
+/* Превращает rich-text (HTML) комментария в plain-текст — для превью «на что отвечаешь» */
+function stripHtml(html: string): string {
+  if (typeof document === "undefined") return html.replace(/<[^>]*>/g, "");
+  const tmp = document.createElement("div");
+  tmp.innerHTML = html;
+  return (tmp.textContent || "").trim();
+}
+
+/* Скролл к комментарию по id + кратковременная подсветка */
+function scrollToComment(id: number) {
+  const el = document.getElementById(`comment-${id}`);
+  if (!el) return;
+  el.scrollIntoView({ behavior: "smooth", block: "center" });
+  el.classList.add("comment--highlight");
+  setTimeout(() => el.classList.remove("comment--highlight"), 1600);
+}
 
 function mapCommentTree(list: CommentType[], id: number, fn: (c: CommentType) => CommentType): CommentType[] {
   return list.map((c) => {
@@ -413,7 +434,7 @@ function CommentBlock({
   onDislike: (id: number) => void;
 }) {
   return (
-    <div className={`manga-inner__comment${nested ? " manga-inner__comment--nested" : ""}`}>
+    <div id={`comment-${c.id}`} className={`manga-inner__comment${nested ? " manga-inner__comment--nested" : ""}`}>
       <div className="manga-inner__comment-avatar">
         <img src={`/images/cover_${(c.id % 12) + 1}.jpg`} alt={c.username} />
       </div>
@@ -465,7 +486,18 @@ function CommentBlock({
           </div>
           {c.replyToUsername && (
             <div className="manga-inner__comment-replyto">
-              Ответ для <b>{c.replyToUsername}</b>
+              Ответ для{" "}
+              {c.replyToId != null ? (
+                <b
+                  className="manga-inner__comment-replyto-link"
+                  onClick={() => scrollToComment(c.replyToId as number)}
+                  title="Перейти к комментарию"
+                >
+                  {c.replyToUsername}
+                </b>
+              ) : (
+                <b>{c.replyToUsername}</b>
+              )}
             </div>
           )}
           {editingCommentId === c.id ? (
@@ -772,7 +804,7 @@ const [comments, setComments] = useState(INITIAL_COMMENTS);
   const [editingCommentId, setEditingCommentId] = useState<number | null>(null);
   const [editingCommentText, setEditingCommentText] = useState("");
   const [commentMenuOpen, setCommentMenuOpen] = useState<number | null>(null);
-  const [replyingTo, setReplyingTo] = useState<{ id: number; username: string } | null>(null);
+  const [replyingTo, setReplyingTo] = useState<{ rootId: number; targetId: number; username: string; text: string } | null>(null);
   const commentInputRef = useRef<RichTextEditorHandle>(null);
   const searchParams = useSearchParams();
   const edittext = searchParams.get('edittext');
@@ -792,6 +824,7 @@ const [comments, setComments] = useState(INITIAL_COMMENTS);
         dislikes: 0,
         userReaction: null,
         replyToUsername: null,
+        replyToId: null,
         replies: [],
       }, ...prev]);
       setEditingCommentId(fakeId);
@@ -903,7 +936,12 @@ const [comments, setComments] = useState(INITIAL_COMMENTS);
   };
 
   const handleCommentReply = (c: CommentType) => {
-    setReplyingTo({ id: findThreadRootId(comments, c.id), username: c.username });
+    setReplyingTo({
+      rootId: findThreadRootId(comments, c.id),
+      targetId: c.id,
+      username: c.username,
+      text: stripHtml(c.text),
+    });
     if (commentInputRef.current) commentInputRef.current.focus();
   };
 
@@ -1219,9 +1257,14 @@ const [comments, setComments] = useState(INITIAL_COMMENTS);
                       {/* Reply preview */}
                       {replyingTo && (
                         <div className="manga-inner__reply-preview">
-                          <span className="manga-inner__reply-preview-text">
-                            Ответ для <b>{replyingTo.username}</b>
-                          </span>
+                          <div className="manga-inner__reply-preview-body">
+                            <span className="manga-inner__reply-preview-text">
+                              Ответ для <b>{replyingTo.username}</b>
+                            </span>
+                            {replyingTo.text && (
+                              <span className="manga-inner__reply-preview-quote">{replyingTo.text}</span>
+                            )}
+                          </div>
                           <button
                             className="manga-inner__reply-preview-close"
                             onClick={() => setReplyingTo(null)}
@@ -1249,9 +1292,10 @@ const [comments, setComments] = useState(INITIAL_COMMENTS);
                             dislikes: 0,
                             userReaction: null,
                             replyToUsername: replyingTo ? replyingTo.username : null,
+                            replyToId: replyingTo ? replyingTo.targetId : null,
                             replies: [],
                           };
-                          setComments(prev => replyingTo ? addReplyToThread(prev, replyingTo.id, newC) : [newC, ...prev]);
+                          setComments(prev => replyingTo ? addReplyToThread(prev, replyingTo.rootId, newC) : [newC, ...prev]);
                           setNewComment("");
                           setReplyingTo(null);
                         }}

@@ -15,7 +15,20 @@ const CHAPTERS = Array.from({ length: 15 }, (_, i) => ({
   likes: "2 640",
 }));
 
-const INITIAL_COMMENTS = Array.from({ length: 6 }, (_, i) => ({
+/* Комментарий + вложенные ответы (древовидная структура) */
+type CommentType = {
+  id: number;
+  avatar: string;
+  username: string;
+  text: string;
+  time: string;
+  likes: number;
+  dislikes: number;
+  userReaction: null | "like" | "dislike";
+  replies: CommentType[];
+};
+
+const INITIAL_COMMENTS: CommentType[] = Array.from({ length: 6 }, (_, i) => ({
   id: i,
   avatar: "/images/avatar_default.png",
   username: "Jul_Mol",
@@ -23,9 +36,47 @@ const INITIAL_COMMENTS = Array.from({ length: 6 }, (_, i) => ({
   time: "34 часа назад",
   likes: 20,
   dislikes: 1,
-  userReaction: null as null | "like" | "dislike",
-  replyTo: null as null | { id: number; username: string },
+  userReaction: null,
+  replies: i === 0 ? [
+    {
+      id: 1000,
+      avatar: "/images/avatar_default.png",
+      username: "MangaFan92",
+      text: "Согласен, рисовка действительно очень хорошая",
+      time: "32 часа назад",
+      likes: 5,
+      dislikes: 0,
+      userReaction: null,
+      replies: [],
+    },
+  ] : [],
 }));
+
+function mapCommentTree(list: CommentType[], id: number, fn: (c: CommentType) => CommentType): CommentType[] {
+  return list.map((c) => {
+    if (c.id === id) return fn(c);
+    if (c.replies.length) return { ...c, replies: mapCommentTree(c.replies, id, fn) };
+    return c;
+  });
+}
+
+function removeFromCommentTree(list: CommentType[], id: number): CommentType[] {
+  return list
+    .filter((c) => c.id !== id)
+    .map((c) => ({ ...c, replies: removeFromCommentTree(c.replies, id) }));
+}
+
+function findThreadRootId(list: CommentType[], id: number): number {
+  for (const c of list) {
+    if (c.id === id) return c.id;
+    if (c.replies.some((r) => r.id === id)) return c.id;
+  }
+  return id;
+}
+
+function addReplyToThread(list: CommentType[], rootId: number, reply: CommentType): CommentType[] {
+  return list.map((c) => (c.id === rootId ? { ...c, replies: [...c.replies, reply] } : c));
+}
 
 const BOOKMARK_OPTIONS = [
   { label: "Читаю",       color: "#562CF0" },
@@ -351,6 +402,157 @@ function ThumbDownIcon() {
   );
 }
 
+/* Рекурсивный рендер комментария: корень и вложенные ответы используют одну и ту же разметку */
+function CommentBlock({
+  comment: c,
+  nested,
+  editingCommentId,
+  editingCommentText,
+  onChangeEditText,
+  onStartEdit,
+  onSaveEdit,
+  commentMenuOpen,
+  onToggleMenu,
+  onDelete,
+  onReport,
+  onReply,
+  onLike,
+  onDislike,
+}: {
+  comment: CommentType;
+  nested?: boolean;
+  editingCommentId: number | null;
+  editingCommentText: string;
+  onChangeEditText: (text: string) => void;
+  onStartEdit: (c: CommentType) => void;
+  onSaveEdit: (id: number) => void;
+  commentMenuOpen: number | null;
+  onToggleMenu: (id: number | null) => void;
+  onDelete: (id: number) => void;
+  onReport: () => void;
+  onReply: (c: CommentType) => void;
+  onLike: (id: number) => void;
+  onDislike: (id: number) => void;
+}) {
+  return (
+    <div id={`comment-${c.id}`} className={`reader__panel-comment${nested ? " reader__panel-comment--nested" : ""}`}>
+      <div className="reader__panel-comment-avatar">
+        <img src={c.avatar} alt={c.username} />
+      </div>
+      <div className="reader__panel-comment-body">
+        <div className="reader__panel-comment-top">
+          <div className="reader__panel-comment-header">
+            <span className="reader__panel-comment-name">{c.username}</span>
+            {c.username === "Вы" ? (
+              <div style={{ position: "relative" }}>
+                <button
+                  className="reader__panel-comment-menu"
+                  onClick={() => onToggleMenu(commentMenuOpen === c.id ? null : c.id)}
+                  aria-label="Меню"
+                >
+                  <HorizontalDotsIcon />
+                </button>
+                {commentMenuOpen === c.id && (
+                  <>
+                    <div className="comment-menu-overlay" onClick={() => onToggleMenu(null)} />
+                    <div className="comment-menu-dropdown">
+                      <button
+                        className="comment-menu-dropdown__item comment-menu-dropdown__item--active"
+                        onClick={() => {
+                          onToggleMenu(null);
+                          onStartEdit(c);
+                        }}
+                      >
+                        Редактировать
+                      </button>
+                      <button
+                        className="comment-menu-dropdown__item"
+                        style={{ color: "#EF4444" }}
+                        onClick={() => {
+                          onToggleMenu(null);
+                          onDelete(c.id);
+                        }}
+                      >
+                        Удалить
+                      </button>
+                    </div>
+                  </>
+                )}
+              </div>
+            ) : (
+              <button className="reader__panel-comment-menu" onClick={onReport} title="Пожаловаться" aria-label="Пожаловаться">
+                <ReportIcon />
+              </button>
+            )}
+          </div>
+          {editingCommentId === c.id ? (
+            <div className="comment-inline-edit">
+              <RichTextEditor
+                value={editingCommentText}
+                onChange={onChangeEditText}
+                onSubmit={() => onSaveEdit(c.id)}
+                placeholder="Редактировать комментарий..."
+              />
+            </div>
+          ) : (
+            <div
+              className="reader__panel-comment-text"
+              onClick={handleSpoilerClick}
+              dangerouslySetInnerHTML={{ __html: parseRichText(c.text) }}
+            />
+          )}
+        </div>
+        <div className="reader__panel-comment-footer">
+          <span className="reader__panel-comment-time">{c.time}</span>
+          {c.username !== "Вы" && (
+            <button className="reader__panel-comment-reply" onClick={() => onReply(c)}>
+              Ответить
+            </button>
+          )}
+          <div className="reader__panel-comment-reactions">
+            <button
+              className={`reader__panel-comment-like${c.userReaction === "like" ? " reader__panel-comment-like--active" : ""}`}
+              onClick={() => onLike(c.id)}
+            >
+              <ThumbUpIcon /> {c.likes}
+            </button>
+            <button
+              className={`reader__panel-comment-dislike${c.userReaction === "dislike" ? " reader__panel-comment-dislike--active" : ""}`}
+              onClick={() => onDislike(c.id)}
+            >
+              <ThumbDownIcon /> {c.dislikes}
+            </button>
+          </div>
+        </div>
+
+        {c.replies.length > 0 && (
+          <div className="reader__panel-comment-replies">
+            {c.replies.map((r) => (
+              <CommentBlock
+                key={r.id}
+                comment={r}
+                nested
+                editingCommentId={editingCommentId}
+                editingCommentText={editingCommentText}
+                onChangeEditText={onChangeEditText}
+                onStartEdit={onStartEdit}
+                onSaveEdit={onSaveEdit}
+                commentMenuOpen={commentMenuOpen}
+                onToggleMenu={onToggleMenu}
+                onDelete={onDelete}
+                onReport={onReport}
+                onReply={onReply}
+                onLike={onLike}
+                onDislike={onDislike}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 /* ══ Chapters Panel ══ */
 function ChaptersPanel({
   onClose,
@@ -429,8 +631,8 @@ function CommentsPanel({
   onReport,
 }: {
   onClose: () => void;
-  comments: typeof INITIAL_COMMENTS;
-  setComments: (comments: typeof INITIAL_COMMENTS) => void;
+  comments: CommentType[];
+  setComments: (updater: (prev: CommentType[]) => CommentType[]) => void;
   onReport: () => void;
 }) {
   const [newComment, setNewComment] = useState("");
@@ -441,30 +643,69 @@ function CommentsPanel({
   const [replyingTo, setReplyingTo] = useState<{ id: number; username: string } | null>(null);
   const commentInputRef = React.useRef<RichTextEditorHandle>(null);
 
-  const scrollToComment = (id: number) => {
-    const el = document.getElementById(`comment-${id}`);
-    if (!el) return;
-    el.scrollIntoView({ behavior: "smooth", block: "center" });
-    el.classList.add("reader__panel-comment--highlight");
-    window.setTimeout(() => el.classList.remove("reader__panel-comment--highlight"), 1500);
+  const handleSend = () => {
+    if (!newComment.trim()) return;
+    const newC: CommentType = {
+      id: Date.now(),
+      avatar: "/images/avatar_default.png",
+      username: "Вы",
+      text: newComment,
+      time: "Только что",
+      likes: 0,
+      dislikes: 0,
+      userReaction: null,
+      replies: [],
+    };
+    setComments(prev => replyingTo ? addReplyToThread(prev, replyingTo.id, newC) : [newC, ...prev]);
+    setNewComment("");
+    setReplyingTo(null);
   };
 
-  const handleSend = () => {
-    if (newComment.trim()) {
-      setComments([{
-        id: Date.now(),
-        avatar: "/images/avatar_default.png",
-        username: "Вы",
-        text: newComment,
-        time: "Только что",
-        likes: 0,
-        dislikes: 0,
-        userReaction: null,
-        replyTo: replyingTo,
-      }, ...comments]);
-      setNewComment("");
-      setReplyingTo(null);
-    }
+  const handleLike = (id: number) => {
+    setComments(prev => mapCommentTree(prev, id, (comment) => {
+      if (comment.username === "Вы") return comment;
+      const wasLiked = comment.userReaction === "like";
+      const wasDisliked = comment.userReaction === "dislike";
+      return {
+        ...comment,
+        userReaction: wasLiked ? null : "like",
+        likes: comment.likes + (wasLiked ? -1 : 1),
+        dislikes: comment.dislikes + (wasDisliked ? -1 : 0),
+      };
+    }));
+  };
+
+  const handleDislike = (id: number) => {
+    setComments(prev => mapCommentTree(prev, id, (comment) => {
+      if (comment.username === "Вы") return comment;
+      const wasLiked = comment.userReaction === "like";
+      const wasDisliked = comment.userReaction === "dislike";
+      return {
+        ...comment,
+        userReaction: wasDisliked ? null : "dislike",
+        dislikes: comment.dislikes + (wasDisliked ? -1 : 1),
+        likes: comment.likes + (wasLiked ? -1 : 0),
+      };
+    }));
+  };
+
+  const handleDelete = (id: number) => {
+    setComments(prev => removeFromCommentTree(prev, id));
+  };
+
+  const handleStartEdit = (c: CommentType) => {
+    setEditingCommentId(c.id);
+    setEditingCommentText(c.text);
+  };
+
+  const handleSaveEdit = (id: number) => {
+    setComments(prev => mapCommentTree(prev, id, (c) => ({ ...c, text: editingCommentText })));
+    setEditingCommentId(null);
+  };
+
+  const handleReply = (c: CommentType) => {
+    setReplyingTo({ id: findThreadRootId(comments, c.id), username: c.username });
+    if (commentInputRef.current) commentInputRef.current.focus();
   };
 
   return (
@@ -518,144 +759,23 @@ function CommentsPanel({
         {[...comments]
           .sort((a, b) => (commentSort === "popular" ? b.likes - a.likes : 0))
           .map((c) => (
-          <div key={c.id} id={`comment-${c.id}`} className="reader__panel-comment">
-            <div className="reader__panel-comment-avatar">
-              <img src={c.avatar} alt={c.username} />
-            </div>
-            <div className="reader__panel-comment-body">
-              <div className="reader__panel-comment-top">
-                <div className="reader__panel-comment-header">
-                  <span className="reader__panel-comment-name">
-                    {c.username}
-                  </span>
-                  {c.username === "Вы" ? (
-                    <div style={{ position: "relative" }}>
-                      <button 
-                        className="reader__panel-comment-menu" 
-                        onClick={() => setCommentMenuOpen(commentMenuOpen === c.id ? null : c.id)}
-                        aria-label="Меню"
-                      >
-                        <HorizontalDotsIcon />
-                      </button>
-                      {commentMenuOpen === c.id && (
-                        <>
-                          <div className="comment-menu-overlay" onClick={() => setCommentMenuOpen(null)} />
-                          <div className="comment-menu-dropdown">
-                            <button 
-                              className="comment-menu-dropdown__item comment-menu-dropdown__item--active"
-                              onClick={() => {
-                                setCommentMenuOpen(null);
-                                setEditingCommentId(c.id);
-                                setEditingCommentText(c.text);
-                              }}
-                            >
-                              Редактировать
-                            </button>
-                            <button 
-                              className="comment-menu-dropdown__item"
-                              style={{ color: "#EF4444" }}
-                              onClick={() => {
-                                setCommentMenuOpen(null);
-                                setComments(comments.filter(comment => comment.id !== c.id));
-                              }}
-                            >
-                              Удалить
-                            </button>
-                          </div>
-                        </>
-                      )}
-                    </div>
-                  ) : (
-                    <button className="reader__panel-comment-menu" onClick={onReport} title="Пожаловаться" aria-label="Пожаловаться">
-                      <ReportIcon />
-                    </button>
-                  )}
-                </div>
-                {c.replyTo && (
-                  <button
-                    className="reader__panel-comment-reply reader__panel-comment-replyto"
-                    onClick={() => scrollToComment(c.replyTo!.id)}
-                  >
-                    Ответ для {c.replyTo.username}
-                  </button>
-                )}
-                {editingCommentId === c.id ? (
-                  <div className="comment-inline-edit">
-                    <RichTextEditor
-                      value={editingCommentText}
-                      onChange={setEditingCommentText}
-                      onSubmit={() => {
-                        setComments(comments.map(comment => comment.id === c.id ? { ...comment, text: editingCommentText } : comment));
-                        setEditingCommentId(null);
-                      }}
-                      placeholder="Редактировать комментарий..."
-                    />
-                  </div>
-                ) : (
-                  <div
-                    className="reader__panel-comment-text"
-                    onClick={handleSpoilerClick}
-                    dangerouslySetInnerHTML={{ __html: parseRichText(c.text) }}
-                  />
-                )}
-              </div>
-              <div className="reader__panel-comment-footer">
-                <span className="reader__panel-comment-time">{c.time}</span>
-                {c.username !== "Вы" && (
-                  <button 
-                    className="reader__panel-comment-reply"
-                    onClick={() => {
-                      setReplyingTo({ id: c.id, username: c.username });
-                      if (commentInputRef.current) commentInputRef.current.focus();
-                    }}
-                  >
-                    Ответить
-                  </button>
-                )}
-                <div className="reader__panel-comment-reactions">
-                  <button
-                    className={`reader__panel-comment-like${c.userReaction === "like" ? " reader__panel-comment-like--active" : ""}`}
-                    onClick={() => {
-                      if (c.username === "Вы") return;
-                      setComments(comments.map(comment => {
-                        if (comment.id !== c.id) return comment;
-                        const wasLiked = comment.userReaction === "like";
-                        const wasDisliked = comment.userReaction === "dislike";
-                        return {
-                          ...comment,
-                          userReaction: wasLiked ? null : "like",
-                          likes: comment.likes + (wasLiked ? -1 : 1),
-                          dislikes: comment.dislikes + (wasDisliked ? -1 : 0),
-                        };
-                      }));
-                    }}
-                  >
-                    <ThumbUpIcon /> {c.likes}
-                  </button>
-                  <button
-                    className={`reader__panel-comment-dislike${c.userReaction === "dislike" ? " reader__panel-comment-dislike--active" : ""}`}
-                    onClick={() => {
-                      if (c.username === "Вы") return;
-                      setComments(comments.map(comment => {
-                        if (comment.id !== c.id) return comment;
-                        const wasLiked = comment.userReaction === "like";
-                        const wasDisliked = comment.userReaction === "dislike";
-                        return {
-                          ...comment,
-                          userReaction: wasDisliked ? null : "dislike",
-                          dislikes: comment.dislikes + (wasDisliked ? -1 : 1),
-                          likes: comment.likes + (wasLiked ? -1 : 0),
-                        };
-                      }));
-                    }}
-                  >
-                    <ThumbDownIcon /> {c.dislikes}
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        ))}
+            <CommentBlock
+              key={c.id}
+              comment={c}
+              editingCommentId={editingCommentId}
+              editingCommentText={editingCommentText}
+              onChangeEditText={setEditingCommentText}
+              onStartEdit={handleStartEdit}
+              onSaveEdit={handleSaveEdit}
+              commentMenuOpen={commentMenuOpen}
+              onToggleMenu={setCommentMenuOpen}
+              onDelete={handleDelete}
+              onReport={onReport}
+              onReply={handleReply}
+              onLike={handleLike}
+              onDislike={handleDislike}
+            />
+          ))}
       </div>
     </>
   );

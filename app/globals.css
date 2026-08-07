@@ -2474,11 +2474,6 @@ button {
   color: #562cf0;
 }
 
-.manga-inner__comment-replyto {
-  display: inline-block;
-  margin-bottom: 8px;
-}
-
 .manga-inner__reply-preview {
   display: flex;
   align-items: center;
@@ -2511,9 +2506,20 @@ button {
   flex-shrink: 0;
 }
 
-.manga-inner__comment--highlight .manga-inner__comment-top {
-  background-color: rgba(86, 44, 240, 0.08);
-  transition: background-color 0.3s;
+/* Вложенные ответы (древовидные комментарии), отступ + вертикальная линия на токенах сайта */
+.manga-inner__comment-replies {
+  margin-left: 87px; /* 69px (аватар) + 18px (гап карточки) */
+  padding-left: 20px; /* = .manga-inner__comment-top padding */
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  border-left: 2px solid var(--color-gray-light);
+}
+
+.manga-inner__comment--nested .manga-inner__comment-avatar {
+  width: 52px;
+  height: 52px;
 }
 
 .manga-inner__comment-reactions {
@@ -7033,6 +7039,15 @@ button {
     width: 52px;
     height: 52px;
   }
+
+  .manga-inner__comment-replies {
+    margin-left: 70px; /* 52px (аватар) + 18px */
+  }
+
+  .manga-inner__comment--nested .manga-inner__comment-avatar {
+    width: 46px;
+    height: 46px;
+  }
 }
 
 /* ── 768px ── */
@@ -7218,6 +7233,15 @@ button {
   .manga-inner__comment-avatar {
     width: 46px;
     height: 46px;
+  }
+
+  .manga-inner__comment-replies {
+    margin-left: 64px; /* 46px (аватар) + 18px */
+  }
+
+  .manga-inner__comment--nested .manga-inner__comment-avatar {
+    width: 40px;
+    height: 40px;
   }
 
   .manga-inner__comment-name {
@@ -7448,6 +7472,19 @@ button {
     display: flex;
     align-items: center;
     gap: 20px;
+  }
+
+  .manga-inner__comment-replies {
+    grid-column: 1 / span 2;
+    grid-row: 3;
+    margin-left: 0;
+    padding-left: 15px; /* = .manga-inner__comment-top padding на этом брейкпоинте */
+    margin-top: 12px; /* = row-gap сетки комментария */
+  }
+
+  .manga-inner__comment--nested .manga-inner__comment-avatar {
+    width: 40px;
+    height: 40px;
   }
 
   .manga-inner__comment-name {
@@ -8051,11 +8088,6 @@ button {
   color: #562cf0;
 }
 
-.reader__panel-comment-replyto {
-  display: inline-block;
-  margin-bottom: 8px;
-}
-
 .reader__panel-reply-preview {
   display: flex;
   align-items: center;
@@ -8088,9 +8120,20 @@ button {
   flex-shrink: 0;
 }
 
-.reader__panel-comment--highlight .reader__panel-comment-top {
-  background-color: rgba(86, 44, 240, 0.08);
-  transition: background-color 0.3s;
+/* Вложенные ответы (древовидные комментарии), отступ + вертикальная линия на токенах сайта */
+.reader__panel-comment-replies {
+  margin-left: 38px; /* = ширина аватара */
+  padding-left: 20px; /* = .reader__panel-comment-top padding */
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  border-left: 2px solid var(--color-gray-light);
+}
+
+.reader__panel-comment--nested .reader__panel-comment-avatar {
+  width: 32px;
+  height: 32px;
 }
 
 .reader__panel-comment-reactions {
@@ -8503,6 +8546,10 @@ button {
     padding: 16px;
   }
 
+  .reader__panel-comment-replies {
+    padding-left: 16px;
+  }
+
   .reader__sidebar {
     width: 64px;
     top: calc(50vh - 270px / 2);
@@ -8589,6 +8636,10 @@ button {
 
   .reader__panel-comment-top {
     padding: 14px;
+  }
+
+  .reader__panel-comment-replies {
+    padding-left: 14px;
   }
 
   .reader__sidebar {
@@ -8786,6 +8837,10 @@ button {
 
   .reader__panel-comment-top {
     padding: 12px;
+  }
+
+  .reader__panel-comment-replies {
+    padding-left: 12px;
   }
 
   .reader__panel-search {
@@ -10442,6 +10497,10 @@ button {
 .admin-table__row--clickable { cursor: pointer; }
 .admin-table__row--clickable:hover { background: #fafafa; }
 
+/* Строка с комментарием, помеченным автомодерацией как нецензурный — тот же оттенок красного, что и в admin-badge--banned */
+.admin-table__row--flagged { background: #fdecea; }
+.admin-table__row--flagged.admin-table__row--clickable:hover { background: #fdecea; }
+
 /* ── Form layout (add work / chapter) ── */
 .admin-form-layout {
   display: grid;
@@ -11670,6 +11729,15 @@ button {
     height: 40px;
   }
 
+  .manga-inner .manga-inner__comment-replies {
+    padding-left: 12px;
+  }
+
+  .manga-inner .manga-inner__comment--nested .manga-inner__comment-avatar {
+    width: 32px;
+    height: 32px;
+  }
+
   .manga-inner .manga-inner__comment-top {
     padding: 12px;
     border-radius: 16px;
@@ -11705,6 +11773,10 @@ button {
   .manga-inner .manga-inner__comment-avatar {
     width: 32px;
     height: 32px;
+  }
+
+  .manga-inner .manga-inner__comment-replies {
+    padding-left: 10px;
   }
 
   .manga-inner .manga-inner__comment-top {
@@ -11748,6 +11820,16 @@ button {
     height: 32px;
   }
 
+  .reader__panel-comment-replies {
+    margin-left: 32px;
+    padding-left: 10px;
+  }
+
+  .reader__panel-comment--nested .reader__panel-comment-avatar {
+    width: 28px;
+    height: 28px;
+  }
+
   .reader__panel-comment-top {
     padding: 10px;
     border-radius: 16px;
@@ -11770,6 +11852,11 @@ button {
   .reader__panel-comment-avatar {
     width: 28px;
     height: 28px;
+  }
+
+  .reader__panel-comment-replies {
+    margin-left: 28px;
+    padding-left: 8px;
   }
 
   .reader__panel-comment-top {

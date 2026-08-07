@@ -121,7 +121,7 @@ export default function AdminCommentsPage() {
                       return (
                       <tr
                         key={comment.id}
-                        className="admin-table__row admin-table__row--clickable"
+                        className={`admin-table__row admin-table__row--clickable${flagged ? ' admin-table__row--flagged' : ''}`}
                         onClick={() => setViewComment(comment)}
                       >
                         <td className="admin-table__td admin-table__td--bold">

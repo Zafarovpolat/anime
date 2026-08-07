@@ -43,6 +43,7 @@ const INITIAL_COMMENTS = Array.from({ length: 7 }, (_, i) => ({
   likes: 20,
   dislikes: 1,
   userReaction: null as null | "like" | "dislike",
+  replyTo: null as null | { id: number; username: string },
 }));
 
 const REVIEWS = Array.from({ length: 5 }, (_, i) => ({
@@ -556,6 +557,7 @@ const [comments, setComments] = useState(INITIAL_COMMENTS);
   const [editingCommentId, setEditingCommentId] = useState<number | null>(null);
   const [editingCommentText, setEditingCommentText] = useState("");
   const [commentMenuOpen, setCommentMenuOpen] = useState<number | null>(null);
+  const [replyingTo, setReplyingTo] = useState<{ id: number; username: string } | null>(null);
   const commentInputRef = useRef<RichTextEditorHandle>(null);
   const searchParams = useSearchParams();
   const edittext = searchParams.get('edittext');
@@ -574,6 +576,7 @@ const [comments, setComments] = useState(INITIAL_COMMENTS);
         likes: 0,
         dislikes: 0,
         userReaction: null,
+        replyTo: null,
       }, ...prev]);
       setEditingCommentId(fakeId);
       setEditingCommentText(edittext);
@@ -639,6 +642,14 @@ const [comments, setComments] = useState(INITIAL_COMMENTS);
     .sort((a, b) => (reversed ? a.chapter - b.chapter : b.chapter - a.chapter));
 
   const newChapters = Array.from({ length: 8 }, (_, i) => 241 - i);
+
+  const scrollToComment = (id: number) => {
+    const el = document.getElementById(`comment-${id}`);
+    if (!el) return;
+    el.scrollIntoView({ behavior: "smooth", block: "center" });
+    el.classList.add("manga-inner__comment--highlight");
+    window.setTimeout(() => el.classList.remove("manga-inner__comment--highlight"), 1500);
+  };
 
   return (
     <>
@@ -949,6 +960,22 @@ const [comments, setComments] = useState(INITIAL_COMMENTS);
                         </div>
                       </div>
 
+                      {/* Reply preview */}
+                      {replyingTo && (
+                        <div className="manga-inner__reply-preview">
+                          <span className="manga-inner__reply-preview-text">
+                            Ответ для <b>{replyingTo.username}</b>
+                          </span>
+                          <button
+                            className="manga-inner__reply-preview-close"
+                            onClick={() => setReplyingTo(null)}
+                            aria-label="Отменить ответ"
+                          >
+                            <CloseIcon />
+                          </button>
+                        </div>
+                      )}
+
                       {/* Comment input */}
                       <RichTextEditor
                         ref={commentInputRef}
@@ -965,8 +992,10 @@ const [comments, setComments] = useState(INITIAL_COMMENTS);
                               likes: 0,
                               dislikes: 0,
                               userReaction: null,
+                              replyTo: replyingTo,
                             }, ...comments]);
                             setNewComment("");
+                            setReplyingTo(null);
                           }
                         }}
                         placeholder="Оставить комментарий"
@@ -983,7 +1012,7 @@ const [comments, setComments] = useState(INITIAL_COMMENTS);
                           })
                           .slice(0, visibleCommentsCount)
                           .map((c) => (
-                          <div key={c.id} className="manga-inner__comment">
+                          <div key={c.id} id={`comment-${c.id}`} className="manga-inner__comment">
                             <div className="manga-inner__comment-avatar">
                               <img
                                 src={`/images/cover_${(c.id % 12) + 1}.jpg`}
@@ -1039,6 +1068,14 @@ const [comments, setComments] = useState(INITIAL_COMMENTS);
                                     </button>
                                   )}
                                 </div>
+                                {c.replyTo && (
+                                  <span
+                                    className="manga-inner__comment-reply manga-inner__comment-replyto"
+                                    onClick={() => scrollToComment(c.replyTo!.id)}
+                                  >
+                                    Ответ для {c.replyTo.username}
+                                  </span>
+                                )}
                                 {editingCommentId === c.id ? (
                                   <div className="comment-inline-edit">
                                     <RichTextEditor
@@ -1068,7 +1105,7 @@ const [comments, setComments] = useState(INITIAL_COMMENTS);
                                     className="manga-inner__comment-reply"
                                     style={{ cursor: "pointer" }}
                                     onClick={() => {
-                                      setNewComment(c.username + ", ");
+                                      setReplyingTo({ id: c.id, username: c.username });
                                       if (commentInputRef.current) commentInputRef.current.focus();
                                     }}
                                   >

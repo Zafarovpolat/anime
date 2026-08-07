@@ -14,6 +14,19 @@ function TrashIcon() {
   );
 }
 
+function BanIcon() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+      <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"/>
+      <path d="M4.93 4.93L19.07 19.07" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+    </svg>
+  );
+}
+
+/* Упрощённый словарь-заглушка для демонстрации автомодерации (без бэкенда — проверка на фронте) */
+const FLAGGED_WORDS = ['дурак', 'идиот', 'кретин', 'мразь', 'сволочь', 'тупица'];
+const isFlagged = (text: string) => FLAGGED_WORDS.some(w => text.toLowerCase().includes(w));
+
 type Comment = { id: number; username: string; text: string; work: string; date: string };
 
 const COMMENTS: Comment[] = Array.from({ length: 14 }, (_, i) => ({
@@ -28,7 +41,7 @@ const COMMENTS: Comment[] = Array.from({ length: 14 }, (_, i) => ({
     'Сюжет становится всё интереснее и интереснее.',
     'Главный герой просто невероятный персонаж.',
     'Арт в этой главе просто потрясающий!',
-    'Не могу дождаться продолжения!!!',
+    'Автор совсем дурак, испортил такую историю.',
     'Спасибо переводчику за быстрый выпуск.',
     'Это был неожиданный поворот сюжета.',
     'Читаю с самого начала, не разочарован.',
@@ -44,6 +57,8 @@ export default function AdminCommentsPage() {
   const [search, setSearch] = useState('');
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [viewComment, setViewComment] = useState<Comment | null>(null);
+  const [bannedUsers, setBannedUsers] = useState<string[]>([]);
+  const [banTarget, setBanTarget] = useState<{ id: number; username: string } | null>(null);
 
   const filtered = comments.filter(c =>
     c.username.toLowerCase().includes(search.toLowerCase()) ||
@@ -54,6 +69,11 @@ export default function AdminCommentsPage() {
   const remove = (id: number) => {
     setComments(prev => prev.filter(c => c.id !== id));
     setDeleteId(null);
+  };
+
+  const banForProfanity = (username: string) => {
+    setBannedUsers(prev => prev.includes(username) ? prev : [...prev, username]);
+    setBanTarget(null);
   };
 
   return (
@@ -95,27 +115,48 @@ export default function AdminCommentsPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {filtered.map(comment => (
+                    {filtered.map(comment => {
+                      const flagged = isFlagged(comment.text);
+                      const banned = bannedUsers.includes(comment.username);
+                      return (
                       <tr
                         key={comment.id}
                         className="admin-table__row admin-table__row--clickable"
                         onClick={() => setViewComment(comment)}
                       >
-                        <td className="admin-table__td admin-table__td--bold">{comment.username}</td>
-                        <td className="admin-table__td admin-table__td--muted admin-table__td--clamp">{comment.text}</td>
+                        <td className="admin-table__td admin-table__td--bold">
+                          {comment.username}
+                          {banned && <span className="admin-badge admin-badge--banned" style={{ marginLeft: 8 }}>Заблокирован</span>}
+                        </td>
+                        <td className="admin-table__td admin-table__td--muted admin-table__td--clamp">
+                          {comment.text}
+                          {flagged && <span className="admin-badge admin-badge--banned" style={{ marginLeft: 8 }}>Нецензурно</span>}
+                        </td>
                         <td className="admin-table__td admin-table__td--muted">{comment.work}</td>
                         <td className="admin-table__td admin-table__td--muted">{comment.date}</td>
                         <td className="admin-table__td admin-table__td--right">
-                          <button
-                            className="admin-btn admin-btn--sm admin-btn--danger-ghost admin-btn--icon"
-                            onClick={e => { e.stopPropagation(); setDeleteId(comment.id); }}
-                            title="Удалить"
-                          >
-                            <TrashIcon />
-                          </button>
+                          <div className="admin-table__actions">
+                            {flagged && !banned && (
+                              <button
+                                className="admin-btn admin-btn--sm admin-btn--danger-ghost admin-btn--icon"
+                                onClick={e => { e.stopPropagation(); setBanTarget({ id: comment.id, username: comment.username }); }}
+                                title="Забанить за нецензурную лексику"
+                              >
+                                <BanIcon />
+                              </button>
+                            )}
+                            <button
+                              className="admin-btn admin-btn--sm admin-btn--danger-ghost admin-btn--icon"
+                              onClick={e => { e.stopPropagation(); setDeleteId(comment.id); }}
+                              title="Удалить"
+                            >
+                              <TrashIcon />
+                            </button>
+                          </div>
                         </td>
                       </tr>
-                    ))}
+                      );
+                    })}
                     {filtered.length === 0 && (
                       <tr><td colSpan={5} className="admin-table__empty">Комментарии не найдены</td></tr>
                     )}
@@ -150,6 +191,18 @@ export default function AdminCommentsPage() {
             <div className="admin-modal__btns">
               <button className="admin-btn admin-btn--danger" onClick={() => remove(deleteId)}>Удалить</button>
               <button className="admin-btn admin-btn--ghost" onClick={() => setDeleteId(null)}>Отмена</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {banTarget && (
+        <div className="admin-overlay" onClick={() => setBanTarget(null)}>
+          <div className="admin-modal" onClick={e => e.stopPropagation()}>
+            <p className="admin-modal__text">Заблокировать пользователя <strong>{banTarget.username}</strong> за нецензурную лексику?</p>
+            <div className="admin-modal__btns">
+              <button className="admin-btn admin-btn--danger" onClick={() => banForProfanity(banTarget.username)}>Заблокировать</button>
+              <button className="admin-btn admin-btn--ghost" onClick={() => setBanTarget(null)}>Отмена</button>
             </div>
           </div>
         </div>

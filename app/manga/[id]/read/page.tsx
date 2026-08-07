@@ -24,6 +24,7 @@ const INITIAL_COMMENTS = Array.from({ length: 6 }, (_, i) => ({
   likes: 20,
   dislikes: 1,
   userReaction: null as null | "like" | "dislike",
+  replyTo: null as null | { id: number; username: string },
 }));
 
 const BOOKMARK_OPTIONS = [
@@ -437,7 +438,16 @@ function CommentsPanel({
   const [editingCommentText, setEditingCommentText] = useState("");
   const [commentMenuOpen, setCommentMenuOpen] = useState<number | null>(null);
   const [commentSort, setCommentSort] = useState<"new" | "popular">("new");
+  const [replyingTo, setReplyingTo] = useState<{ id: number; username: string } | null>(null);
   const commentInputRef = React.useRef<RichTextEditorHandle>(null);
+
+  const scrollToComment = (id: number) => {
+    const el = document.getElementById(`comment-${id}`);
+    if (!el) return;
+    el.scrollIntoView({ behavior: "smooth", block: "center" });
+    el.classList.add("reader__panel-comment--highlight");
+    window.setTimeout(() => el.classList.remove("reader__panel-comment--highlight"), 1500);
+  };
 
   const handleSend = () => {
     if (newComment.trim()) {
@@ -450,8 +460,10 @@ function CommentsPanel({
         likes: 0,
         dislikes: 0,
         userReaction: null,
+        replyTo: replyingTo,
       }, ...comments]);
       setNewComment("");
+      setReplyingTo(null);
     }
   };
 
@@ -467,6 +479,20 @@ function CommentsPanel({
           <CloseIcon />
         </button>
       </div>
+      {replyingTo && (
+        <div className="reader__panel-reply-preview">
+          <span className="reader__panel-reply-preview-text">
+            Ответ для <b>{replyingTo.username}</b>
+          </span>
+          <button
+            className="reader__panel-reply-preview-close"
+            onClick={() => setReplyingTo(null)}
+            aria-label="Отменить ответ"
+          >
+            <CloseIcon />
+          </button>
+        </div>
+      )}
       <RichTextEditor
         ref={commentInputRef}
         value={newComment}
@@ -492,7 +518,7 @@ function CommentsPanel({
         {[...comments]
           .sort((a, b) => (commentSort === "popular" ? b.likes - a.likes : 0))
           .map((c) => (
-          <div key={c.id} className="reader__panel-comment">
+          <div key={c.id} id={`comment-${c.id}`} className="reader__panel-comment">
             <div className="reader__panel-comment-avatar">
               <img src={c.avatar} alt={c.username} />
             </div>
@@ -545,6 +571,14 @@ function CommentsPanel({
                     </button>
                   )}
                 </div>
+                {c.replyTo && (
+                  <button
+                    className="reader__panel-comment-reply reader__panel-comment-replyto"
+                    onClick={() => scrollToComment(c.replyTo!.id)}
+                  >
+                    Ответ для {c.replyTo.username}
+                  </button>
+                )}
                 {editingCommentId === c.id ? (
                   <div className="comment-inline-edit">
                     <RichTextEditor
@@ -571,7 +605,7 @@ function CommentsPanel({
                   <button 
                     className="reader__panel-comment-reply"
                     onClick={() => {
-                      setNewComment(c.username + ", ");
+                      setReplyingTo({ id: c.id, username: c.username });
                       if (commentInputRef.current) commentInputRef.current.focus();
                     }}
                   >

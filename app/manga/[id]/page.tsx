@@ -434,7 +434,10 @@ function CommentBlock({
   onDislike: (id: number) => void;
 }) {
   return (
-    <div id={`comment-${c.id}`} className={`manga-inner__comment${nested ? " manga-inner__comment--nested" : ""}`}>
+    <div
+      id={`comment-${c.id}`}
+      className={`manga-inner__comment${nested ? " manga-inner__comment--nested" : ""}${c.replies.length > 0 ? " manga-inner__comment--has-replies" : ""}`}
+    >
       <div className="manga-inner__comment-avatar">
         <img src={`/images/cover_${(c.id % 12) + 1}.jpg`} alt={c.username} />
       </div>

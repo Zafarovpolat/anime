@@ -460,7 +460,10 @@ function CommentBlock({
   onDislike: (id: number) => void;
 }) {
   return (
-    <div id={`comment-${c.id}`} className={`reader__panel-comment${nested ? " reader__panel-comment--nested" : ""}`}>
+    <div
+      id={`comment-${c.id}`}
+      className={`reader__panel-comment${nested ? " reader__panel-comment--nested" : ""}${c.replies.length > 0 ? " reader__panel-comment--has-replies" : ""}`}
+    >
       <div className="reader__panel-comment-avatar">
         <img src={c.avatar} alt={c.username} />
       </div>

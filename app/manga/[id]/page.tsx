@@ -45,6 +45,8 @@ type CommentType = {
   dislikes: number;
   userReaction: null | "like" | "dislike";
   replies: CommentType[];
+  /* Кому именно адресован этот ответ внутри ветки (root или другой ответ) — чтобы не терялся контекст, когда в ветке несколько ответов */
+  replyToUsername: string | null;
 };
 
 const INITIAL_COMMENTS: CommentType[] = Array.from({ length: 7 }, (_, i) => ({
@@ -56,6 +58,7 @@ const INITIAL_COMMENTS: CommentType[] = Array.from({ length: 7 }, (_, i) => ({
   likes: 20,
   dislikes: 1,
   userReaction: null,
+  replyToUsername: null,
   replies: i === 0 ? [
     {
       id: 1000,
@@ -66,6 +69,7 @@ const INITIAL_COMMENTS: CommentType[] = Array.from({ length: 7 }, (_, i) => ({
       likes: 5,
       dislikes: 0,
       userReaction: null,
+      replyToUsername: "Jul_Mol",
       replies: [],
     },
   ] : [],
@@ -459,6 +463,11 @@ function CommentBlock({
               </button>
             )}
           </div>
+          {c.replyToUsername && (
+            <div className="manga-inner__comment-replyto">
+              Ответ для <b>{c.replyToUsername}</b>
+            </div>
+          )}
           {editingCommentId === c.id ? (
             <div className="comment-inline-edit">
               <RichTextEditor
@@ -782,6 +791,7 @@ const [comments, setComments] = useState(INITIAL_COMMENTS);
         likes: 0,
         dislikes: 0,
         userReaction: null,
+        replyToUsername: null,
         replies: [],
       }, ...prev]);
       setEditingCommentId(fakeId);
@@ -1238,6 +1248,7 @@ const [comments, setComments] = useState(INITIAL_COMMENTS);
                             likes: 0,
                             dislikes: 0,
                             userReaction: null,
+                            replyToUsername: replyingTo ? replyingTo.username : null,
                             replies: [],
                           };
                           setComments(prev => replyingTo ? addReplyToThread(prev, replyingTo.id, newC) : [newC, ...prev]);

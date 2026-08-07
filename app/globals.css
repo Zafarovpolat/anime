@@ -2514,7 +2514,19 @@ button {
   display: flex;
   flex-direction: column;
   gap: 20px;
-  border-left: 2px solid var(--color-gray-light);
+  border-left: 2px solid var(--color-primary);
+}
+
+.manga-inner__comment-replyto {
+  font-family: "Golos Text", sans-serif;
+  font-size: 15px;
+  color: #97989b;
+  margin-bottom: 8px;
+}
+
+.manga-inner__comment-replyto b {
+  color: #180f2a;
+  font-weight: 600;
 }
 
 .manga-inner__comment--nested .manga-inner__comment-avatar {
@@ -8128,7 +8140,19 @@ button {
   display: flex;
   flex-direction: column;
   gap: 20px;
-  border-left: 2px solid var(--color-gray-light);
+  border-left: 2px solid var(--color-primary);
+}
+
+.reader__panel-comment-replyto {
+  font-family: "Golos Text", sans-serif;
+  font-size: 15px;
+  color: #97989b;
+  margin-bottom: 8px;
+}
+
+.reader__panel-comment-replyto b {
+  color: #180f2a;
+  font-weight: 600;
 }
 
 .reader__panel-comment--nested .reader__panel-comment-avatar {
@@ -11563,15 +11587,17 @@ button {
 
 .comment-spoiler {
   display: inline-block;
-  padding: 2px 4px;
-  background: transparent;
+  padding: 2px 6px;
+  /* До раскрытия выглядит как пилюля-тег (те же токены, что и в редакторе .comment-spoiler-edit) —
+     чтобы было понятно, что это намеренный спойлер, а не визуальный глюк. */
+  background: rgba(86, 44, 240, 0.06);
+  border: 1px dashed #562cf0;
   color: inherit;
   border-radius: 4px;
   cursor: pointer;
   user-select: none;
-  /* розмиваємо текст без плашки */
   filter: blur(5px);
-  transition: filter 0.3s;
+  transition: filter 0.3s, background 0.3s, border-color 0.3s;
 }
 
 .comment-spoiler:hover {
@@ -11580,6 +11606,7 @@ button {
 
 .comment-spoiler.revealed {
   background: transparent;
+  border-color: transparent;
   color: inherit;
   filter: none;
 }

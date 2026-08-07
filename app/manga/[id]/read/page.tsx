@@ -26,6 +26,8 @@ type CommentType = {
   dislikes: number;
   userReaction: null | "like" | "dislike";
   replies: CommentType[];
+  /* Кому именно адресован этот ответ внутри ветки (root или другой ответ) */
+  replyToUsername: string | null;
 };
 
 const INITIAL_COMMENTS: CommentType[] = Array.from({ length: 6 }, (_, i) => ({
@@ -37,6 +39,7 @@ const INITIAL_COMMENTS: CommentType[] = Array.from({ length: 6 }, (_, i) => ({
   likes: 20,
   dislikes: 1,
   userReaction: null,
+  replyToUsername: null,
   replies: i === 0 ? [
     {
       id: 1000,
@@ -47,6 +50,7 @@ const INITIAL_COMMENTS: CommentType[] = Array.from({ length: 6 }, (_, i) => ({
       likes: 5,
       dislikes: 0,
       userReaction: null,
+      replyToUsername: "Jul_Mol",
       replies: [],
     },
   ] : [],
@@ -485,6 +489,11 @@ function CommentBlock({
               </button>
             )}
           </div>
+          {c.replyToUsername && (
+            <div className="reader__panel-comment-replyto">
+              Ответ для <b>{c.replyToUsername}</b>
+            </div>
+          )}
           {editingCommentId === c.id ? (
             <div className="comment-inline-edit">
               <RichTextEditor
@@ -654,6 +663,7 @@ function CommentsPanel({
       likes: 0,
       dislikes: 0,
       userReaction: null,
+      replyToUsername: replyingTo ? replyingTo.username : null,
       replies: [],
     };
     setComments(prev => replyingTo ? addReplyToThread(prev, replyingTo.id, newC) : [newC, ...prev]);

@@ -57,7 +57,7 @@ export default function AdminAddWorkPage() {
                     ) : (
                       <div className="admin-cover__placeholder">
                         <svg width="36" height="36" viewBox="0 0 24 24" fill="none">
-                          <path d="M21 15V19C21 20.1 20.1 21 19 21H5C3.9 21 3 20.1 3 19V15M17 8L12 3L7 8M12 3V15" stroke="#97989b" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+                          <path d="M21 15V19C21 20.1 20.1 21 19 21H5C3.9 21 3 20.1 3 19V15M17 8L12 3L7 8M12 3V15" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
                         </svg>
                         <span>Загрузить обложку</span>
                         <span className="admin-cover__hint">JPG, PNG до 5 МБ</span>

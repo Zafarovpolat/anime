@@ -126,7 +126,7 @@ function SearchIcon({ color = "#97989B" }: { color?: string }) {
     >
       <path
         d="M23.3333 23.3333L18.4372 18.4372M18.4372 18.4372C20.0206 16.8537 21 14.6662 21 12.25C21 7.41751 17.0825 3.5 12.25 3.5C7.41751 3.5 3.5 7.41751 3.5 12.25C3.5 17.0825 7.41751 21 12.25 21C14.6662 21 16.8537 20.0206 18.4372 18.4372Z"
-        stroke="#0F172A"
+        stroke="currentColor"
         strokeWidth="1.5"
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -182,7 +182,7 @@ function ChevronIcon({ open }: { open: boolean }) {
         <path
           id="Vector"
           d="M16 10L12 14L8 10"
-          stroke="#180F2A"
+          stroke="currentColor"
           strokeWidth="2"
           strokeLinecap="round"
           strokeLinejoin="round"

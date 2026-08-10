@@ -58,6 +58,9 @@
   --color-bg: #f9f9fb;
   --color-white: #ffffff;
   --color-black: #000000;
+  --color-text: #180f2a;
+  --color-surface: #ffffff;
+  --color-surface-2: #f9f9fa;
   --color-primary: #562cf0;
   --color-primary-hover: #562cf0e0;
   --color-green: #45b346;
@@ -84,6 +87,22 @@
   --radius-sm: 10px;
 }
 
+[data-theme="dark"] {
+  --color-bg: #0F0E17;
+  --color-surface: #1A1826;
+  --color-surface-2: #232030;
+  --color-white: #1A1826;
+  --color-text: #ECEBF2;
+  --color-black: #ECEBF2;
+  --color-gray-text: #9B9AA8;
+  --color-gray-light: #2E2B3D;
+  --color-gray-border: #ffffff14;
+  --color-primary: #7C5CFF;
+  --color-primary-hover: #7C5CFFe0;
+  --color-green: #4FD16A;
+  --color-link: #9B87FF;
+}
+
 /* ==========================================
    Reset & Base
    ========================================== */
@@ -108,6 +127,7 @@ body {
   color: var(--color-black);
   line-height: 1.4;
   min-width: 320px;
+  transition: background-color .2s ease, color .2s ease;
 }
 
 a {
@@ -183,7 +203,7 @@ button {
 }
 
 .logo__pan {
-  color: var(--color-black);
+  color: var(--color-text);
   font-family: var(--font-heading);
 }
 
@@ -257,7 +277,7 @@ button {
     background-color 0.2s,
     color 0.2s;
   color: var(--color-black);
-  background-color: #f9f9fa;
+  background-color: var(--color-surface-2);
 }
 
 .header__action-btn:hover {
@@ -347,7 +367,7 @@ button {
   width: 59px;
   height: 59px;
   border-radius: var(--radius-pill);
-  background-color: #f4f7fb;
+  background-color: var(--color-surface-2);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -376,7 +396,7 @@ button {
 .carousel-btns {
   display: flex;
   gap: 5px;
-  background-color: #f4f7fb;
+  background-color: var(--color-surface-2);
   border-radius: var(--radius-card);
   padding: 9px;
 }
@@ -710,7 +730,7 @@ button {
   padding: 10px 30px 10px 10px;
   border-radius: var(--radius-pill);
   transition: background-color 0.15s;
-  background: #f4f7fb;
+  background: var(--color-surface-2);
   text-decoration: none;
   color: inherit;
 }
@@ -824,7 +844,7 @@ button {
 .footer__support {
   font-size: 14px;
   font-weight: 400;
-  color: #999999;
+  color: var(--color-gray-text);
   line-height: 1.6;
   margin-bottom: 15px;
 }
@@ -1809,8 +1829,8 @@ button {
 .manga-inner__bookmark-btn {
   width: 323px;
   height: 75px;
-  background: #fff;
-  color: #180f2a;
+  background: var(--color-surface);
+  color: var(--color-text);
   border: none;
   border-radius: 16px;
   font-family: "Golos Text", sans-serif;
@@ -1841,7 +1861,7 @@ button {
   top: calc(100% + 6px);
   left: 0;
   right: 0;
-  background: #fff;
+  background: var(--color-surface);
   border: 1px solid #ede9ff;
   border-radius: 14px;
   box-shadow: 0 8px 32px rgba(86, 44, 240, 0.13);
@@ -1859,7 +1879,7 @@ button {
   border: none;
   font-size: 14px;
   font-weight: 500;
-  color: #180f2a;
+  color: var(--color-text);
   cursor: pointer;
   transition: background 0.15s;
   text-align: left;
@@ -1898,7 +1918,7 @@ button {
 }
 
 .manga-inner__tag-sep {
-  color: #97989b;
+  color: var(--color-gray-text);
   font-size: 14px;
 }
 
@@ -1906,7 +1926,7 @@ button {
   font-family: "SONGER SemiExpanded", sans-serif;
   font-size: 32px;
   font-weight: 800;
-  color: #180f2a;
+  color: var(--color-text);
   text-transform: uppercase;
   margin: 0 0 12px 0;
   letter-spacing: 0.02em;
@@ -1924,7 +1944,7 @@ button {
   gap: 6px;
   font-family: "Golos Text", sans-serif;
   font-size: 16px;
-  color: #180f2a;
+  color: var(--color-text);
 }
 
 /* Header row: text-group (left) + rating-group (right) */
@@ -1959,7 +1979,7 @@ button {
   font-family: "SONGER SemiExpanded", sans-serif;
   font-size: 48px;
   font-weight: 800;
-  color: #180f2a;
+  color: var(--color-text);
   line-height: 1;
   margin-bottom: 5px;
 }
@@ -1967,7 +1987,7 @@ button {
 .manga-inner__rating-count {
   font-family: "Golos Text", sans-serif;
   font-size: 16px;
-  color: #767676;
+  color: var(--color-gray-text);
   text-decoration: underline;
   text-underline-offset: 3px;
   margin-bottom: 15px;
@@ -2030,7 +2050,7 @@ button {
   padding: 0;
   border: none;
   background: none;
-  color: #97989b;
+  color: var(--color-gray-text);
   cursor: pointer;
   transition: color 0.2s;
 }
@@ -2048,7 +2068,7 @@ button {
 /* ── Tabs ── */
 .manga-inner__tabs {
   display: flex;
-  background: #f9f9fa;
+  background: var(--color-surface-2);
   padding: 10px;
   border-radius: 30px;
   gap: 5px;
@@ -2085,14 +2105,14 @@ button {
   font-family: "Golos Text", sans-serif;
   font-size: 16px;
   font-weight: 400;
-  color: #180f2a;
+  color: var(--color-text);
   cursor: pointer;
   transition: all 0.2s;
   border-radius: 20px;
 }
 
 .manga-inner__tab--active {
-  background: #fff;
+  background: var(--color-surface);
 }
 
 .manga-inner__tab:hover:not(.manga-inner__tab--active) {
@@ -2112,7 +2132,7 @@ button {
 .manga-inner__description p {
   font-family: "Golos Text", sans-serif;
   font-size: 16px;
-  color: #333;
+  color: var(--color-text);
   line-height: 1.7;
   margin: 0 0 20px;
 }
@@ -2125,14 +2145,14 @@ button {
 .manga-inner__new-chapters {
   padding: 20px;
   border-radius: 20px;
-  background-color: #f9f9fa;
+  background-color: var(--color-surface-2);
 }
 
 .manga-inner__new-chapters-title {
   font-family: "SONGER SemiExpanded", sans-serif;
   font-size: 18px;
   font-weight: 800;
-  color: #180f2a;
+  color: var(--color-text);
   text-transform: uppercase;
   margin: 0 0 18px;
 }
@@ -2163,13 +2183,13 @@ button {
   font-family: "Golos Text", sans-serif;
   font-size: 25px;
   font-weight: 500;
-  color: #180f2a;
+  color: var(--color-text);
 }
 
 .manga-inner__chapter-label {
   font-family: "Golos Text", sans-serif;
   font-size: 15px;
-  color: #97989b;
+  color: var(--color-gray-text);
   margin-top: 14px;
 }
 
@@ -2187,7 +2207,7 @@ button {
   gap: 20px;
   font-family: "Golos Text", sans-serif;
   font-size: 14px;
-  color: #97989b;
+  color: var(--color-gray-text);
 }
 
 .manga-inner__chapters-reverse {
@@ -2198,7 +2218,7 @@ button {
   border: none;
   font-family: "Golos Text", sans-serif;
   font-size: 14px;
-  color: #180f2a;
+  color: var(--color-text);
   cursor: pointer;
 }
 
@@ -2216,7 +2236,7 @@ button {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: #f9f9fa;
+  background: var(--color-surface-2);
   border-radius: 20px;
   padding: 0 24px;
   height: 92px;
@@ -2237,7 +2257,7 @@ button {
   font-family: "Golos Text", sans-serif;
   font-size: 17px;
   font-weight: 600;
-  color: #180f2a;
+  color: var(--color-text);
   display: flex;
   align-items: center;
   gap: 17px;
@@ -2255,7 +2275,7 @@ button {
   font-family: "Golos Text", sans-serif;
   font-size: 16px;
   font-weight: 400;
-  color: #180f2a;
+  color: var(--color-text);
   margin-left: 17px;
 }
 
@@ -2268,7 +2288,7 @@ button {
 .manga-inner__chapter-row-date {
   font-family: "Golos Text", sans-serif;
   font-size: 17px;
-  color: #97989b;
+  color: var(--color-gray-text);
 }
 
 .manga-inner__chapter-row-views {
@@ -2278,7 +2298,7 @@ button {
   font-family: "Golos Text", sans-serif;
   font-size: 17px;
   font-weight: 500;
-  color: #180f2a;
+  color: var(--color-text);
 }
 
 /* ── Reviews/Comments tab ── */
@@ -2286,7 +2306,7 @@ button {
   font-family: "SONGER SemiExpanded", sans-serif;
   font-size: 32px;
   font-weight: 800;
-  color: #180f2a;
+  color: var(--color-text);
   text-transform: uppercase;
   margin: 0 0 20px;
   display: flex;
@@ -2299,7 +2319,7 @@ button {
   font-family: "Golos Text", sans-serif;
   font-size: 17px;
   font-weight: 400;
-  color: #97989b;
+  color: var(--color-gray-text);
 }
 
 .manga-inner__comments-header {
@@ -2320,7 +2340,7 @@ button {
   padding: 12px 20px;
   border: none;
   border-radius: 20px;
-  background: #fff;
+  background: var(--color-surface);
   color: var(--color-black);
   font-size: 15px;
   font-family: var(--font-body);
@@ -2347,7 +2367,7 @@ button {
   align-items: center;
   gap: 12px;
   margin-bottom: 28px;
-  background: #f9f9fa;
+  background: var(--color-surface-2);
   border-radius: 20px;
   padding: 19px 25px 19px 25px;
 }
@@ -2359,12 +2379,12 @@ button {
   padding: 0;
   font-family: "Golos Text", sans-serif;
   font-size: 16px;
-  color: #180f2a;
+  color: var(--color-text);
   outline: none;
 }
 
 .manga-inner__comment-input input::placeholder {
-  color: #bdbdbd;
+  color: var(--color-gray-text);
 }
 
 .manga-inner__comment-send {
@@ -2423,7 +2443,7 @@ button {
 
 .manga-inner__comment-top {
   padding: 20px;
-  background-color: #f9f9fa;
+  background-color: var(--color-surface-2);
   border-radius: 20px;
   margin-bottom: 10px;
   gap: 15px;
@@ -2439,7 +2459,7 @@ button {
   font-family: "Golos Text", sans-serif;
   font-size: 18px;
   font-weight: 600;
-  color: #180f2a;
+  color: var(--color-text);
 }
 
 .manga-inner__comment-menu {
@@ -2452,7 +2472,7 @@ button {
 .manga-inner__comment-text {
   font-family: "Golos Text", sans-serif;
   font-size: 16px;
-  color: #999999;
+  color: var(--color-gray-text);
   line-height: 1.5;
 }
 
@@ -2465,13 +2485,13 @@ button {
 .manga-inner__comment-time {
   font-family: "Golos Text", sans-serif;
   font-size: 15px;
-  color: #97989b;
+  color: var(--color-gray-text);
 }
 
 .manga-inner__comment-reply {
   font-family: "Golos Text", sans-serif;
   font-size: 16px;
-  color: #97989b;
+  color: var(--color-gray-text);
   font-weight: 600;
   cursor: pointer;
 }
@@ -2485,7 +2505,7 @@ button {
   align-items: flex-start;
   justify-content: space-between;
   gap: 12px;
-  background: #f9f9fa;
+  background: var(--color-surface-2);
   border-radius: 14px;
   padding: 12px 16px;
   margin-bottom: 12px;
@@ -2501,11 +2521,11 @@ button {
 .manga-inner__reply-preview-text {
   font-family: "Golos Text", sans-serif;
   font-size: 15px;
-  color: #97989b;
+  color: var(--color-gray-text);
 }
 
 .manga-inner__reply-preview-text b {
-  color: #180f2a;
+  color: var(--color-text);
   font-weight: 600;
 }
 
@@ -2513,7 +2533,7 @@ button {
 .manga-inner__reply-preview-quote {
   font-family: "Golos Text", sans-serif;
   font-size: 14px;
-  color: #6b6c70;
+  color: var(--color-gray-text);
   line-height: 1.4;
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -2545,12 +2565,12 @@ button {
 .manga-inner__comment-replyto {
   font-family: "Golos Text", sans-serif;
   font-size: 15px;
-  color: #97989b;
+  color: var(--color-gray-text);
   margin-bottom: 8px;
 }
 
 .manga-inner__comment-replyto b {
-  color: #180f2a;
+  color: var(--color-text);
   font-weight: 600;
 }
 
@@ -2594,7 +2614,7 @@ button {
   gap: 4px;
   font-family: "Golos Text", sans-serif;
   font-size: 16px;
-  color: #97989b;
+  color: var(--color-gray-text);
   cursor: pointer;
   transition: color 0.15s;
 }
@@ -2654,11 +2674,11 @@ button {
   padding: 0 20px;
   border-radius: 20px;
   border: none;
-  background: #f9f9fa;
+  background: var(--color-surface-2);
   font-family: "Golos Text", sans-serif;
   font-size: 15px;
   font-weight: 400;
-  color: #180f2a;
+  color: var(--color-text);
   cursor: pointer;
   transition: all 0.2s;
 }
@@ -2689,7 +2709,7 @@ button {
   display: flex;
   flex-direction: column;
   gap: 0;
-  background: #fff;
+  background: var(--color-surface);
 }
 
 /* аватар */
@@ -2740,20 +2760,20 @@ button {
   font-family: "Golos Text", sans-serif;
   font-size: 18px;
   font-weight: 700;
-  color: #180f2a;
+  color: var(--color-text);
   margin: 20px 0 10px;
 }
 
 /* текстовый блок с фоном */
 .manga-inner__review-textbox {
-  background: #f9f9fa;
+  background: var(--color-surface-2);
   border-radius: 20px;
   padding: 20px;
 }
 
 .manga-inner__review-textbox .manga-inner__comment-text {
   margin: 0;
-  color: #000000;
+  color: var(--color-text);
 }
 
 .manga-inner__review-footer {
@@ -2768,7 +2788,7 @@ button {
   font-family: "Golos Text", sans-serif;
   font-size: 17px;
   font-weight: 500;
-  color: #180f2a;
+  color: var(--color-text);
 }
 
 .manga-inner__review-score-val {
@@ -2792,7 +2812,7 @@ button {
   gap: 5px;
   font-family: "Golos Text", sans-serif;
   font-size: 14px;
-  color: #97989b;
+  color: var(--color-gray-text);
 }
 
 /* ── Manga Inner — Responsive ── */
@@ -3017,7 +3037,7 @@ button {
   flex-direction: column;
   align-items: center;
   gap: 6px;
-  background: #fff;
+  background: var(--color-surface);
   border-radius: 20px;
   padding: 16px 7px;
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
@@ -3035,13 +3055,13 @@ button {
   font-family: "SONGER SemiExpanded", sans-serif;
   font-size: 20px;
   font-weight: 800;
-  color: #180f2a;
+  color: var(--color-text);
 }
 
 .manga-toolbar__counter-sep {
   font-family: "Golos Text", sans-serif;
   font-size: 13px;
-  color: #97989b;
+  color: var(--color-gray-text);
   margin: 2px 0;
 }
 
@@ -3049,7 +3069,7 @@ button {
   font-family: "Golos Text", sans-serif;
   font-size: 14px;
   font-weight: 500;
-  color: #180f2a;
+  color: var(--color-text);
 }
 
 .manga-toolbar__btn {
@@ -3057,12 +3077,12 @@ button {
   height: 70px;
   border-radius: 16px;
   border: none;
-  background: #f9f9fa;
+  background: var(--color-surface-2);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  color: #180f2a;
+  color: var(--color-text);
   transition: all 0.2s;
 }
 
@@ -3085,7 +3105,7 @@ button {
 .manga-toolbar__panel {
   width: 340px;
   max-height: 80vh;
-  background: #fff;
+  background: var(--color-surface);
   border-radius: 20px;
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.1);
   display: flex;
@@ -3104,7 +3124,7 @@ button {
   font-family: "SONGER SemiExpanded", sans-serif;
   font-size: 16px;
   font-weight: 800;
-  color: #180f2a;
+  color: var(--color-text);
   text-transform: uppercase;
   margin: 0;
 }
@@ -3112,7 +3132,7 @@ button {
 .manga-toolbar__panel-close {
   width: 28px;
   height: 28px;
-  background: #f9f9fa;
+  background: var(--color-surface-2);
   border: none;
   border-radius: 8px;
   display: flex;
@@ -3130,7 +3150,7 @@ button {
   padding: 0 20px 12px;
   font-family: "Golos Text", sans-serif;
   font-size: 13px;
-  color: #97989b;
+  color: var(--color-gray-text);
 }
 
 .manga-toolbar__panel-list {
@@ -3144,7 +3164,7 @@ button {
   align-items: center;
   justify-content: space-between;
   padding: 14px 12px;
-  background: #f9f9fa;
+  background: var(--color-surface-2);
   border-radius: 10px;
   margin-bottom: 4px;
   cursor: pointer;
@@ -3159,7 +3179,7 @@ button {
   font-family: "Golos Text", sans-serif;
   font-size: 13px;
   font-weight: 500;
-  color: #180f2a;
+  color: var(--color-text);
 }
 
 .manga-toolbar__panel-row-meta {
@@ -3168,7 +3188,7 @@ button {
   gap: 12px;
   font-family: "Golos Text", sans-serif;
   font-size: 12px;
-  color: #97989b;
+  color: var(--color-gray-text);
 }
 
 .manga-toolbar__panel-row-meta span {
@@ -3218,7 +3238,7 @@ button {
   font-family: "Golos Text", sans-serif;
   font-size: 13px;
   font-weight: 600;
-  color: #180f2a;
+  color: var(--color-text);
   display: block;
   margin-bottom: 3px;
 }
@@ -3226,7 +3246,7 @@ button {
 .manga-toolbar__comment-text {
   font-family: "Golos Text", sans-serif;
   font-size: 12px;
-  color: #333;
+  color: var(--color-text);
   line-height: 1.4;
   margin: 0 0 4px;
 }
@@ -3234,13 +3254,13 @@ button {
 .manga-toolbar__comment-time {
   font-family: "Golos Text", sans-serif;
   font-size: 11px;
-  color: #97989b;
+  color: var(--color-gray-text);
 }
 
 /* ── Toolbar dropdown (bookmarks) ── */
 .manga-toolbar__dropdown {
   width: 200px;
-  background: #fff;
+  background: var(--color-surface);
   border-radius: 14px;
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.1);
   padding: 12px 0;
@@ -3255,7 +3275,7 @@ button {
   font-family: "Golos Text", sans-serif;
   font-size: 14px;
   font-weight: 600;
-  color: #180f2a;
+  color: var(--color-text);
   margin: 0;
 }
 
@@ -3269,7 +3289,7 @@ button {
   border: none;
   font-family: "Golos Text", sans-serif;
   font-size: 13px;
-  color: #180f2a;
+  color: var(--color-text);
   cursor: pointer;
   text-align: left;
   transition: background 0.15s;
@@ -3393,7 +3413,7 @@ button {
   overflow-x: auto;
   gap: 4px;
   padding: 12px 16px;
-  background: #fff;
+  background: var(--color-surface);
   border-bottom: 1px solid #e5e5e5;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: thin;
@@ -3432,13 +3452,13 @@ button {
   border-radius: 20px;
   font-family: "Golos Text", sans-serif;
   font-size: 13px;
-  color: #180f2a;
+  color: var(--color-text);
   cursor: pointer;
   white-space: nowrap;
 }
 
 .profile-mobile-tabs__item--active {
-  background: #f9f9fa;
+  background: var(--color-surface-2);
 }
 
 /* ── Profile body layout ── */
@@ -3455,7 +3475,7 @@ button {
   align-self: start;
   width: 436px;
   flex-shrink: 0;
-  background: #fff;
+  background: var(--color-surface);
   border-radius: 20px;
   padding: 20px;
   display: flex;
@@ -3480,7 +3500,7 @@ button {
   font-family: "Golos Text", sans-serif;
   font-size: 16px;
   font-weight: 400;
-  color: #180f2a;
+  color: var(--color-text);
   cursor: pointer;
   transition: background 0.18s;
   text-align: left;
@@ -3488,7 +3508,7 @@ button {
 }
 
 .profile-sidebar__item--active {
-  background: #f9f9fa;
+  background: var(--color-surface-2);
   color: #562cf0;
 }
 
@@ -3508,7 +3528,7 @@ button {
   gap: 10px;
   min-height: 80px;
   padding: 0 25px;
-  background: #f9f9fa;
+  background: var(--color-surface-2);
   border: none;
   border-radius: 16px;
   font-family: "Golos Text", sans-serif;
@@ -3540,7 +3560,7 @@ button {
   font-family: "SONGER SemiExpanded", sans-serif;
   font-size: 30px;
   font-weight: 800;
-  color: #180f2a;
+  color: var(--color-text);
   text-transform: uppercase;
   margin: 0 0 24px;
   letter-spacing: 0.02em;
@@ -3577,7 +3597,7 @@ button {
   font-family: "Golos Text", sans-serif;
   font-size: 15px;
   padding-left: 20px;
-  color: #97989b;
+  color: var(--color-gray-text);
 }
 
 .profile-form__input-wrap {
@@ -3596,7 +3616,7 @@ button {
   padding: 0 20px;
   font-family: "Golos Text", sans-serif;
   font-size: 16px;
-  color: #180f2a;
+  color: var(--color-text);
   background: transparent;
   outline: none;
 }
@@ -3608,7 +3628,7 @@ button {
   padding: 0 20px;
   font-family: "Golos Text", sans-serif;
   font-size: 16px;
-  color: #180f2a;
+  color: var(--color-text);
   background: transparent;
   outline: none;
   cursor: pointer;
@@ -3638,7 +3658,7 @@ button {
   border: none;
   font-family: "Golos Text", sans-serif;
   font-size: 16px;
-  color: #180f2a;
+  color: var(--color-text);
   cursor: pointer;
   text-align: left;
 }
@@ -3657,7 +3677,7 @@ button {
   top: calc(100% + 6px);
   left: 0;
   right: 0;
-  background: #fff;
+  background: var(--color-surface);
   border-radius: 15px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
   overflow-y: auto;
@@ -3704,18 +3724,18 @@ button {
   border: none;
   font-family: "Golos Text", sans-serif;
   font-size: 16px;
-  color: #180f2a;
+  color: var(--color-text);
   cursor: pointer;
   text-align: left;
   transition: background 0.15s;
 }
 
 .custom-select__option:hover {
-  background: #f9f9fa;
+  background: var(--color-surface-2);
 }
 
 .custom-select__option--active {
-  background: #f9f9fa;
+  background: var(--color-surface-2);
   color: #562cf0;
 }
 
@@ -3735,14 +3755,14 @@ button {
   padding: 20px;
   font-family: "Golos Text", sans-serif;
   font-size: 16px;
-  color: #180f2a;
+  color: var(--color-text);
   resize: vertical;
   outline: none;
   border: none;
 }
 
 .profile-form__textarea::placeholder {
-  color: #97989b;
+  color: var(--color-gray-text);
 }
 
 .profile-form__save {
@@ -3771,7 +3791,7 @@ button {
 .profile-bookmarks__filters {
   margin-bottom: 14px;
   flex-wrap: wrap;
-  background: #fff;
+  background: var(--color-surface);
   border-radius: 25px;
   padding: 19px 15px;
   display: grid;
@@ -3793,7 +3813,7 @@ button {
   font-family: "Golos Text", sans-serif;
   font-size: 16px;
   font-weight: 400;
-  color: #180f2a;
+  color: var(--color-text);
   cursor: pointer;
   transition: background 0.18s;
   min-height: 65px;
@@ -3806,8 +3826,8 @@ button {
 }
 
 .profile-bookmarks__filter--active {
-  background: #f9f9fa;
-  color: #180f2a;
+  background: var(--color-surface-2);
+  color: var(--color-text);
 }
 
 .profile-bookmarks__toolbar {
@@ -3822,7 +3842,7 @@ button {
   border: none;
   font-family: "Golos Text", sans-serif;
   font-size: 15px;
-  color: #97989b;
+  color: var(--color-gray-text);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -3835,7 +3855,7 @@ button {
   border: none;
   font-family: "Golos Text", sans-serif;
   font-size: 14px;
-  color: #180f2a;
+  color: var(--color-text);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -3852,7 +3872,7 @@ button {
 .profile-bookmarks__empty {
   font-family: "Golos Text", sans-serif;
   font-size: 16px;
-  color: #97989b;
+  color: var(--color-gray-text);
   padding: 24px 4px;
 }
 
@@ -3860,7 +3880,7 @@ button {
   display: flex;
   align-items: center;
   gap: 20px;
-  background: #fff;
+  background: var(--color-surface);
   border-radius: 20px;
   padding: 15px;
 }
@@ -3888,7 +3908,7 @@ button {
   font-family: "SONGER SemiExpanded", sans-serif;
   font-size: 20px;
   font-weight: 800;
-  color: #180f2a;
+  color: var(--color-text);
   margin: 0 0 7px;
   text-transform: uppercase;
 }
@@ -3896,7 +3916,7 @@ button {
 .profile-bookmark-item__tags {
   font-family: "Golos Text", sans-serif;
   font-size: 15px;
-  color: #97989b;
+  color: var(--color-gray-text);
   margin: 0;
   display: flex;
   align-items: center;
@@ -3982,7 +4002,7 @@ button {
   font-family: "Golos Text", sans-serif;
   font-size: 18px;
   font-weight: 600;
-  color: #180f2a;
+  color: var(--color-text);
 }
 
 .profile-comment-item__menu-wrap {
@@ -4015,7 +4035,7 @@ button {
   top: calc(100% + 6px);
   right: 0;
   width: 200px;
-  background: #fff;
+  background: var(--color-surface);
   border-radius: 20px;
   box-shadow: 0 8px 40px rgba(0, 0, 0, 0.14);
   padding: 10px;
@@ -4046,7 +4066,7 @@ button {
   font-family: "Golos Text", sans-serif;
   font-size: 16px;
   font-weight: 400;
-  color: #180f2a;
+  color: var(--color-text);
   text-align: left;
   cursor: pointer;
   transition: background 0.15s;
@@ -4064,7 +4084,7 @@ button {
   font-family: "Golos Text", sans-serif;
   font-size: 16px;
   font-weight: 400;
-  color: #999999;
+  color: var(--color-gray-text);
   line-height: 1.45;
   margin: 0;
 }
@@ -4080,13 +4100,13 @@ button {
 .profile-comment-item__time {
   font-family: "Golos Text", sans-serif;
   font-size: 15px;
-  color: #97989b;
+  color: var(--color-gray-text);
 }
 
 .profile-comment-item__link {
   font-family: "Golos Text", sans-serif;
   font-size: 15px;
-  color: #97989b;
+  color: var(--color-gray-text);
   font-weight: 600;
   text-decoration: none;
   cursor: pointer;
@@ -4109,7 +4129,7 @@ button {
   cursor: pointer;
   font-family: "Golos Text", sans-serif;
   font-size: 15px;
-  color: #97989b;
+  color: var(--color-gray-text);
   padding: 4px 8px;
   border-radius: 8px;
   transition: color 0.15s;
@@ -4179,14 +4199,14 @@ button {
   font-family: "Golos Text", sans-serif;
   font-size: 14px;
   font-weight: 600;
-  color: #180f2a;
+  color: var(--color-text);
   margin: 0 0 4px;
 }
 
 .profile-history-card__genres {
   font-family: "Golos Text", sans-serif;
   font-size: 12px;
-  color: #97989b;
+  color: var(--color-gray-text);
   margin: 0;
 }
 
@@ -4208,7 +4228,7 @@ button {
   align-items: center;
   gap: 15px;
   padding: 0 25px;
-  background: #fff;
+  background: var(--color-surface);
   border-radius: 15px;
   min-height: 116px;
 }
@@ -4227,7 +4247,7 @@ button {
   font-family: "Golos Text", sans-serif;
   font-size: 16px;
   font-weight: 500;
-  color: #180f2a;
+  color: var(--color-text);
 }
 
 .profile-social-item__btn {
@@ -4252,7 +4272,7 @@ button {
 .profile-settings__genres {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  background: #fff;
+  background: var(--color-surface);
   border-radius: 25px;
   padding: 12px;
 }
@@ -4284,7 +4304,7 @@ button {
   height: 28px;
   border-radius: 8px;
   border: 1.5px solid #d0d0d0;
-  background: #fff;
+  background: var(--color-surface);
   flex-shrink: 0;
   display: flex;
   align-items: center;
@@ -4964,7 +4984,7 @@ button {
     min-height: 56px;
     padding: 0 20px;
     margin-top: 24px;
-    background: #ffffff;
+    background: var(--color-surface);
     border: none;
     border-radius: 16px;
     font-family: "Golos Text", sans-serif;
@@ -5350,7 +5370,7 @@ button {
 .catalog-empty {
   padding: 60px 0;
   text-align: center;
-  color: #97989b;
+  color: var(--color-gray-text);
   font-size: 16px;
 }
 
@@ -6077,7 +6097,7 @@ button {
   top: 100%;
   right: 20px;
   width: min(766px, calc(100vw - 40px));
-  background: #ffffff;
+  background: var(--color-surface);
   border-radius: 25px;
   padding: 15px 19px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
@@ -6113,13 +6133,13 @@ button {
   font-weight: 500;
   outline: none;
   font-size: 15px;
-  color: #0f172a;
+  color: var(--color-text);
   background: transparent;
   font-family: inherit;
 }
 
 .search-dropdown__input::placeholder {
-  color: #94a3b8;
+  color: var(--color-gray-text);
 }
 
 .search-dropdown__close-btn {
@@ -6130,7 +6150,7 @@ button {
   height: 57px;
   border-radius: 15px;
   border: 1.5px solid #e2e8f0;
-  background: #ffffff;
+  background: var(--color-surface);
   cursor: pointer;
   flex-shrink: 0;
   transition: background 0.2s;
@@ -6148,7 +6168,7 @@ button {
 /* Label */
 .search-dropdown__label {
   font-size: 16px;
-  color: #0f172a;
+  color: var(--color-text);
   margin: 16px 0;
   font-weight: 500;
 }
@@ -6157,7 +6177,7 @@ button {
 .search-dropdown__empty {
   padding: 20px;
   text-align: center;
-  color: #97989b;
+  color: var(--color-gray-text);
   font-size: 15px;
 }
 
@@ -6202,13 +6222,13 @@ button {
 
 .search-dropdown__card-type {
   font-size: 16px;
-  color: #94a3b8;
+  color: var(--color-gray-text);
   font-weight: 400;
 }
 
 .search-dropdown__card-title {
   font-size: 18px;
-  color: #0f172a;
+  color: var(--color-text);
   font-weight: 600;
   line-height: 1.3;
   display: -webkit-box;
@@ -6543,7 +6563,7 @@ button {
 }
 
 .login-modal {
-  background: #ffffff;
+  background: var(--color-surface);
   border-radius: 25px;
   width: 100%;
   max-width: 492px;
@@ -6645,7 +6665,7 @@ button {
 }
 
 .login-modal__input::placeholder {
-  color: #9b9faa;
+  color: var(--color-gray-text);
 }
 
 /* Submit button */
@@ -6745,7 +6765,7 @@ button {
 .login-modal__register {
   font-size: 15px;
   font-weight: 600;
-  color: #9b9faa;
+  color: var(--color-gray-text);
   margin: 0 0 30px;
   display: flex;
   align-items: center;
@@ -6767,7 +6787,7 @@ button {
 .login-modal__legal {
   font-size: 14px;
   font-weight: 400;
-  color: #9b9faa;
+  color: var(--color-gray-text);
   text-align: center;
   margin: 0;
   line-height: 1.6;
@@ -6776,18 +6796,18 @@ button {
 .login-modal__legal em {
   font-style: normal;
   font-weight: 400;
-  color: #9b9faa;
+  color: var(--color-gray-text);
 }
 
 .login-modal__legal-dark {
-  color: #0f172a;
+  color: var(--color-text);
 }
 
 .login-modal__legal-link {
-  color: #0f172a;
+  color: var(--color-text);
   text-decoration: underline;
   text-underline-offset: 2px;
-  text-decoration-color: #0f172a;
+  text-decoration-color: var(--color-text);
   transition: opacity 0.15s;
 }
 
@@ -6953,7 +6973,7 @@ button {
   display: flex;
   align-items: center;
   gap: 10px;
-  background: #fff;
+  background: var(--color-surface);
   border: 1px solid #ebebeb;
   border-radius: 25px;
   padding: 28px 25px;
@@ -6966,11 +6986,11 @@ button {
   background: transparent;
   font-family: "Golos Text", sans-serif;
   font-size: 16px;
-  color: #180f2a;
+  color: var(--color-text);
 }
 
 .manga-inner__chapters-search-input::placeholder {
-  color: #bdbdbd;
+  color: var(--color-gray-text);
 }
 
 .manga-inner__chapters-reverse {
@@ -6995,7 +7015,7 @@ button {
 .manga-inner__chapters-empty {
   text-align: center;
   padding: 40px 0;
-  color: #97989b;
+  color: var(--color-gray-text);
   font-family: "Golos Text", sans-serif;
   font-size: 15px;
 }
@@ -7620,7 +7640,7 @@ button {
 .reader {
   display: flex;
   min-height: calc(100vh - var(--reader-header-h));
-  background: #f9f9fa;
+  background: var(--color-surface-2);
   position: relative;
 }
 
@@ -7664,7 +7684,7 @@ button {
   flex-direction: column;
   align-items: center;
   padding: 7px;
-  background: #fff;
+  background: var(--color-surface);
   border-radius: 25px;
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
   z-index: 50;
@@ -7677,7 +7697,7 @@ button {
   transform: translateX(-50%);
   font-family: "Golos Text", sans-serif;
   font-size: 18px;
-  color: #180f2a;
+  color: var(--color-text);
   letter-spacing: 0.02em;
   white-space: nowrap;
 }
@@ -7698,7 +7718,7 @@ button {
     background 0.2s,
     color 0.2s,
     box-shadow 0.2s;
-  color: #97989b;
+  color: var(--color-gray-text);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -7784,7 +7804,7 @@ button {
   font-family: "Golos Text", sans-serif;
   font-size: 20px;
   font-weight: 600;
-  color: #180f2a;
+  color: var(--color-text);
   letter-spacing: 0.01em;
 }
 
@@ -7815,7 +7835,7 @@ button {
   flex: 1;
   min-width: 0;
   border-radius: 50px;
-  color: #97989b;
+  color: var(--color-gray-text);
   height: 100%;
   padding-left: 25px;
 }
@@ -7826,12 +7846,12 @@ button {
   background: transparent;
   font-family: "Golos Text", sans-serif;
   font-size: 16px;
-  color: #180f2a;
+  color: var(--color-text);
   outline: none;
 }
 
 .reader__panel-search input::placeholder {
-  color: #b0b0b5;
+  color: var(--color-gray-text);
 }
 
 .reader__panel-sort {
@@ -7843,7 +7863,7 @@ button {
   cursor: pointer;
   font-family: "Golos Text", sans-serif;
   font-size: 15px;
-  color: #180f2a;
+  color: var(--color-text);
   white-space: nowrap;
   padding: 4px 0;
   transition: opacity 0.2s;
@@ -7885,7 +7905,7 @@ button {
   align-items: center;
   justify-content: space-between;
   padding: 0 30px 0 25px;
-  background: #f9f9fa;
+  background: var(--color-surface-2);
   border-radius: 20px;
   min-height: 92px;
   text-decoration: none;
@@ -7907,7 +7927,7 @@ button {
   font-family: "Golos Text", sans-serif;
   font-size: 17px;
   font-weight: 500;
-  color: #180f2a;
+  color: var(--color-text);
   white-space: nowrap;
 }
 
@@ -7922,7 +7942,7 @@ button {
   font-family: "Golos Text", sans-serif;
   font-size: 16px;
   font-weight: 400;
-  color: #180f2a;
+  color: var(--color-text);
   white-space: nowrap;
 }
 
@@ -7937,7 +7957,7 @@ button {
   font-family: "Golos Text", sans-serif;
   font-size: 17px;
   font-weight: 400;
-  color: #97989b;
+  color: var(--color-gray-text);
 }
 
 .reader__panel-chapter-likes {
@@ -7947,13 +7967,13 @@ button {
   font-family: "Golos Text", sans-serif;
   font-size: 17px;
   font-weight: 500;
-  color: #180f2a;
+  color: var(--color-text);
 }
 
 .reader__panel-chapter-likes svg {
   width: 20px;
   height: 20px;
-  color: #97989b;
+  color: var(--color-gray-text);
 }
 
 /* ── Comments panel ── */
@@ -7966,7 +7986,7 @@ button {
   border: 1px solid #e8e8e8;
   flex-shrink: 0;
   margin-bottom: 40px;
-  background-color: #f9f9fa;
+  background-color: var(--color-surface-2);
 }
 
 .reader__panel-comments-input {
@@ -7975,7 +7995,7 @@ button {
   background: transparent;
   font-family: "Golos Text", sans-serif;
   font-size: 16px;
-  color: #180f2a;
+  color: var(--color-text);
   outline: none;
   padding-left: 25px;
   height: 100%;
@@ -7983,7 +8003,7 @@ button {
 }
 
 .reader__panel-comments-input::placeholder {
-  color: #b0b0b5;
+  color: var(--color-gray-text);
 }
 
 .reader__panel-comments-send {
@@ -8085,7 +8105,7 @@ button {
 }
 
 .reader__panel-comment-top {
-  background: #f9f9fa;
+  background: var(--color-surface-2);
   border-radius: 20px;
   padding: 20px;
   margin-bottom: 10px;
@@ -8104,7 +8124,7 @@ button {
   font-family: "Golos Text", sans-serif;
   font-size: 18px;
   font-weight: 600;
-  color: #180f2a;
+  color: var(--color-text);
 }
 
 .reader__panel-comment-menu {
@@ -8112,7 +8132,7 @@ button {
   border: none;
   cursor: pointer;
   font-size: 16px;
-  color: #97989b;
+  color: var(--color-gray-text);
   padding: 0 2px;
   line-height: 1;
 }
@@ -8121,7 +8141,7 @@ button {
   font-family: "Golos Text", sans-serif;
   font-size: 16px;
   font-weight: 400;
-  color: #999999;
+  color: var(--color-gray-text);
   line-height: 1.45;
 }
 
@@ -8135,7 +8155,7 @@ button {
 .reader__panel-comment-time {
   font-family: "Golos Text", sans-serif;
   font-size: 15px;
-  color: #97989b;
+  color: var(--color-gray-text);
 }
 
 .reader__panel-comment-reply {
@@ -8145,7 +8165,7 @@ button {
   font-family: "Golos Text", sans-serif;
   font-size: 15px;
   font-weight: 600;
-  color: #97989b;
+  color: var(--color-gray-text);
 }
 
 .reader__panel-comment-reply:hover {
@@ -8157,7 +8177,7 @@ button {
   align-items: flex-start;
   justify-content: space-between;
   gap: 12px;
-  background: #f9f9fa;
+  background: var(--color-surface-2);
   border-radius: 14px;
   padding: 12px 16px;
   margin-bottom: 12px;
@@ -8173,18 +8193,18 @@ button {
 .reader__panel-reply-preview-text {
   font-family: "Golos Text", sans-serif;
   font-size: 15px;
-  color: #97989b;
+  color: var(--color-gray-text);
 }
 
 .reader__panel-reply-preview-text b {
-  color: #180f2a;
+  color: var(--color-text);
   font-weight: 600;
 }
 
 .reader__panel-reply-preview-quote {
   font-family: "Golos Text", sans-serif;
   font-size: 14px;
-  color: #6b6c70;
+  color: var(--color-gray-text);
   line-height: 1.4;
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -8216,12 +8236,12 @@ button {
 .reader__panel-comment-replyto {
   font-family: "Golos Text", sans-serif;
   font-size: 15px;
-  color: #97989b;
+  color: var(--color-gray-text);
   margin-bottom: 8px;
 }
 
 .reader__panel-comment-replyto b {
-  color: #180f2a;
+  color: var(--color-text);
   font-weight: 600;
 }
 
@@ -8258,7 +8278,7 @@ button {
   cursor: pointer;
   font-family: "Golos Text", sans-serif;
   font-size: 16px;
-  color: #97989b;
+  color: var(--color-gray-text);
   transition: color 0.15s;
 }
 
@@ -8297,14 +8317,14 @@ button {
   align-items: center;
   gap: 14px;
   padding: 16px 18px;
-  background: #f9f9fa;
+  background: var(--color-surface-2);
   border: 2px solid transparent;
   border-radius: 16px;
   cursor: pointer;
   font-family: "Golos Text", sans-serif;
   font-size: 15px;
   font-weight: 500;
-  color: #180f2a;
+  color: var(--color-text);
   transition:
     background 0.15s,
     border-color 0.15s;
@@ -8353,7 +8373,7 @@ button {
   position: absolute;
   right: calc(100% + 40px);
   width: 335px;
-  background: #fff;
+  background: var(--color-surface);
   border-radius: 20px;
   box-shadow: 0 8px 40px rgba(0, 0, 0, 0.14);
   padding: 19px 15px;
@@ -8384,7 +8404,7 @@ button {
   font-family: "Golos Text", sans-serif;
   font-size: 20px;
   font-weight: 600;
-  color: #180f2a;
+  color: var(--color-text);
   text-transform: uppercase;
 }
 
@@ -8413,7 +8433,7 @@ button {
   font-family: "Golos Text", sans-serif;
   font-size: 16px;
   font-weight: 400;
-  color: #180f2a;
+  color: var(--color-text);
   text-align: left;
   transition:
     background 0.15s,
@@ -8423,7 +8443,7 @@ button {
 }
 
 .reader__bookmark-popup-opt--active {
-  background: #f9f9fa;
+  background: var(--color-surface-2);
 }
 
 .reader__bookmark-popup-opt:hover {
@@ -8462,7 +8482,7 @@ button {
   transform: translate(-50%, -50%);
   width: 335px;
   max-width: calc(100vw - 32px);
-  background: #fff;
+  background: var(--color-surface);
   border-radius: 24px;
   padding: 19px 15px;
   z-index: 201;
@@ -8514,7 +8534,7 @@ button {
   outline: none;
   font-family: "Golos Text", sans-serif;
   font-size: 14px;
-  color: #180f2a;
+  color: var(--color-text);
   background: transparent;
   min-width: 0;
   border-bottom: 1.5px solid #562cf0;
@@ -8564,12 +8584,12 @@ button {
   outline: none;
   font-family: "Golos Text", sans-serif;
   font-size: 16px;
-  color: #180f2a;
+  color: var(--color-text);
   background: transparent;
 }
 
 .bookmark-edit-modal__input::placeholder {
-  color: #b0b0b5;
+  color: var(--color-gray-text);
 }
 
 .bookmark-edit-modal__colors {
@@ -8589,7 +8609,7 @@ button {
 }
 
 .bookmark-edit-modal__color--active {
-  border-color: #180f2a;
+  border-color: var(--color-text);
 }
 
 /* Mobile overlay */
@@ -8823,7 +8843,7 @@ button {
     top: -44px;
     left: 50%;
     transform: translateX(-50%);
-    background: #fff;
+    background: var(--color-surface);
     backdrop-filter: none;
     padding: 8px 20px;
     border-radius: 20px;
@@ -8843,7 +8863,7 @@ button {
     border-radius: 20px;
     gap: 6px;
     background: transparent;
-    color: #97989b;
+    color: var(--color-gray-text);
   }
 
   .reader__sidebar-btn svg {
@@ -8860,7 +8880,7 @@ button {
   .reader__sidebar-count {
     display: block;
     font-size: 13px;
-    color: #000000;
+    color: var(--color-text);
     font-weight: 500;
   }
 
@@ -9159,7 +9179,7 @@ button {
 
 .review-modal {
   margin: auto;
-  background: #ffffff;
+  background: var(--color-surface);
   border-radius: 25px;
   width: 100%;
   max-width: 900px;
@@ -9206,7 +9226,7 @@ button {
   font-family: var(--font-body);
   font-size: 15px;
   font-weight: 400;
-  color: #9b9faa;
+  color: var(--color-gray-text);
   text-align: center;
   margin: 0 0 34px;
   line-height: 1.6;
@@ -9255,7 +9275,7 @@ button {
 }
 
 .review-modal__input::placeholder {
-  color: #9b9faa;
+  color: var(--color-gray-text);
 }
 
 .review-modal__textarea {
@@ -9276,7 +9296,7 @@ button {
 }
 
 .review-modal__textarea::placeholder {
-  color: #9b9faa;
+  color: var(--color-gray-text);
 }
 
 .review-modal__row {
@@ -9761,7 +9781,7 @@ button {
 
 .report-modal {
   margin: auto;
-  background: #ffffff;
+  background: var(--color-surface);
   border-radius: 25px;
   width: 100%;
   max-width: 460px;
@@ -9841,7 +9861,7 @@ button {
 }
 
 .report-modal__select-value--placeholder {
-  color: #9b9faa;
+  color: var(--color-gray-text);
 }
 
 .report-modal__chevron {
@@ -9859,7 +9879,7 @@ button {
   top: calc(100% + 6px);
   left: 0;
   right: 0;
-  background: #ffffff;
+  background: var(--color-surface);
   border-radius: 16px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
   z-index: 10;
@@ -9911,7 +9931,7 @@ button {
 }
 
 .report-modal__textarea::placeholder {
-  color: #9b9faa;
+  color: var(--color-gray-text);
 }
 
 .report-modal__submit {
@@ -9953,7 +9973,7 @@ button {
   transform: translate(-50%, -50%);
   width: calc(100% - 40px);
   max-width: 1000px;
-  background: #fff;
+  background: var(--color-surface);
   border-radius: 24px;
   padding: 30px;
   z-index: 201;
@@ -9974,7 +9994,7 @@ button {
   font-size: 20px;
   line-height: 100%;
   letter-spacing: 0;
-  color: #180f2a;
+  color: var(--color-text);
   margin: 0;
 }
 
@@ -10025,8 +10045,8 @@ button {
   position: absolute;
   top: 10px;
   left: 10px;
-  background: #fff;
-  color: #180f2a;
+  background: var(--color-surface);
+  color: var(--color-text);
   border: none;
   border-radius: 999px;
   padding: 11px 22px;
@@ -10111,7 +10131,7 @@ button {
   align-self: start;
   width: 436px;
   flex-shrink: 0;
-  background: #fff;
+  background: var(--color-surface);
   border-radius: 20px;
   padding: 20px;
   display: flex;
@@ -10136,7 +10156,7 @@ button {
   font-family: "Golos Text", sans-serif;
   font-size: 16px;
   font-weight: 400;
-  color: #180f2a;
+  color: var(--color-text);
   cursor: pointer;
   transition: background 0.18s;
   text-align: left;
@@ -10151,7 +10171,7 @@ button {
 
 .admin-sidebar__item--active,
 .admin-sidebar__item--active:hover {
-  background: #f9f9fa;
+  background: var(--color-surface-2);
   color: #562cf0;
 }
 
@@ -10165,12 +10185,12 @@ button {
   gap: 10px;
   min-height: 80px;
   padding: 0 25px;
-  background-color: #f9f9fa;
+  background-color: var(--color-surface-2);
   border-radius: 16px;
   font-family: "Golos Text", sans-serif;
   font-size: 16px;
   font-weight: 400;
-  color: #180f2a;
+  color: var(--color-text);
   width: 100%;
   text-align: left;
   text-decoration: none;
@@ -10211,7 +10231,7 @@ button {
 .admin-counter {
   font-family: "Golos Text", sans-serif;
   font-size: 15px;
-  color: #97989b;
+  color: var(--color-gray-text);
   font-weight: 500;
 }
 
@@ -10222,7 +10242,7 @@ button {
   gap: 6px;
   font-family: "Golos Text", sans-serif;
   font-size: 14px;
-  color: #97989b;
+  color: var(--color-gray-text);
   margin-bottom: 14px;
   width: 100%;
 }
@@ -10250,7 +10270,7 @@ button {
   display: flex;
   align-items: center;
   gap: 10px;
-  background: #fff;
+  background: var(--color-surface);
   border-radius: 25px;
   padding: 0 20px;
   min-height: 81px;
@@ -10265,10 +10285,10 @@ button {
   background: transparent;
   font-family: "Golos Text", sans-serif;
   font-size: 16px;
-  color: #180f2a;
+  color: var(--color-text);
 }
 
-.admin-search__input::placeholder { color: #97989b; }
+.admin-search__input::placeholder { color: var(--color-gray-text); }
 
 .admin-search-wrap .catalog-sort-btn {
   min-height: 81px;
@@ -10282,7 +10302,7 @@ button {
 /* ── Filter tabs ── */
 .admin-filter-tabs {
   display: flex;
-  background: #fff;
+  background: var(--color-surface);
   border-radius: 25px;
   padding: 8px;
   flex-wrap: wrap;
@@ -10299,25 +10319,25 @@ button {
   font-family: "Golos Text", sans-serif;
   font-size: 15px;
   font-weight: 400;
-  color: #97989b;
+  color: var(--color-gray-text);
   cursor: pointer;
   transition: background 0.18s, color 0.18s;
   white-space: nowrap;
 }
 
 .admin-filter-tab:hover {
-  background: #f9f9fa;
-  color: #180f2a;
+  background: var(--color-surface-2);
+  color: var(--color-text);
 }
 
 .admin-filter-tab--active {
-  background: #f9f9fa;
-  color: #180f2a;
+  background: var(--color-surface-2);
+  color: var(--color-text);
 }
 
 /* ── Table ── */
 .admin-table-wrap {
-  background: #fff;
+  background: var(--color-surface);
   border-radius: 25px;
   overflow-x: auto;
   scrollbar-width: thin;
@@ -10353,7 +10373,7 @@ button {
   font-family: "Golos Text", sans-serif;
   font-size: 13px;
   font-weight: 600;
-  color: #97989b;
+  color: var(--color-gray-text);
   text-transform: uppercase;
   letter-spacing: 0.05em;
   border-bottom: 1.5px solid #f2f2f5;
@@ -10369,13 +10389,13 @@ button {
   padding: 16px 20px;
   font-family: "Golos Text", sans-serif;
   font-size: 15px;
-  color: #180f2a;
+  color: var(--color-text);
   border-bottom: 1px solid #f2f2f5;
   vertical-align: middle;
 }
 
 .admin-table__td--bold { font-weight: 600; }
-.admin-table__td--muted { color: #97989b; }
+.admin-table__td--muted { color: var(--color-gray-text); }
 .admin-table__td--clamp { max-width: 300px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .admin-table__td--center { text-align: center; }
 
@@ -10387,7 +10407,7 @@ button {
 .admin-table__empty {
   padding: 48px 20px;
   text-align: center;
-  color: #97989b;
+  color: var(--color-gray-text);
   font-family: "Golos Text", sans-serif;
   font-size: 15px;
 }
@@ -10487,10 +10507,10 @@ button {
 
 .admin-btn--ghost {
   background: transparent;
-  color: #180f2a;
+  color: var(--color-text);
   border: 1.5px solid #e8e8ec;
 }
-.admin-btn--ghost:hover { background: #f9f9fa; border-color: #d0d0d8; }
+.admin-btn--ghost:hover { background: var(--color-surface-2); border-color: #d0d0d8; }
 
 .admin-btn--danger { background: #d93025; color: #fff; }
 .admin-btn--danger:hover { background: #b5271e; }
@@ -10538,7 +10558,7 @@ button {
 }
 
 .admin-modal {
-  background: #fff;
+  background: var(--color-surface);
   border-radius: 25px;
   padding: 20px;
   width: fit-content;
@@ -10550,7 +10570,7 @@ button {
 .admin-modal__text {
   font-family: "Golos Text", sans-serif;
   font-size: 17px;
-  color: #180f2a;
+  color: var(--color-text);
   text-align: center;
   line-height: 1.55;
   margin: 0;
@@ -10577,7 +10597,7 @@ button {
 
 .admin-modal__comment-user {
   font-weight: 600;
-  color: #180f2a;
+  color: var(--color-text);
 }
 
 .admin-modal__comment-work {
@@ -10586,13 +10606,13 @@ button {
 
 .admin-modal__comment-date,
 .admin-modal__comment-dot {
-  color: #97989b;
+  color: var(--color-gray-text);
 }
 
 .admin-modal__comment-text {
   font-family: "Golos Text", sans-serif;
   font-size: 16px;
-  color: #180f2a;
+  color: var(--color-text);
   line-height: 1.6;
   margin: 0;
   white-space: pre-wrap;
@@ -10627,7 +10647,7 @@ button {
   aspect-ratio: 2/3;
   border-radius: 20px;
   border: 2px dashed #d0d0d8;
-  background: #fff;
+  background: var(--color-surface);
   cursor: pointer;
   overflow: hidden;
   transition: border-color 0.15s;
@@ -10643,7 +10663,7 @@ button {
   align-items: center;
   justify-content: center;
   gap: 10px;
-  color: #97989b;
+  color: var(--color-gray-text);
   font-family: "Golos Text", sans-serif;
   font-size: 14px;
   font-weight: 500;
@@ -10653,7 +10673,7 @@ button {
 
 .admin-cover__hint {
   font-size: 12px;
-  color: #b0b0ba;
+  color: var(--color-gray-text);
 }
 
 /* ── Fields wrapper ── */
@@ -10687,19 +10707,19 @@ button {
   font-family: "Golos Text", sans-serif;
   font-size: 15px;
   padding-left: 20px;
-  color: #97989b;
+  color: var(--color-gray-text);
 }
 
 /* ── Textarea ── */
 .admin-textarea {
   width: 100%;
-  background: #fff;
+  background: var(--color-surface);
   border: none;
   border-radius: 25px;
   padding: 20px;
   font-family: "Golos Text", sans-serif;
   font-size: 15px;
-  color: #180f2a;
+  color: var(--color-text);
   outline: none;
   resize: vertical;
   min-height: 120px;
@@ -10709,14 +10729,14 @@ button {
 .admin-genres {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  background: #fff;
+  background: var(--color-surface);
   border-radius: 25px;
   padding: 12px;
 }
 
 /* ── Drop zone ── */
 .admin-drop {
-  background: #fff;
+  background: var(--color-surface);
   border: 2px dashed #d0d0d8;
   border-radius: 25px;
   padding: 36px 20px;
@@ -10726,7 +10746,7 @@ button {
   gap: 10px;
   cursor: pointer;
   transition: border-color 0.15s;
-  color: #97989b;
+  color: var(--color-gray-text);
   font-family: "Golos Text", sans-serif;
   font-size: 15px;
   font-weight: 500;
@@ -10737,7 +10757,7 @@ button {
 
 .admin-drop__hint {
   font-size: 13px;
-  color: #b0b0ba;
+  color: var(--color-gray-text);
 }
 
 /* ── Pages list ── */
@@ -10754,7 +10774,7 @@ button {
   flex-direction: column;
   align-items: center;
   gap: 6px;
-  background: #fff;
+  background: var(--color-surface);
   border-radius: 14px;
   padding: 10px;
   width: 110px;
@@ -10764,7 +10784,7 @@ button {
   font-family: "Golos Text", sans-serif;
   font-size: 12px;
   font-weight: 700;
-  color: #97989b;
+  color: var(--color-gray-text);
 }
 
 .admin-pages__img {
@@ -10784,8 +10804,8 @@ button {
   height: 36px;
   border-radius: 10px;
   border: 1.5px solid #e8e8ec;
-  background: #f9f9fa;
-  color: #180f2a;
+  background: var(--color-surface-2);
+  color: var(--color-text);
   cursor: pointer;
   transition: all 0.15s;
   display: inline-flex;
@@ -10825,7 +10845,7 @@ button {
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  background: #fff;
+  background: var(--color-surface);
   border: none;
   cursor: pointer;
   font-size: 16px;
@@ -10862,7 +10882,7 @@ button {
   display: flex;
   align-items: center;
   gap: 16px;
-  background: #fff;
+  background: var(--color-surface);
   border-radius: 20px;
   padding: 0 28px;
   min-height: 81px;
@@ -10896,13 +10916,13 @@ button {
   font-family: "Golos Text", sans-serif;
   font-size: 16px;
   font-weight: 600;
-  color: #180f2a;
+  color: var(--color-text);
 }
 
 .admin-dashboard__card-stat {
   font-family: "Golos Text", sans-serif;
   font-size: 13px;
-  color: #97989b;
+  color: var(--color-gray-text);
 }
 
 .admin-dashboard__card-arrow {
@@ -10919,7 +10939,7 @@ button {
   display: flex;
   flex-direction: column;
   gap: 6px;
-  background: #fff;
+  background: var(--color-surface);
   border-radius: 20px;
   padding: 24px 28px;
   text-decoration: none;
@@ -10934,13 +10954,13 @@ button {
   font-family: "Golos Text", sans-serif;
   font-size: 16px;
   font-weight: 600;
-  color: #180f2a;
+  color: var(--color-text);
 }
 
 .admin-nav-card__desc {
   font-family: "Golos Text", sans-serif;
   font-size: 14px;
-  color: #97989b;
+  color: var(--color-gray-text);
 }
 
 /* ── Admin responsive ── */
@@ -11248,7 +11268,7 @@ button {
   min-height: 120px;
   border: 2px solid #e8e8e8;
   border-radius: 20px;
-  background: #fff;
+  background: var(--color-surface);
   transition: border-color 0.2s;
   /* видимий overflow, щоб дропдауни не обрізались */
   overflow: visible;
@@ -11273,7 +11293,7 @@ button {
 
 .richtext-editor-v2__content:empty:before {
   content: attr(data-placeholder);
-  color: #9ca3af;
+  color: var(--color-gray-text);
   pointer-events: none;
 }
 
@@ -11340,7 +11360,7 @@ button {
   align-items: center;
   gap: 8px;
   padding: 10px 12px;
-  background: #f9f9fa;
+  background: var(--color-surface-2);
   border-top: 1px solid #e8e8e8;
   border-radius: 0 0 18px 18px;
   flex-wrap: wrap;
@@ -11370,7 +11390,7 @@ button {
   border: none;
   border-radius: 8px;
   background: transparent;
-  color: #6b7280;
+  color: var(--color-gray-text);
   cursor: pointer;
   transition: all 0.2s;
   padding: 0;
@@ -11416,7 +11436,7 @@ button {
   top: 100%;
   left: 0;
   margin-top: 8px;
-  background: #fff;
+  background: var(--color-surface);
   border-radius: 12px;
   padding: 6px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
@@ -11468,7 +11488,7 @@ button {
   top: 100%;
   right: 0;
   margin-top: 8px;
-  background: #fff;
+  background: var(--color-surface);
   border-radius: 12px;
   padding: 12px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
@@ -11535,7 +11555,7 @@ button {
   padding: 14px 20px;
   border-radius: 20px;
   border: 1.5px solid #e8e8e8;
-  background: #f9f9fa;
+  background: var(--color-surface-2);
   color: var(--color-black);
   font-size: 14px;
   font-family: var(--font-body);
@@ -11546,11 +11566,11 @@ button {
 
 .richtext-editor__textarea:focus {
   border-color: #562cf0;
-  background: #fff;
+  background: var(--color-surface);
 }
 
 .richtext-editor__textarea::placeholder {
-  color: #9ca3af;
+  color: var(--color-gray-text);
 }
 
 .richtext-editor__toolbar {
@@ -11587,7 +11607,7 @@ button {
   border: none;
   border-radius: 8px;
   background: transparent;
-  color: #e0e0e0;
+  color: var(--color-gray-text);
   cursor: pointer;
   transition: all 0.2s;
   padding: 0;
@@ -11641,7 +11661,7 @@ button {
   padding: 10px 14px;
   border: none;
   background: transparent;
-  color: #e0e0e0;
+  color: var(--color-gray-text);
   text-align: left;
   font-size: 14px;
   font-family: var(--font-body);
@@ -11663,7 +11683,7 @@ button {
   background: #f3f0ff;
   border-radius: 8px;
   font-style: italic;
-  color: #4a4a4a;
+  color: var(--color-text);
 }
 
 .comment-spoiler {

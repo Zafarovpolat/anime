@@ -32,7 +32,7 @@ function StarIcon() {
 function ArrowIcon() {
   return (
     <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M0.999965 10.8995L10.8995 1.00001M10.8995 9.48529V1.00001H2.41418" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d="M0.999965 10.8995L10.8995 1.00001M10.8995 9.48529V1.00001H2.41418" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
     </svg>
   );
 }
@@ -130,7 +130,7 @@ export default function BookmarksCarousel() {
                 aria-label="Назад"
               >
                 <svg width="16" height="14" viewBox="0 0 16 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M15 7H1M7 13L1 7L7 1" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M15 7H1M7 13L1 7L7 1" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
               </button>
               <button
@@ -139,7 +139,7 @@ export default function BookmarksCarousel() {
                 aria-label="Вперёд"
               >
                 <svg width="16" height="14" viewBox="0 0 16 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M1 7H15M9 13L15 7L9 1" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M1 7H15M9 13L15 7L9 1" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
               </button>
             </div>

@@ -77,7 +77,7 @@ export default function AdminAddChapterPage() {
                   <label className="admin-field__label">Страницы *</label>
                   <div className="admin-drop" onClick={() => fileRef.current?.click()}>
                     <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
-                      <path d="M21 15V19C21 20.1 20.1 21 19 21H5C3.9 21 3 20.1 3 19V15M17 8L12 3L7 8M12 3V15" stroke="#97989b" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+                      <path d="M21 15V19C21 20.1 20.1 21 19 21H5C3.9 21 3 20.1 3 19V15M17 8L12 3L7 8M12 3V15" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
                     </svg>
                     <span>Нажмите или перетащите файлы</span>
                     <span className="admin-drop__hint">JPG, PNG, WebP — порядок можно изменить</span>

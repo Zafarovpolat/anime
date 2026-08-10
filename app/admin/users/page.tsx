@@ -90,7 +90,7 @@ export default function AdminUsersPage() {
               <div className="admin-search-wrap">
                 <label className="admin-search">
                   <svg width="20" height="20" viewBox="0 0 28 28" fill="none">
-                    <path d="M23.3333 23.3333L18.4372 18.4372M18.4372 18.4372C20.0206 16.8537 21 14.6662 21 12.25C21 7.41751 17.0825 3.5 12.25 3.5C7.41751 3.5 3.5 7.41751 3.5 12.25C3.5 17.0825 7.41751 21 12.25 21C14.6662 21 16.8537 20.0206 18.4372 18.4372Z" stroke="#97989b" strokeWidth="2" strokeLinecap="round"/>
+                    <path d="M23.3333 23.3333L18.4372 18.4372M18.4372 18.4372C20.0206 16.8537 21 14.6662 21 12.25C21 7.41751 17.0825 3.5 12.25 3.5C7.41751 3.5 3.5 7.41751 3.5 12.25C3.5 17.0825 7.41751 21 12.25 21C14.6662 21 16.8537 20.0206 18.4372 18.4372Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
                   </svg>
                   <input className="admin-search__input" type="text" placeholder="Поиск по нику или email..." value={search} onChange={e => setSearch(e.target.value)} />
                 </label>

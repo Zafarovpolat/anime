@@ -32,9 +32,9 @@ export default function CustomSelect({ options, value, onChange, placeholder }: 
         className="custom-select__trigger"
         onClick={() => setOpen(v => !v)}
       >
-        <span style={!value && placeholder ? { color: '#b0b0b5' } : undefined}>{displayed}</span>
+        <span style={!value && placeholder ? { color: 'var(--color-gray-text)' } : undefined}>{displayed}</span>
         <svg className="custom-select__arrow" width="12" height="8" viewBox="0 0 12 8" fill="none">
-          <path d="M1 1L6 6L11 1" stroke="#97989B" strokeWidth="2" strokeLinecap="round"/>
+          <path d="M1 1L6 6L11 1" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
         </svg>
       </button>
       {open && (

@@ -1,27 +1,31 @@
 'use client';
 
 import Link from 'next/link';
-import Image from 'next/image';
+import { usePathname } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import LoginModal from './LoginModal';
 import SearchDropdown from './SearchDropdown';
+import Logo from './Logo';
 
 type Theme = 'light' | 'dark';
 
 export default function Header() {
   const [loginOpen, setLoginOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
-  const [theme, setTheme] = useState<Theme>('light');
 
-  // Инициализация темы из localStorage / системной настройки (после монтирования)
-  useEffect(() => {
-    const stored = typeof window !== 'undefined' ? localStorage.getItem('panelia-theme') : null;
-    if (stored === 'light' || stored === 'dark') {
-      setTheme(stored);
-    } else if (typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-      setTheme('dark');
-    }
-  }, []);
+  // Ленивая инициализация темы: читаем актуальное значение с <html data-theme>
+  // (его выставляет анти-FOUC скрипт в layout ещё до гидрации), затем localStorage
+  // и системную настройку. Так тема не сбрасывается на 'light' при навигации.
+  const [theme, setTheme] = useState<Theme>(() => {
+    if (typeof window === 'undefined') return 'light';
+    const attr = document.documentElement.getAttribute('data-theme');
+    if (attr === 'light' || attr === 'dark') return attr;
+    const stored = localStorage.getItem('panelia-theme');
+    if (stored === 'light' || stored === 'dark') return stored;
+    return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+      ? 'dark'
+      : 'light';
+  });
 
   // Применение темы к <html> + сохранение выбора
   useEffect(() => {
@@ -35,25 +39,29 @@ export default function Header() {
 
   const toggleTheme = () => setTheme((t) => (t === 'dark' ? 'light' : 'dark'));
 
+  const pathname = usePathname();
+  const isActive = (href: string) =>
+    href === '/' ? pathname === '/' : pathname === href || pathname.startsWith(`${href}/`);
+
   return (
     <>
       <header className={`header${searchOpen ? ' header--search-open' : ''}`} id="header" style={{ position: 'relative' }}>
         <div className="header__inner container">
           <div className="header__left">
             <Link href="/" className="logo" aria-label="Panelia">
-              <Image src="/images/logo.svg" alt="Panelia" width={120} height={40} priority />
+              <Logo className="logo-svg" width={120} height={63} />
             </Link>
             <nav className="nav" aria-label="Основная навигация">
-              <Link href="/" className="nav__link nav__link--active">
+              <Link href="/" className={`nav__link${isActive('/') ? ' nav__link--active' : ''}`}>
                 Главная
               </Link>
-              <Link href="/catalog" className="nav__link">
+              <Link href="/catalog" className={`nav__link${isActive('/catalog') ? ' nav__link--active' : ''}`}>
                 Каталог
               </Link>
-              <Link href="/popular" className="nav__link">
+              <Link href="/popular" className={`nav__link${isActive('/popular') ? ' nav__link--active' : ''}`}>
                 <svg width="23" height="23" viewBox="0 0 23 23" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M11.5001 3.51709V19.4829L10.7334 20.355C9.66965 21.5625 8.79757 21.2367 8.79757 19.6267V12.7267H5.83632C4.49466 12.7267 4.12091 11.9025 5.01216 10.8963L11.5001 3.51709Z" fill="#562CF0"/>
-                  <path opacity="0.4" d="M17.9879 12.1038L11.5 19.4829V3.51709L12.2667 2.645C13.3304 1.4375 14.2025 1.76334 14.2025 3.37334V10.2733H17.1637C18.5054 10.2733 18.8792 11.0975 17.9879 12.1038Z" fill="#562CF0"/>
+                  <path d="M11.5001 3.51709V19.4829L10.7334 20.355C9.66965 21.5625 8.79757 21.2367 8.79757 19.6267V12.7267H5.83632C4.49466 12.7267 4.12091 11.9025 5.01216 10.8963L11.5001 3.51709Z" fill="currentColor"/>
+                  <path opacity="0.4" d="M17.9879 12.1038L11.5 19.4829V3.51709L12.2667 2.645C13.3304 1.4375 14.2025 1.76334 14.2025 3.37334V10.2733H17.1637C18.5054 10.2733 18.8792 11.0975 17.9879 12.1038Z" fill="currentColor"/>
                 </svg>
                 Популярное
               </Link>

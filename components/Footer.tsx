@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import Image from 'next/image';
+import Logo from './Logo';
 
 export default function Footer() {
   return (
@@ -8,7 +8,7 @@ export default function Footer() {
         <div className="footer__top">
           <div className="footer__logo">
             <Link href="/" className="logo" aria-label="Panelia">
-              <Image src="/images/logo.svg" alt="Panelia" width={164} height={86} />
+              <Logo className="logo-svg" width={164} height={86} />
             </Link>
           </div>
           <p className="footer__support">

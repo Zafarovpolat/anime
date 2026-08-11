@@ -1,9 +1,9 @@
-﻿"use client";
+"use client";
 
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const MANGA_TITLES = [
   "Выбери меня!",
@@ -217,6 +217,18 @@ function HomeIcon() {
 export default function CatalogPage() {
   const [sortOpen, setSortOpen] = useState(false);
   const [filterOpen, setFilterOpen] = useState(false);
+  const sortRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleOutsideClick = (event: MouseEvent) => {
+      if (sortRef.current && !sortRef.current.contains(event.target as Node)) {
+        setSortOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleOutsideClick);
+    return () => document.removeEventListener("mousedown", handleOutsideClick);
+  }, []);
   const [sortLabel, setSortLabel] = useState("По популярности ↓");
   const [genreSearch, setGenreSearch] = useState("");
   const [nameSearch, setNameSearch] = useState("");
@@ -396,7 +408,7 @@ export default function CatalogPage() {
                   <h1 className="catalog-title">Каталог</h1>
                   <div className="catalog-title-divider" aria-hidden="true" />
                   <div className="catalog-title-row__actions">
-                    <div className="catalog-sort-wrapper">
+                    <div className="catalog-sort-wrapper" ref={sortRef}>
                       <button
                         className="catalog-sort-btn"
                         onClick={() => setSortOpen((v) => !v)}

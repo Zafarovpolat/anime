@@ -893,7 +893,6 @@ const [comments, setComments] = useState(INITIAL_COMMENTS);
     .slice()
     .sort((a, b) => (reversed ? a.chapter - b.chapter : b.chapter - a.chapter));
 
-  const newChapters = Array.from({ length: 8 }, (_, i) => 241 - i);
 
   const handleCommentLike = (id: number) => {
     setComments(prev => mapCommentTree(prev, id, (comment) => {
@@ -1150,27 +1149,6 @@ const [comments, setComments] = useState(INITIAL_COMMENTS);
                         ))}
                       </div>
 
-                      <div className="manga-inner__new-chapters">
-                        <h3 className="manga-inner__new-chapters-title">
-                          Новые главы
-                        </h3>
-                        <div className="manga-inner__chapters-grid">
-                          {newChapters.map((ch) => (
-                            <Link
-                              href="#"
-                              key={ch}
-                              className="manga-inner__chapter-card"
-                            >
-                              <span className="manga-inner__chapter-num">
-                                {ch}
-                              </span>
-                              <span className="manga-inner__chapter-label">
-                                глава
-                              </span>
-                            </Link>
-                          ))}
-                        </div>
-                      </div>
                     </div>
                   )}
 

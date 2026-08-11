@@ -172,3 +172,57 @@ flowchart TD
 
 *Документ отражает состояние на 07.08.2026. Обновлять по мере выполнения пунктов и
 появления новых договорённостей в чате.*
+
+---
+
+## 8. Актуализация проекта — 12.08.2026
+
+### Выполнено после предыдущей версии плана
+
+- Реализована и доработана тёмная тема на основных страницах, в ридере, профиле, модальных окнах и админ-панели.
+- Исправлены цвета текста и иконок в тёмной теме для кнопок, фильтров, форм, социальных иконок, закрывающих кнопок и элементов ридера.
+- Для ридера настроены тёмные фоны страниц, панели глав/комментариев и popup закладок.
+- Удалён блок «Новые главы» со страницы произведения вместе со связанными стилями и адаптивными правилами.
+- Добавлено закрытие dropdown сортировки каталога при клике вне области dropdown.
+- Исправлено дублирование опции «—» в поле «Год окончания» на странице `/admin/works/add`.
+- Строка комментария, отмеченная автомодерацией как нецензурная (`admin-table__row--flagged`), теперь одинаково оформлена в светлой и тёмной темах: тёмный красный фон по палитре и заметная красная левая граница.
+- Добавлены более тёмные варианты фонов административных статусов в тёмной теме.
+- `npm run build` проходит успешно.
+
+### Доступные страницы на production-домене
+
+Базовый адрес: https://anime-three-pied.vercel.app/
+
+Основные страницы:
+
+- https://anime-three-pied.vercel.app/
+- https://anime-three-pied.vercel.app/catalog
+- https://anime-three-pied.vercel.app/popular
+- https://anime-three-pied.vercel.app/bookmarks
+- https://anime-three-pied.vercel.app/profile
+
+Произведение и ридер:
+
+- https://anime-three-pied.vercel.app/manga/1
+- https://anime-three-pied.vercel.app/manga/1/read
+
+Админ-панель:
+
+- https://anime-three-pied.vercel.app/admin
+- https://anime-three-pied.vercel.app/admin/works
+- https://anime-three-pied.vercel.app/admin/works/add
+- https://anime-three-pied.vercel.app/admin/chapters/add
+- https://anime-three-pied.vercel.app/admin/users
+- https://anime-three-pied.vercel.app/admin/comments
+
+Юридические страницы:
+
+- https://anime-three-pied.vercel.app/offer
+- https://anime-three-pied.vercel.app/privacy
+- https://anime-three-pied.vercel.app/terms
+
+### Текущий статус
+
+Проект по-прежнему является frontend-прототипом на моковых данных. Backend, база данных, реальная авторизация, API, постоянное хранение изображений и production-поиск пока не подключены.
+
+Следующий крупный блок работ по очереди плана — доработка админ-панели: сортировки таблиц, восстановление удалённых записей, причины банов и ограничений, вкладки жалоб и журнал действий. Перед началом backend-этапа необходимо отдельно согласовать архитектуру API, базу данных и авторизацию.

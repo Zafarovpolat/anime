@@ -144,6 +144,10 @@
   --color-tint: #2a2340;
   --color-surface-3: #232030;
   --color-danger-bg: #3a1f24;
+  --color-success-surface: #193524;
+  --color-danger-surface: #3a1f24;
+  --color-warning-surface: #3d3219;
+  --color-primary-tint: #2a2340;
   --color-overlay: rgba(0, 0, 0, 0.7);
   --color-manga-gradient-start: rgba(15, 14, 23, 0.9);
 }
@@ -12120,4 +12124,23 @@ button {
 
 [data-theme="dark"] .manga-inner__review-filter--active svg {
   color: var(--color-text);
+}
+
+/* ── Dark theme admin and search refinements ── */
+[data-theme="dark"] .search-dropdown__close-btn {
+  color: var(--color-text);
+}
+
+[data-theme="dark"] .admin-btn--primary,
+[data-theme="dark"] .admin-btn--danger {
+  color: var(--color-text);
+}
+
+[data-theme="dark"] .admin-table__row--flagged {
+  background: var(--color-danger-surface);
+  border-left: 4px solid var(--color-danger-strong);
+}
+
+[data-theme="dark"] .admin-table__row--flagged.admin-table__row--clickable:hover {
+  background: var(--color-danger-surface);
 }

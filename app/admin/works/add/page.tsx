@@ -110,7 +110,7 @@ export default function AdminAddWorkPage() {
                     <div className="admin-field">
                       <label className="admin-field__label">Год окончания</label>
                       <div className="profile-form__input-wrap">
-                        <CustomSelect options={['—', ...YEARS]} value={yearEnd} onChange={setYearEnd} placeholder="—" />
+                        <CustomSelect options={YEARS} value={yearEnd} onChange={setYearEnd} placeholder="—" />
                       </div>
                     </div>
                   </div>

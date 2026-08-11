@@ -8881,7 +8881,7 @@ button {
     flex: none;
     border-radius: 25px 25px 0 0;
     margin-top: 0;
-    background-color: white;
+    background-color: transparent;
   }
 
   .reader__panel {
@@ -12031,5 +12031,38 @@ button {
 }
 
 [data-theme="dark"] .richtext-editor-v2__btn--send {
+  color: var(--color-text);
+}
+
+/* ── Dark theme reader and modal adjustments ── */
+[data-theme="dark"] .manga-inner__rating-btn,
+[data-theme="dark"] .manga-inner__read-btn,
+[data-theme="dark"] .review-modal__submit,
+[data-theme="dark"] .login-modal__submit {
+  color: var(--color-text);
+}
+
+[data-theme="dark"] .reader__pages {
+  background: var(--color-surface-2);
+}
+
+.reader__sidebar-btn--solo {
+  background: transparent;
+}
+
+#reader-btn-heart:hover {
+  color: var(--color-danger);
+}
+
+[data-theme="dark"] .reader__panel {
+  background: var(--color-surface);
+}
+
+[data-theme="dark"] .reader__panel-close,
+[data-theme="dark"] .review-modal__close {
+  color: var(--color-text);
+}
+
+[data-theme="dark"] .login-modal__social-btn svg {
   color: var(--color-text);
 }

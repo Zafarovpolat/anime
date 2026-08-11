@@ -8345,7 +8345,7 @@ button {
 .reader__sidebar-bookmark-wrap {
   position: relative;
   padding: 5px 0;
-  background-color: white;
+  background-color: transparent;
   border-radius: 25px 25px 0 0;
 }
 
@@ -12065,4 +12065,35 @@ button {
 
 [data-theme="dark"] .login-modal__social-btn svg {
   color: var(--color-text);
+}
+
+/* ── Dark theme profile and reader refinements ── */
+[data-theme="dark"] .reader__pages {
+  background: var(--color-surface);
+}
+
+[data-theme="dark"] .reader__bookmark-popup-close,
+[data-theme="dark"] .customize-modal__close {
+  color: var(--color-text);
+}
+
+[data-theme="dark"] .profile-banner__name {
+  color: var(--color-text);
+}
+
+[data-theme="dark"] .customize-modal__save,
+[data-theme="dark"] .profile-form__save {
+  color: var(--color-text);
+}
+
+[data-theme="dark"] .profile-form__input-wrap {
+  background-color: var(--color-surface-2);
+}
+
+[data-theme="dark"] .profile-form__edit-btn {
+  color: var(--color-text);
+}
+
+[data-theme="dark"] .profile-form__textarea {
+  background-color: var(--color-surface-2);
 }

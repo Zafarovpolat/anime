@@ -10606,9 +10606,14 @@ button {
 .admin-table__row--clickable { cursor: pointer; }
 .admin-table__row--clickable:hover { background: var(--color-surface-2); }
 
-/* Строка с комментарием, помеченным автомодерацией как нецензурный — тот же оттенок красного, что и в admin-badge--banned */
-.admin-table__row--flagged { background: var(--color-danger-surface); }
-.admin-table__row--flagged.admin-table__row--clickable:hover { background: var(--color-danger-surface); }
+/* Строка с флагом автомодерации: одинаковая индикация в светлой и тёмной темах */
+.admin-table__row--flagged {
+  background: var(--color-danger-surface);
+  border-left: 4px solid var(--color-danger-strong);
+}
+.admin-table__row--flagged.admin-table__row--clickable:hover {
+  background: var(--color-danger-surface);
+}
 
 /* ── Form layout (add work / chapter) ── */
 .admin-form-layout {

@@ -12149,3 +12149,9 @@ button {
 [data-theme="dark"] .admin-table__row--flagged.admin-table__row--clickable:hover {
   background: var(--color-danger-surface);
 }
+
+/* ── Dark theme report modal ── */
+[data-theme="dark"] .report-modal__close,
+[data-theme="dark"] .report-modal__submit {
+  color: var(--color-text);
+}

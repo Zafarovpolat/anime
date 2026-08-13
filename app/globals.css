@@ -12166,3 +12166,10 @@ html.theme-switching *::after {
 [data-theme="dark"] .reader__sidebar-group {
   background-color: var(--color-surface);
 }
+
+/* На узких экранах нижняя панель ридера fixed и не должна перекрывать футер */
+@media (max-width: 1024px) {
+  .reader + .footer {
+    padding-bottom: 100px;
+  }
+}

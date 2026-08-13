@@ -37,7 +37,17 @@ export default function Header() {
     }
   }, [theme]);
 
-  const toggleTheme = () => setTheme((t) => (t === 'dark' ? 'light' : 'dark'));
+  const toggleTheme = () => {
+    // Отключаем переходы только на момент смены темы, чтобы фон и элементы
+    // переключались одним кадром и не давали визуальную «лесенку».
+    document.documentElement.classList.add('theme-switching');
+    setTheme((t) => (t === 'dark' ? 'light' : 'dark'));
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        document.documentElement.classList.remove('theme-switching');
+      });
+    });
+  };
 
   const pathname = usePathname();
   const isActive = (href: string) =>

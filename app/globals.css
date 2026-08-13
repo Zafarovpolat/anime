@@ -176,7 +176,6 @@ body {
   color: var(--color-black);
   line-height: 1.4;
   min-width: 320px;
-  transition: background-color .2s ease, color .2s ease;
 }
 
 a {
@@ -8349,7 +8348,7 @@ button {
 .reader__sidebar-bookmark-wrap {
   position: relative;
   padding: 5px 0;
-  background-color: transparent;
+  background-color: white;
   border-radius: 25px 25px 0 0;
 }
 
@@ -12154,4 +12153,16 @@ button {
 [data-theme="dark"] .report-modal__close,
 [data-theme="dark"] .report-modal__submit {
   color: var(--color-text);
+}
+
+/* Мгновенное переключение темы без анимации цветовых свойств */
+html.theme-switching *,
+html.theme-switching *::before,
+html.theme-switching *::after {
+  transition: none !important;
+}
+
+[data-theme="dark"] .reader__sidebar-bookmark-wrap,
+[data-theme="dark"] .reader__sidebar-group {
+  background-color: var(--color-surface);
 }

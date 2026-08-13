@@ -12173,3 +12173,7 @@ html.theme-switching *::after {
     padding-bottom: 100px;
   }
 }
+
+[data-theme="dark"] .reader__panel-close {
+  background-color: transparent;
+}

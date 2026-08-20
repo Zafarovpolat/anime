@@ -8619,7 +8619,11 @@ button {
 
 /* Mobile overlay */
 .reader__overlay {
-  display: none;
+  display: block;
+  position: fixed;
+  inset: 0;
+  background: transparent;
+  z-index: 54;
 }
 
 /* ══════════════════════════════════════

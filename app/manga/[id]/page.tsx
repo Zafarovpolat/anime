@@ -110,16 +110,14 @@ function removeFromCommentTree(list: CommentType[], id: number): CommentType[] {
     .map((c) => ({ ...c, replies: removeFromCommentTree(c.replies, id) }));
 }
 
-function findThreadRootId(list: CommentType[], id: number): number {
-  for (const c of list) {
-    if (c.id === id) return c.id;
-    if (c.replies.some((r) => r.id === id)) return c.id;
-  }
-  return id;
-}
-
-function addReplyToThread(list: CommentType[], rootId: number, reply: CommentType): CommentType[] {
-  return list.map((c) => (c.id === rootId ? { ...c, replies: [...c.replies, reply] } : c));
+/* Добавляет ответ непосредственно к выбранному комментарию на любой глубине. */
+function addReplyToComment(list: CommentType[], targetId: number, reply: CommentType): CommentType[] {
+  return list.map((c) => {
+    if (c.id === targetId) return { ...c, replies: [...c.replies, reply] };
+    return c.replies.length
+      ? { ...c, replies: addReplyToComment(c.replies, targetId, reply) }
+      : c;
+  });
 }
 
 const REVIEWS = Array.from({ length: 5 }, (_, i) => ({
@@ -404,7 +402,7 @@ function ThumbDownIcon() {
 /* Рекурсивный рендер комментария: корень и вложенные ответы используют одну и ту же разметку */
 function CommentBlock({
   comment: c,
-  nested,
+  depth = 0,
   editingCommentId,
   editingCommentText,
   onChangeEditText,
@@ -419,7 +417,7 @@ function CommentBlock({
   onDislike,
 }: {
   comment: CommentType;
-  nested?: boolean;
+  depth?: number;
   editingCommentId: number | null;
   editingCommentText: string;
   onChangeEditText: (text: string) => void;
@@ -436,7 +434,8 @@ function CommentBlock({
   return (
     <div
       id={`comment-${c.id}`}
-      className={`manga-inner__comment${nested ? " manga-inner__comment--nested" : ""}${c.replies.length > 0 ? " manga-inner__comment--has-replies" : ""}`}
+      className={`manga-inner__comment${depth > 0 ? " manga-inner__comment--nested" : ""}${c.replies.length > 0 ? " manga-inner__comment--has-replies" : ""}`}
+      style={{ "--comment-depth": depth } as React.CSSProperties}
     >
       <div className="manga-inner__comment-avatar">
         <img src={`/images/cover_${(c.id % 12) + 1}.jpg`} alt={c.username} />
@@ -553,7 +552,7 @@ function CommentBlock({
               <CommentBlock
                 key={r.id}
                 comment={r}
-                nested
+                depth={depth + 1}
                 editingCommentId={editingCommentId}
                 editingCommentText={editingCommentText}
                 onChangeEditText={onChangeEditText}
@@ -939,7 +938,7 @@ const [comments, setComments] = useState(INITIAL_COMMENTS);
 
   const handleCommentReply = (c: CommentType) => {
     setReplyingTo({
-      rootId: findThreadRootId(comments, c.id),
+      rootId: c.id,
       targetId: c.id,
       username: c.username,
       text: stripHtml(c.text),
@@ -1276,7 +1275,7 @@ const [comments, setComments] = useState(INITIAL_COMMENTS);
                             replyToId: replyingTo ? replyingTo.targetId : null,
                             replies: [],
                           };
-                          setComments(prev => replyingTo ? addReplyToThread(prev, replyingTo.rootId, newC) : [newC, ...prev]);
+                          setComments(prev => replyingTo ? addReplyToComment(prev, replyingTo.targetId, newC) : [newC, ...prev]);
                           setNewComment("");
                           setReplyingTo(null);
                         }}

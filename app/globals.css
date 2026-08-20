@@ -2445,12 +2445,34 @@ button {
 .manga-inner__comments-list {
   display: flex;
   flex-direction: column;
-  gap: 30px;
+  gap: 14px;
+  max-height: min(900px, 72vh);
+  overflow-y: auto;
+  padding-right: 8px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-scrollbar) transparent;
+}
+
+.manga-inner__comments-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.manga-inner__comments-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.manga-inner__comments-list::-webkit-scrollbar-thumb {
+  background: var(--color-scrollbar);
+  border-radius: 6px;
+}
+
+.manga-inner__comments-list::-webkit-scrollbar-thumb:hover {
+  background: var(--color-scrollbar-hover);
 }
 
 .manga-inner__comment {
   display: flex;
-  gap: 18px;
+  gap: 12px;
 }
 
 /* Дерево комментариев: линия слева только у родителя, у которого есть ответы */
@@ -2460,8 +2482,8 @@ button {
 }
 
 .manga-inner__comment-avatar {
-  width: 69px;
-  height: 69px;
+  width: 52px;
+  height: 52px;
   border-radius: 50%;
   overflow: hidden;
   flex-shrink: 0;
@@ -2590,13 +2612,13 @@ button {
 
 /* Вложенные ответы (древовидные комментарии), отступ + вертикальная линия на токенах сайта */
 .manga-inner__comment-replies {
-  margin-left: 87px; /* 69px (аватар) + 18px (гап карточки) */
-  padding-left: 10px;
-  margin-top: 20px;
+  margin-left: 52px;
+  padding-left: 8px;
+  margin-top: 10px;
   display: flex;
   flex-direction: column;
-  gap: 20px;
-  border-left: 2px solid var(--color-primary);
+  gap: 10px;
+  border-left: 1px solid var(--color-gray-light);
 }
 
 .manga-inner__comment-replyto {
@@ -2633,8 +2655,8 @@ button {
 }
 
 .manga-inner__comment--nested .manga-inner__comment-avatar {
-  width: 52px;
-  height: 52px;
+  width: 36px;
+  height: 36px;
 }
 
 .manga-inner__comment-reactions {
@@ -12176,4 +12198,96 @@ html.theme-switching *::after {
 
 [data-theme="dark"] .reader__panel-close {
   background-color: transparent;
+}
+
+/* ── Compact recursive comment tree ── */
+.manga-inner__comments-list {
+  gap: 12px;
+}
+
+.manga-inner__comment {
+  gap: 10px;
+}
+
+.manga-inner__comment-avatar {
+  width: 48px;
+  height: 48px;
+}
+
+.manga-inner__comment-replies {
+  margin-left: 48px;
+  padding-left: 6px;
+  margin-top: 8px;
+  gap: 8px;
+}
+
+.manga-inner__comment--nested .manga-inner__comment-avatar {
+  width: 32px;
+  height: 32px;
+}
+
+.reader__panel-comments-list {
+  gap: 12px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-scrollbar) transparent;
+}
+
+.reader__panel-comments-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.reader__panel-comment-avatar {
+  width: 34px;
+  height: 34px;
+}
+
+.reader__panel-comment-replies {
+  margin-left: 34px;
+  padding-left: 6px;
+  margin-top: 8px;
+  gap: 8px;
+  border-left-width: 1px;
+}
+
+.reader__panel-comment--nested .reader__panel-comment-avatar {
+  width: 26px;
+  height: 26px;
+}
+
+@media (max-width: 768px) {
+  .manga-inner__comment-avatar {
+    width: 38px;
+    height: 38px;
+  }
+
+  .manga-inner__comment-replies {
+    margin-left: 38px;
+  }
+
+  .manga-inner__comment--nested .manga-inner__comment-avatar {
+    width: 28px;
+    height: 28px;
+  }
+}
+
+@media (max-width: 540px) {
+  .manga-inner__comments-list {
+    max-height: min(760px, 70vh);
+    padding-right: 5px;
+  }
+
+  .manga-inner__comment-avatar {
+    width: 34px;
+    height: 34px;
+  }
+
+  .manga-inner__comment-replies {
+    margin-left: 34px;
+    padding-left: 5px;
+  }
+
+  .manga-inner__comment--nested .manga-inner__comment-avatar {
+    width: 25px;
+    height: 25px;
+  }
 }

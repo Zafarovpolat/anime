@@ -842,6 +842,7 @@ export default function MangaReadPage({ params }: { params: { id: string } }) {
   const [activePanel, setActivePanel] = useState<
     "chapters" | "comments" | null
   >(null);
+  const [headerVisible, setHeaderVisible] = useState(true);
   const [comments, setComments] = useState(INITIAL_COMMENTS);
   const [searchQuery, setSearchQuery] = useState("");
   const [reversed, setReversed] = useState(false);
@@ -858,6 +859,21 @@ export default function MangaReadPage({ params }: { params: { id: string } }) {
       document.body.style.overflow = previousOverflow;
     };
   }, [activePanel]);
+
+  useEffect(() => {
+    const header = document.getElementById("header");
+    if (!header || typeof IntersectionObserver === "undefined") return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setHeaderVisible(entry.isIntersecting && entry.intersectionRatio >= 0.7);
+      },
+      { threshold: [0, 0.7, 1] },
+    );
+    observer.observe(header);
+
+    return () => observer.disconnect();
+  }, []);
 
   const totalChapters = 15;
   const currentChapter = 1;
@@ -968,7 +984,10 @@ export default function MangaReadPage({ params }: { params: { id: string } }) {
 
         {/* Sliding Panel */}
         {activePanel && (
-          <div className={`reader__panel reader__panel--${activePanel}`}>
+          <div
+            className={`reader__panel reader__panel--${activePanel}${headerVisible ? "" : " reader__panel--header-hidden"}`}
+            style={{ top: headerVisible ? "var(--reader-header-h)" : 0 }}
+          >
             {activePanel === "chapters" && (
               <ChaptersPanel
                 onClose={() => setActivePanel(null)}

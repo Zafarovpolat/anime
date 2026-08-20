@@ -12331,3 +12331,13 @@ html.theme-switching *::after {
 [data-theme="dark"] .reader__panel-reply-preview-close {
   color: var(--color-text);
 }
+
+/* Панель ридера занимает место шапки только когда шапка видна минимум на 70% */
+.reader__panel--header-hidden {
+  top: 0 !important;
+  max-height: 100vh;
+}
+
+[data-theme="dark"] .manga-inner__reply-preview-close {
+  color: var(--color-text);
+}

@@ -12291,3 +12291,21 @@ html.theme-switching *::after {
     height: 25px;
   }
 }
+
+/* Для глубоких веток нужен горизонтальный, а не вертикальный скролл */
+.manga-inner__comments-list {
+  max-height: none;
+  overflow-x: auto;
+  overflow-y: visible;
+  padding-bottom: 8px;
+}
+
+.manga-inner__comments-list::-webkit-scrollbar {
+  width: auto;
+  height: 6px;
+}
+
+.manga-inner__comment-replies {
+  width: max-content;
+  min-width: 100%;
+}

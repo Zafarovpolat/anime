@@ -4,7 +4,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ReportModal from "@/components/ReportModal";
 import RichTextEditor, { parseRichText, handleSpoilerClick, RichTextEditorHandle } from "@/components/RichTextEditor";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 /* ── Mock Data ── */
 const CHAPTERS = Array.from({ length: 15 }, (_, i) => ({
@@ -849,6 +849,16 @@ export default function MangaReadPage({ params }: { params: { id: string } }) {
   const [liked, setLiked] = useState(false);
   const [reportOpen, setReportOpen] = useState(false);
   const [bookmarkOpen, setBookmarkOpen] = useState(false);
+
+  useEffect(() => {
+    const previousOverflow = document.body.style.overflow;
+    if (activePanel) document.body.style.overflow = "hidden";
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [activePanel]);
+
   const totalChapters = 15;
   const currentChapter = 1;
 

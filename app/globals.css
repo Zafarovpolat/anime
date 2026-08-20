@@ -12327,3 +12327,7 @@ html.theme-switching *::after {
   width: auto;
   min-width: 0;
 }
+
+[data-theme="dark"] .reader__panel-reply-preview-close {
+  color: var(--color-text);
+}

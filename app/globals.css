@@ -12345,3 +12345,39 @@ html.theme-switching *::after {
 [data-theme="dark"] .manga-inner__reply-preview-close {
   color: var(--color-text);
 }
+
+/* Плавное закрытие панели и затемнения по клику на крестик или вне панели */
+.reader__panel--closing {
+  animation: readerPanelOut 0.25s ease forwards;
+}
+
+@keyframes readerPanelOut {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+.reader__overlay--closing {
+  animation: readerOverlayOut 0.25s ease forwards;
+}
+
+@keyframes readerOverlayOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+@media (max-width: 1024px) {
+  .reader__panel--closing {
+    animation: readerPanelDown 0.3s ease forwards;
+  }
+
+  @keyframes readerPanelDown {
+    from { transform: translateY(0); opacity: 1; }
+    to { transform: translateY(100%); opacity: 0; }
+  }
+}

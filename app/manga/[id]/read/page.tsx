@@ -842,6 +842,7 @@ export default function MangaReadPage({ params }: { params: { id: string } }) {
   const [activePanel, setActivePanel] = useState<
     "chapters" | "comments" | null
   >(null);
+  const [isPanelClosing, setIsPanelClosing] = useState(false);
   const [headerVisible, setHeaderVisible] = useState(true);
   const [comments, setComments] = useState(INITIAL_COMMENTS);
   const [searchQuery, setSearchQuery] = useState("");
@@ -853,12 +854,12 @@ export default function MangaReadPage({ params }: { params: { id: string } }) {
 
   useEffect(() => {
     const previousOverflow = document.body.style.overflow;
-    if (activePanel) document.body.style.overflow = "hidden";
+    if (activePanel || isPanelClosing) document.body.style.overflow = "hidden";
 
     return () => {
       document.body.style.overflow = previousOverflow;
     };
-  }, [activePanel]);
+  }, [activePanel, isPanelClosing]);
 
   useEffect(() => {
     const header = document.getElementById("header");
@@ -878,8 +879,24 @@ export default function MangaReadPage({ params }: { params: { id: string } }) {
   const totalChapters = 15;
   const currentChapter = 1;
 
+  const closePanel = () => {
+    if (activePanel) setIsPanelClosing(true);
+  };
+
+  const handlePanelAnimationEnd = () => {
+    if (isPanelClosing) {
+      setActivePanel(null);
+      setIsPanelClosing(false);
+    }
+  };
+
   const togglePanel = (panel: "chapters" | "comments") => {
-    setActivePanel((prev) => (prev === panel ? null : panel));
+    if (activePanel === panel) {
+      closePanel();
+      return;
+    }
+    setIsPanelClosing(false);
+    setActivePanel(panel);
   };
 
   const filteredChapters = CHAPTERS.filter((ch) =>
@@ -985,12 +1002,13 @@ export default function MangaReadPage({ params }: { params: { id: string } }) {
         {/* Sliding Panel */}
         {activePanel && (
           <div
-            className={`reader__panel reader__panel--${activePanel}${headerVisible ? "" : " reader__panel--header-hidden"}`}
+            className={`reader__panel reader__panel--${activePanel}${headerVisible ? "" : " reader__panel--header-hidden"}${isPanelClosing ? " reader__panel--closing" : ""}`}
             style={{ top: headerVisible ? "var(--reader-header-h)" : 0 }}
+            onAnimationEnd={handlePanelAnimationEnd}
           >
             {activePanel === "chapters" && (
               <ChaptersPanel
-                onClose={() => setActivePanel(null)}
+                onClose={closePanel}
                 searchQuery={searchQuery}
                 setSearchQuery={setSearchQuery}
                 reversed={reversed}
@@ -1000,7 +1018,7 @@ export default function MangaReadPage({ params }: { params: { id: string } }) {
             )}
             {activePanel === "comments" && (
               <CommentsPanel
-                onClose={() => setActivePanel(null)}
+                onClose={closePanel}
                 comments={comments}
                 setComments={setComments}
                 onReport={() => setReportOpen(true)}
@@ -1012,8 +1030,8 @@ export default function MangaReadPage({ params }: { params: { id: string } }) {
         {/* Mobile overlay */}
         {activePanel && (
           <div
-            className="reader__overlay"
-            onClick={() => setActivePanel(null)}
+            className={`reader__overlay${isPanelClosing ? " reader__overlay--closing" : ""}`}
+            onClick={closePanel}
           />
         )}
       </div>

@@ -12309,3 +12309,21 @@ html.theme-switching *::after {
   width: max-content;
   min-width: 100%;
 }
+
+/* В дереве оставляем одну линию на уровень вложенности — без дублирования у родителя */
+.manga-inner__comment--has-replies,
+.reader__panel-comment--has-replies {
+  border-left: none;
+  padding-left: 0;
+}
+
+/* Горизонтальный скролл появляется только при реальном переполнении */
+.manga-inner__comments-list {
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+.manga-inner__comment-replies {
+  width: auto;
+  min-width: 0;
+}

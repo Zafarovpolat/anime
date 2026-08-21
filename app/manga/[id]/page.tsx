@@ -79,6 +79,29 @@ const INITIAL_COMMENTS: CommentType[] = Array.from({ length: 7 }, (_, i) => ({
   ] : [],
 }));
 
+/* Тестовая ветка для проверки настоящей рекурсивной вложенности на странице манги. */
+const DEEP_TEST_COMMENTS: CommentType[] = (() => {
+  let replies: CommentType[] = [];
+  for (let level = 10; level >= 1; level -= 1) {
+    const username = level === 1 ? "Jul_Mol" : level % 2 === 0 ? "MangaFan92" : "Вы";
+    const comment: CommentType = {
+      id: 10000 + level,
+      avatar: "/images/avatar_default.png",
+      username,
+      text: `Тестовый комментарий — уровень вложенности ${level}`,
+      time: "Только что",
+      likes: level,
+      dislikes: 0,
+      userReaction: null,
+      replyToUsername: level === 1 ? null : `уровень ${level - 1}`,
+      replyToId: level === 1 ? null : 10000 + level - 1,
+      replies,
+    };
+    replies = [comment];
+  }
+  return replies;
+})();
+
 /* Превращает rich-text (HTML) комментария в plain-текст — для превью «на что отвечаешь» */
 function stripHtml(html: string): string {
   if (typeof document === "undefined") return html.replace(/<[^>]*>/g, "");
@@ -788,14 +811,15 @@ const BOOKMARK_OPTIONS = [
 
 /* ── Page Component ── */
 export default function MangaPage({ params }: { params: { id: string } }) {
+  const isTestManga = params.id === "test";
   const id = parseInt(params.id) || 0;
   const data = DEFAULT_DATA;
   const coverIdx = (id % 12) + 1;
 
   const [activeTab, setActiveTab] = useState<"main" | "chapters" | "comments" | "reviews">(
-    "main",
+    isTestManga ? "comments" : "main",
   );
-const [comments, setComments] = useState(INITIAL_COMMENTS);
+  const [comments, setComments] = useState(() => isTestManga ? DEEP_TEST_COMMENTS : INITIAL_COMMENTS);
   const [visibleCommentsCount, setVisibleCommentsCount] = useState(3);
   const [commentSort, setCommentSort] = useState<"new" | "popular">("new");
   const [visibleReviewsCount, setVisibleReviewsCount] = useState(3);

@@ -12893,3 +12893,27 @@ html.theme-switching *::after {
 .reader__panel-comment--nested::before {
   display: none !important;
 }
+
+/* После сброса пятого уровня направляющая новой группы совмещается
+   с базовой линией, а не создаёт соседнюю параллельную полосу. */
+.manga-inner__comment--depth-reset > .manga-inner__comment-body > .manga-inner__comment-replies {
+  margin-left: -28px;
+  width: calc(100% + 28px);
+}
+
+.reader__panel-comment--depth-reset > .reader__panel-comment-body > .reader__panel-comment-replies {
+  margin-left: -20px;
+  width: calc(100% + 20px);
+}
+
+@media (max-width: 540px) {
+  .manga-inner__comment--depth-reset > .manga-inner__comment-body > .manga-inner__comment-replies {
+    margin-left: -20px;
+    width: calc(100% + 20px);
+  }
+
+  .reader__panel-comment--depth-reset > .reader__panel-comment-body > .reader__panel-comment-replies {
+    margin-left: -16px;
+    width: calc(100% + 16px);
+  }
+}

@@ -463,13 +463,15 @@ function CommentBlock({
       className={`reader__panel-comment${depth > 0 ? " reader__panel-comment--nested" : ""}${c.replies.length > 0 ? " reader__panel-comment--has-replies" : ""}`}
       style={{ "--comment-depth": depth } as React.CSSProperties}
     >
-      <div className="reader__panel-comment-avatar">
-        <img src={c.avatar} alt={c.username} />
-      </div>
       <div className="reader__panel-comment-body">
         <div className="reader__panel-comment-top">
           <div className="reader__panel-comment-header">
-            <span className="reader__panel-comment-name">{c.username}</span>
+            <div className="reader__panel-comment-author">
+              <div className="reader__panel-comment-avatar">
+                <img src={c.avatar} alt={c.username} />
+              </div>
+              <span className="reader__panel-comment-name">{c.username}</span>
+            </div>
             {c.username === "Вы" ? (
               <div style={{ position: "relative" }}>
                 <button

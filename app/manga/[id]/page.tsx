@@ -460,13 +460,15 @@ function CommentBlock({
       className={`manga-inner__comment${depth > 0 ? " manga-inner__comment--nested" : ""}${c.replies.length > 0 ? " manga-inner__comment--has-replies" : ""}`}
       style={{ "--comment-depth": depth } as React.CSSProperties}
     >
-      <div className="manga-inner__comment-avatar">
-        <img src={`/images/cover_${(c.id % 12) + 1}.jpg`} alt={c.username} />
-      </div>
       <div className="manga-inner__comment-body">
         <div className="manga-inner__comment-top">
           <div className="manga-inner__comment-header">
-            <span className="manga-inner__comment-name">{c.username}</span>
+            <div className="manga-inner__comment-author">
+              <div className="manga-inner__comment-avatar">
+                <img src={`/images/cover_${(c.id % 12) + 1}.jpg`} alt={c.username} />
+              </div>
+              <span className="manga-inner__comment-name">{c.username}</span>
+            </div>
             {c.username === "Вы" ? (
               <div style={{ position: "relative" }}>
                 <button

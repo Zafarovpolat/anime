@@ -12733,3 +12733,30 @@ html.theme-switching *::after {
     padding-left: 14px;
   }
 }
+
+/* Одинаковый размер аватаров на всех уровнях дерева */
+.manga-inner__comment-avatar,
+.manga-inner__comment--nested .manga-inner__comment-avatar {
+  width: 40px;
+  height: 40px;
+}
+
+.reader__panel-comment-avatar,
+.reader__panel-comment--nested .reader__panel-comment-avatar {
+  width: 32px;
+  height: 32px;
+}
+
+@media (max-width: 540px) {
+  .manga-inner__comment-avatar,
+  .manga-inner__comment--nested .manga-inner__comment-avatar {
+    width: 32px;
+    height: 32px;
+  }
+
+  .reader__panel-comment-avatar,
+  .reader__panel-comment--nested .reader__panel-comment-avatar {
+    width: 28px;
+    height: 28px;
+  }
+}

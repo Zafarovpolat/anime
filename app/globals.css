@@ -12500,3 +12500,32 @@ html.theme-switching *::after {
   gap: 8px;
   overflow: visible;
 }
+
+/* Для глубоких уровней возвращаем ширину через небольшой depth-aware offset.
+   Он компенсирует сжатие после аватара и отступа, но не раздувает ветку на первых уровнях. */
+.manga-inner__comments-list {
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+.manga-inner__comment {
+  width: calc(100% + (var(--comment-depth, 0) * 24px));
+  max-width: none;
+  min-width: 0;
+}
+
+.manga-inner__comment--nested {
+  flex-shrink: 0;
+}
+
+.manga-inner__comment-replies {
+  width: auto;
+  min-width: 0;
+  overflow: visible;
+}
+
+@media (max-width: 540px) {
+  .manga-inner__comment {
+    width: calc(100% + (var(--comment-depth, 0) * 18px));
+  }
+}

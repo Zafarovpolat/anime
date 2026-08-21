@@ -12784,3 +12784,18 @@ html.theme-switching *::after {
     width: calc(100% + 56px);
   }
 }
+
+/* Одна линия дерева: только у контейнера ответов, без линии у самой карточки */
+.manga-inner__comment--has-replies,
+.reader__panel-comment--has-replies {
+  border-left: none !important;
+  padding-left: 0 !important;
+}
+
+.manga-inner__comment-replies {
+  border-left: 1px solid var(--color-gray-light);
+}
+
+.reader__panel-comment-replies {
+  border-left: 1px solid var(--color-gray-light);
+}

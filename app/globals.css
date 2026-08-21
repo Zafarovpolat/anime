@@ -12674,3 +12674,20 @@ html.theme-switching *::after {
     top: 4px;
   }
 }
+
+@media (max-width: 540px) {
+  /* На узких экранах оставляем безопасную зону для аватарки слева */
+  .manga-inner__comment-top,
+  .manga-inner__comment-footer {
+    padding-left: 50px;
+  }
+
+  .manga-inner__comment--nested {
+    width: calc(100% + (var(--comment-depth, 0) * 3px));
+  }
+
+  .manga-inner__comment--nested .manga-inner__comment-top,
+  .manga-inner__comment--nested .manga-inner__comment-footer {
+    padding-left: 42px;
+  }
+}

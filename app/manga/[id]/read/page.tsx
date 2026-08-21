@@ -460,7 +460,7 @@ function CommentBlock({
   return (
     <div
       id={`comment-${c.id}`}
-      className={`reader__panel-comment${depth > 0 ? " reader__panel-comment--nested" : ""}${c.replies.length > 0 ? " reader__panel-comment--has-replies" : ""}`}
+      className={`reader__panel-comment${depth > 0 ? " reader__panel-comment--nested" : ""}${c.replies.length > 0 ? " reader__panel-comment--has-replies" : ""}${depth > 0 && depth % 5 === 0 ? " reader__panel-comment--depth-reset" : ""}`}
       style={{ "--comment-depth": depth } as React.CSSProperties}
     >
       <div className="reader__panel-comment-body">

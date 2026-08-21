@@ -12760,3 +12760,27 @@ html.theme-switching *::after {
     height: 28px;
   }
 }
+
+/* После каждых пяти уровней визуально начинаем новую компактную группу.
+   Дерево в данных остаётся рекурсивным, связь между группами сохраняется линиями. */
+.manga-inner__comment--depth-reset {
+  margin-left: -112px;
+  width: calc(100% + 112px);
+}
+
+.reader__panel-comment--depth-reset {
+  margin-left: -80px;
+  width: calc(100% + 80px);
+}
+
+@media (max-width: 540px) {
+  .manga-inner__comment--depth-reset {
+    margin-left: -80px;
+    width: calc(100% + 80px);
+  }
+
+  .reader__panel-comment--depth-reset {
+    margin-left: -56px;
+    width: calc(100% + 56px);
+  }
+}

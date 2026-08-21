@@ -457,7 +457,7 @@ function CommentBlock({
   return (
     <div
       id={`comment-${c.id}`}
-      className={`manga-inner__comment${depth > 0 ? " manga-inner__comment--nested" : ""}${c.replies.length > 0 ? " manga-inner__comment--has-replies" : ""}`}
+      className={`manga-inner__comment${depth > 0 ? " manga-inner__comment--nested" : ""}${c.replies.length > 0 ? " manga-inner__comment--has-replies" : ""}${depth > 0 && depth % 5 === 0 ? " manga-inner__comment--depth-reset" : ""}`}
       style={{ "--comment-depth": depth } as React.CSSProperties}
     >
       <div className="manga-inner__comment-body">

@@ -521,15 +521,13 @@ function CommentBlock({
         </div>
         <div className="manga-inner__comment-footer">
           <span className="manga-inner__comment-time">{c.time}</span>
-          {c.username !== "Вы" && (
-            <span
+          <span
               className="manga-inner__comment-reply"
               style={{ cursor: "pointer" }}
               onClick={() => onReply(c)}
             >
               Ответить
             </span>
-          )}
           <div className="manga-inner__comment-reactions">
             <span
               className={`manga-inner__comment-like${c.userReaction === "like" ? " manga-inner__comment-like--active" : ""}`}

@@ -12381,3 +12381,62 @@ html.theme-switching *::after {
     to { transform: translateY(100%); opacity: 0; }
   }
 }
+
+/* ── Comment tree test page ── */
+.test-comments-page .container {
+  background: var(--color-surface);
+  border-radius: var(--radius-card);
+  padding: 32px;
+}
+
+.test-comments__hint {
+  color: var(--color-gray-text);
+  margin: 12px 0 24px;
+}
+
+.test-comments__level {
+  color: var(--color-primary);
+  font-size: 13px;
+  margin-left: 8px;
+}
+
+.test-comments__form {
+  margin-top: 24px;
+  padding: 16px;
+  border-radius: 16px;
+  background: var(--color-surface-2);
+}
+
+.test-comments__form textarea {
+  display: block;
+  width: 100%;
+  min-height: 90px;
+  margin: 12px 0;
+  padding: 12px;
+  resize: vertical;
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: inherit;
+}
+
+.test-comments__submit,
+.test-comments__cancel {
+  min-height: 42px;
+  padding: 0 18px;
+  border-radius: 12px;
+  font: inherit;
+  cursor: pointer;
+}
+
+.test-comments__submit {
+  background: var(--color-primary);
+  color: var(--color-text);
+}
+
+.test-comments__cancel {
+  margin-left: 8px;
+  background: var(--color-surface);
+  color: var(--color-text);
+}

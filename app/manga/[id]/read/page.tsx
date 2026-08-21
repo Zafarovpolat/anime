@@ -547,11 +547,9 @@ function CommentBlock({
         </div>
         <div className="reader__panel-comment-footer">
           <span className="reader__panel-comment-time">{c.time}</span>
-          {c.username !== "Вы" && (
-            <button className="reader__panel-comment-reply" onClick={() => onReply(c)}>
+          <button className="reader__panel-comment-reply" onClick={() => onReply(c)}>
               Ответить
             </button>
-          )}
           <div className="reader__panel-comment-reactions">
             <button
               className={`reader__panel-comment-like${c.userReaction === "like" ? " reader__panel-comment-like--active" : ""}`}

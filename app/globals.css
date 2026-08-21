@@ -12440,3 +12440,26 @@ html.theme-switching *::after {
   background: var(--color-surface);
   color: var(--color-text);
 }
+
+/* Ширина карточек дерева не сжимается на каждом новом уровне: рост уходит вправо */
+.manga-inner__comment {
+  width: calc(100% + (var(--comment-depth, 0) * 42px));
+  max-width: none;
+}
+
+.manga-inner__comment-replies {
+  width: auto;
+  min-width: 0;
+  overflow: visible;
+}
+
+.reader__panel-comment {
+  width: calc(100% + (var(--comment-depth, 0) * 28px));
+  max-width: none;
+}
+
+.reader__panel-comment-replies {
+  width: auto;
+  min-width: 0;
+  overflow: visible;
+}

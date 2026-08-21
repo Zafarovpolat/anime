@@ -12799,3 +12799,27 @@ html.theme-switching *::after {
 .reader__panel-comment-replies {
   border-left: 1px solid var(--color-gray-light);
 }
+
+/* Линия относится к конкретному ответу, а не ко всей высоте ветки.
+   Поэтому линия родителя не тянется через все последующие комментарии. */
+.manga-inner__comment-replies,
+.reader__panel-comment-replies {
+  border-left: none !important;
+}
+
+.manga-inner__comment--nested,
+.reader__panel-comment--nested {
+  position: relative;
+}
+
+.manga-inner__comment--nested::before,
+.reader__panel-comment--nested::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: var(--color-gray-light);
+  pointer-events: none;
+}

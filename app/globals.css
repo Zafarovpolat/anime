@@ -12761,29 +12761,9 @@ html.theme-switching *::after {
   }
 }
 
-/* После каждых пяти уровней визуально начинаем новую компактную группу.
-   Дерево в данных остаётся рекурсивным, связь между группами сохраняется линиями. */
-.manga-inner__comment--depth-reset {
-  margin-left: -112px;
-  width: calc(100% + 112px);
-}
+/* (Блок .comment--depth-reset удалён — класс больше не эмитится; сброс уровней
+   теперь делают группы .comment-group--reset, см. авторитетный блок ниже.) */
 
-.reader__panel-comment--depth-reset {
-  margin-left: -80px;
-  width: calc(100% + 80px);
-}
-
-@media (max-width: 540px) {
-  .manga-inner__comment--depth-reset {
-    margin-left: -80px;
-    width: calc(100% + 80px);
-  }
-
-  .reader__panel-comment--depth-reset {
-    margin-left: -56px;
-    width: calc(100% + 56px);
-  }
-}
 
 /* Одна линия дерева: только у контейнера ответов, без линии у самой карточки */
 .manga-inner__comment--has-replies,
@@ -12850,70 +12830,154 @@ html.theme-switching *::after {
   }
 }
 
-/* Линия не должна занимать высоту всей вложенной ветки.
-   Она ограничена только своей карточкой, поэтому следующий блок может
-   начинаться на той же визуальной линии после сброса уровня. */
-.manga-inner__comment--nested::before,
-.reader__panel-comment--nested::before {
-  display: none;
+/* (Старые экспериментальные блоки per-card рельса и --depth-reset удалены:
+   дерево комментариев теперь строится группами по 5 уровней, см. блок ниже.) */
+
+
+/* =========================================================================
+   ДЕРЕВО КОММЕНТАРИЕВ — «рельсы» веток с ГРУППИРОВКОЙ по 5 уровней (как просил
+   клиент). Перекрывает все ранние экспериментальные блоки выше по файлу.
+
+   Модель (важно — БЕЗ фоновой заливки):
+   - Дерево на React-стороне разворачивается в ПЛОСКИЙ список групп
+     (buildCommentGroups): каждая группа = максимум 5 уровней вложенности и
+     рендерится в ОТДЕЛЬНОМ div .comment-group. Группы — соседи, НЕ вложены
+     друг в друга.
+   - Вертикальная линия-ветка (рельс) живёт на КОНТЕЙНЕРЕ ответов
+     (.comment-replies) и на обёртке продолжения (.comment-group--reset).
+     Так как группа не вложена в предков, её рельс ограничен высотой СВОЕГО
+     div — линия идёт до конца группы, а не через все комментарии треда.
+   - Внутри группы контейнеры .comment-replies вложены в DOM → слева видны
+     рельсы родителей (как на MangaLib), но максимум на 5 уровней.
+   - Шаг уровня = --rail-step (25px десктоп / 14px мобилка; ридер 20/12px),
+     border-left 1px solid rgb(229,229,229) = var(--color-gray-light).
+   - СБРОС: продолжение ветки (6-й/11-й/16-й уровень) идёт новой группой с
+     классом --reset. Обёртка даёт ОДИН шаг отступа + собственный рельс,
+     поэтому ветка визуально начинается заново «как первый ответ» — во всю
+     ширину, без сжатия и прокрутки влево. Никакой фоновой подложки не нужно:
+     рельсы предков физически не доходят до этой группы (она отдельный div).
+   - Кому идёт ответ, видно по плашке «Ответ для @ник» (↳) — она рендерится на
+     каждом вложенном комменте и на старте группы-продолжения особенно важна.
+   ========================================================================= */
+
+/* Список не скроллится по горизонтали ни при какой глубине */
+.manga-inner__comments-list,
+.reader__panel-comments-list {
+  overflow-x: hidden;
 }
 
-.manga-inner__comment-top,
-.reader__panel-comment-top {
+/* Карточка не раздувается по ширине с глубиной */
+.manga-inner__comment,
+.reader__panel-comment {
   position: relative;
+  width: auto;
+  max-width: 100%;
+  min-width: 0;
 }
 
+/* Длинный текст/ссылки переносятся, а не расширяют карточку */
+.manga-inner__comment-text,
+.reader__panel-comment-text {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+/* Отступ и линию теперь даёт контейнер ответов, а не карточка.
+   Снимаем margin/padding с карточки и гасим её старую линию (::before). */
+.manga-inner__comment--nested,
+.reader__panel-comment--nested {
+  margin-left: 0 !important;
+  padding-left: 0 !important;
+}
+.manga-inner__comment--nested::before,
+.reader__panel-comment--nested::before,
 .manga-inner__comment--nested > .manga-inner__comment-body > .manga-inner__comment-top::before,
 .reader__panel-comment--nested > .reader__panel-comment-body > .reader__panel-comment-top::before {
-  content: "";
-  position: absolute;
-  left: -10px;
-  top: 0;
-  bottom: 0;
-  width: 1px;
-  background: var(--color-gray-light);
-  pointer-events: none;
-}
-
-@media (max-width: 540px) {
-  .manga-inner__comment--nested > .manga-inner__comment-body > .manga-inner__comment-top::before,
-  .reader__panel-comment--nested > .reader__panel-comment-body > .reader__panel-comment-top::before {
-    left: -7px;
-  }
-}
-
-/* Возвращаем непрерывные направляющие дерева: одна линия на группу ответов.
-   Линия родителя идёт через всю его группу, а отдельные линии карточек не рисуются. */
-.manga-inner__comment-replies,
-.reader__panel-comment-replies {
-  border-left: 1px solid var(--color-gray-light) !important;
-}
-
-.manga-inner__comment--nested::before,
-.reader__panel-comment--nested::before {
+  content: none !important;
   display: none !important;
 }
 
-/* После сброса пятого уровня направляющая новой группы совмещается
-   с базовой линией, а не создаёт соседнюю параллельную полосу. */
-.manga-inner__comment--depth-reset > .manga-inner__comment-body > .manga-inner__comment-replies {
-  margin-left: -28px;
-  width: calc(100% + 28px);
+/* НЕПРЕРЫВНЫЙ РЕЛЬС: линия-ветка на контейнере ответов тянется вдоль поддерева.
+   Отступ уровня = padding-left = --rail-step; вложенность контейнеров копит его,
+   поэтому у коммента слева стоят рельсы его родителей. Значения — как у MangaLib:
+   25px / 1px / rgb(229,229,229). Каждые 5 уровней срабатывает --reset (ниже). */
+.manga-inner__comment-replies {
+  --rail-step: 25px;
+  position: relative;
+  margin-left: 0 !important;
+  margin-top: 8px;
+  padding-left: var(--rail-step) !important;
+  border-left: 1px solid var(--color-gray-light) !important;
+  width: auto;
+  min-width: 0;
+  overflow: visible;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+/* Панель ридера уже основной колонки — шаг чуть меньше (у MangaLib этой
+   боковой панели нет; берём пропорционально). Линия та же: 1px. */
+.reader__panel-comment-replies {
+  --rail-step: 20px;
+  position: relative;
+  margin-left: 0 !important;
+  margin-top: 8px;
+  padding-left: var(--rail-step) !important;
+  border-left: 1px solid var(--color-gray-light) !important;
+  width: auto;
+  min-width: 0;
+  overflow: visible;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
-.reader__panel-comment--depth-reset > .reader__panel-comment-body > .reader__panel-comment-replies {
-  margin-left: -20px;
-  width: calc(100% + 20px);
+/* ГРУППА-ПРОДОЛЖЕНИЕ (сброс каждые 5 уровней). React отдаёт ветку глубже 5-го
+   уровня отдельной группой с классом --reset. Обёртка даёт РОВНО один шаг
+   отступа + собственный рельс, ограниченный высотой этого div (линия идёт до
+   конца группы, не через весь тред). Так продолжение начинается «как первый
+   ответ»: полная ширина, без сжатия и прокрутки влево. Адресата показывает
+   плашка «↳ Ответ для @ник». Фоновой подложки НЕТ — она не нужна. */
+.manga-inner__comment-group--reset {
+  --rail-step: 25px;
+  position: relative;
+  padding-left: var(--rail-step);
+  border-left: 1px solid var(--color-gray-light);
+}
+.reader__panel-comment-group--reset {
+  --rail-step: 20px;
+  position: relative;
+  padding-left: var(--rail-step);
+  border-left: 1px solid var(--color-gray-light);
 }
 
+/* Плашка «Ответ для @ник» — лёгкая подпись со стрелкой; помогает быстро
+   находить адресата ответа на любой глубине ветки. */
+.manga-inner__comment-replyto,
+.reader__panel-comment-replyto {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  opacity: 0.8;
+}
+.manga-inner__comment-replyto::before,
+.reader__panel-comment-replyto::before {
+  content: "\21B3"; /* ↳ */
+  font-weight: 700;
+  opacity: 0.7;
+}
+
+/* Мобильные: шаг MangaLib = 14px (замерено на ширине 390px). Меняем только
+   --rail-step — padding пересчитается сам. Специфичность .manga-inner ...
+   чтобы перекрыть ранние правила внутри @media 400/340px. */
 @media (max-width: 540px) {
-  .manga-inner__comment--depth-reset > .manga-inner__comment-body > .manga-inner__comment-replies {
-    margin-left: -20px;
-    width: calc(100% + 20px);
+  .manga-inner .manga-inner__comment-replies,
+  .manga-inner .manga-inner__comment-group--reset {
+    --rail-step: 14px;
   }
-
-  .reader__panel-comment--depth-reset > .reader__panel-comment-body > .reader__panel-comment-replies {
-    margin-left: -16px;
-    width: calc(100% + 16px);
+  .reader__panel-comment-replies,
+  .reader__panel-comment-group--reset {
+    --rail-step: 12px;
   }
 }

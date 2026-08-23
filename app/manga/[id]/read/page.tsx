@@ -426,9 +426,41 @@ function ThumbDownIcon() {
 }
 
 /* Рекурсивный рендер комментария: корень и вложенные ответы используют одну и ту же разметку */
+// Каждые RESET_EVERY уровней вложенности выносим в ОТДЕЛЬНУЮ группу-<div>.
+// Внутри группы работают обычные линии-рельсы, но они ограничены высотой самой
+// группы, поэтому линия от верхних комментов НЕ тянется через всё дерево до
+// самого низа. Продолжение ветки после «сброса» показываем плашкой
+// «↳ Ответ для @ник» + собственным рельсом группы; ответ снова во всю ширину,
+// не сжат, без прокрутки влево (клиентское ТЗ п.17).
+const RESET_EVERY = 5;
+
+type CommentGroup = { root: CommentType; reset: boolean };
+
+// Прямой обход дерева (pre-order): сначала сама группа (до RESET_EVERY уровней),
+// затем сразу её продолжения-группы — так сохраняется визуальный порядок
+// «ответ под ответом». Дети узла на нижней границе группы (уровень RESET_EVERY)
+// становятся корнями новых групп со сбросом отступа влево.
+function buildCommentGroups(roots: CommentType[]): CommentGroup[] {
+  const groups: CommentGroup[] = [];
+  const walk = (node: CommentType, reset: boolean) => {
+    groups.push({ root: node, reset });
+    const descend = (n: CommentType, rel: number) => {
+      if (rel >= RESET_EVERY - 1) {
+        n.replies.forEach((child) => walk(child, true));
+        return;
+      }
+      n.replies.forEach((child) => descend(child, rel + 1));
+    };
+    descend(node, 0);
+  };
+  roots.forEach((r) => walk(r, false));
+  return groups;
+}
+
 function CommentBlock({
   comment: c,
   depth = 0,
+  forceNested = false,
   editingCommentId,
   editingCommentText,
   onChangeEditText,
@@ -444,6 +476,7 @@ function CommentBlock({
 }: {
   comment: CommentType;
   depth?: number;
+  forceNested?: boolean;
   editingCommentId: number | null;
   editingCommentText: string;
   onChangeEditText: (text: string) => void;
@@ -457,11 +490,16 @@ function CommentBlock({
   onLike: (id: number) => void;
   onDislike: (id: number) => void;
 }) {
+  // depth — глубина ВНУТРИ группы (0..RESET_EVERY-1). Рекурсию обрезаем на
+  // границе группы: детей уровня RESET_EVERY здесь не рендерим — они уходят в
+  // отдельные группы (см. buildCommentGroups), поэтому рельс группы не выходит
+  // за её пределы и не тянется через весь тред вниз. forceNested делает карточку
+  // корня группы-продолжения «вложенной» (её отступ/рельс даёт обёртка группы).
+  const hasReplies = c.replies.length > 0 && depth + 1 < RESET_EVERY;
   return (
     <div
       id={`comment-${c.id}`}
-      className={`reader__panel-comment${depth > 0 ? " reader__panel-comment--nested" : ""}${c.replies.length > 0 ? " reader__panel-comment--has-replies" : ""}${depth > 0 && depth % 5 === 0 ? " reader__panel-comment--depth-reset" : ""}`}
-      style={{ "--comment-depth": depth } as React.CSSProperties}
+      className={`reader__panel-comment${depth > 0 || forceNested ? " reader__panel-comment--nested" : ""}${c.replies.length > 0 ? " reader__panel-comment--has-replies" : ""}`}
     >
       <div className="reader__panel-comment-body">
         <div className="reader__panel-comment-top">
@@ -568,7 +606,7 @@ function CommentBlock({
           </div>
         </div>
 
-        {c.replies.length > 0 && (
+        {hasReplies && (
           <div className="reader__panel-comment-replies">
             {c.replies.map((r) => (
               <CommentBlock
@@ -811,12 +849,18 @@ function CommentsPanel({
         </button>
       </div>
       <div className="reader__panel-comments-list">
-        {[...comments]
-          .sort((a, b) => (commentSort === "popular" ? b.likes - a.likes : 0))
-          .map((c) => (
+        {buildCommentGroups(
+          [...comments].sort((a, b) =>
+            commentSort === "popular" ? b.likes - a.likes : 0
+          )
+        ).map((group) => (
+          <div
+            key={group.root.id}
+            className={`reader__panel-comment-group${group.reset ? " reader__panel-comment-group--reset" : ""}`}
+          >
             <CommentBlock
-              key={c.id}
-              comment={c}
+              comment={group.root}
+              forceNested={group.reset}
               editingCommentId={editingCommentId}
               editingCommentText={editingCommentText}
               onChangeEditText={setEditingCommentText}
@@ -830,7 +874,8 @@ function CommentsPanel({
               onLike={handleLike}
               onDislike={handleDislike}
             />
-          ))}
+          </div>
+        ))}
       </div>
     </>
   );

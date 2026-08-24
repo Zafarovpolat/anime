@@ -12907,7 +12907,12 @@ html.theme-switching *::after {
   margin-left: 0 !important;
   margin-top: 8px;
   padding-left: var(--rail-step) !important;
-  border-left: 1px solid var(--color-gray-light) !important;
+  /* Рельс ветки — акцентный фиолетовый: сразу читается «это ответы».
+     Насыщенность 80% и толщина 3px, чтобы линия ветки была явно видна даже
+     на маленьком экране / в мессенджере. fallback сплошным цветом для старых
+     браузеров без color-mix. */
+  border-left: 3px solid var(--color-primary) !important;
+  border-left-color: color-mix(in srgb, var(--color-primary) 80%, transparent) !important;
   width: auto;
   min-width: 0;
   overflow: visible;
@@ -12923,7 +12928,9 @@ html.theme-switching *::after {
   margin-left: 0 !important;
   margin-top: 8px;
   padding-left: var(--rail-step) !important;
-  border-left: 1px solid var(--color-gray-light) !important;
+  /* Рельс ветки — акцентный фиолетовый, 80% / 3px (см. коммент выше). */
+  border-left: 3px solid var(--color-primary) !important;
+  border-left-color: color-mix(in srgb, var(--color-primary) 80%, transparent) !important;
   width: auto;
   min-width: 0;
   overflow: visible;
@@ -12942,13 +12949,34 @@ html.theme-switching *::after {
   --rail-step: 25px;
   position: relative;
   padding-left: var(--rail-step);
-  border-left: 1px solid var(--color-gray-light);
+  /* Продолжение ветки после сброса — тот же акцентный фиолетовый рельс,
+     что и у обычных ответов (80% / 3px): клиент видит «это по-прежнему ответ»,
+     а не новый корневой комментарий. */
+  border-left: 3px solid var(--color-primary);
+  border-left-color: color-mix(in srgb, var(--color-primary) 80%, transparent);
 }
 .reader__panel-comment-group--reset {
   --rail-step: 20px;
   position: relative;
   padding-left: var(--rail-step);
-  border-left: 1px solid var(--color-gray-light);
+  border-left: 3px solid var(--color-primary);
+  border-left-color: color-mix(in srgb, var(--color-primary) 80%, transparent);
+}
+
+/* НОВАЯ ТЕМА — начало самостоятельного (корневого) комментария, а не продолжения
+   ветки. Отделяем горизонтальной линией + воздухом, чтобы с первого взгляда было
+   ясно: предыдущий тред закончился, начался НОВЫЙ комментарий, а не ответ. Группы
+   продолжения (--reset) этот разделитель НЕ получают — они остаются веткой. */
+.manga-inner__comment-group--new-topic,
+.reader__panel-comment-group--new-topic {
+  margin-top: 28px;
+  padding-top: 28px;
+  /* Граница НОВОГО комментария — заметная ГОРИЗОНТАЛЬНАЯ серая линия во всю
+     ширину (--color-gray-text виден и на тёмной, и на светлой теме). Другой
+     цвет и другая ось, чем у фиолетовых вертикальных рельсов ответов, — глаз
+     мгновенно отличает «новый комментарий» от «продолжения ветки». */
+  border-top: 2px solid var(--color-gray-text);
+  border-top-color: color-mix(in srgb, var(--color-gray-text) 72%, transparent);
 }
 
 /* Плашка «Ответ для @ник» — лёгкая подпись со стрелкой; помогает быстро
@@ -12958,14 +12986,25 @@ html.theme-switching *::after {
   display: inline-flex;
   align-items: center;
   gap: 4px;
+  margin-bottom: 4px;
+  padding: 2px 8px;
   font-size: 12px;
-  opacity: 0.8;
+  /* Плашка адресата — акцентный фиолетовый ЯРЛЫК-пилюля с лёгкой заливкой,
+     чтобы «↳ Ответ для @ник» сразу читался как явный маркер ответа (у корневых
+     комментов этой плашки нет вообще). Заливка через color-mix; старые браузеры
+     без него просто покажут фиолетовый текст без фона. */
+  color: var(--color-primary);
+  font-weight: 600;
+  background: color-mix(in srgb, var(--color-primary) 14%, transparent);
+  border-radius: 999px;
+}
+.manga-inner__comment-replyto-link {
+  cursor: pointer;
 }
 .manga-inner__comment-replyto::before,
 .reader__panel-comment-replyto::before {
   content: "\21B3"; /* ↳ */
   font-weight: 700;
-  opacity: 0.7;
 }
 
 /* Мобильные: шаг MangaLib = 14px (замерено на ширине 390px). Меняем только

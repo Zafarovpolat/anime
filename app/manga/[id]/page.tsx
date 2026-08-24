@@ -79,27 +79,85 @@ const INITIAL_COMMENTS: CommentType[] = Array.from({ length: 7 }, (_, i) => ({
   ] : [],
 }));
 
-/* Тестовая ветка для проверки настоящей рекурсивной вложенности на странице манги. */
+/* Тестовые данные дерева комментариев на странице манги:
+   — одна глубокая ветка из 22 ответов подряд, чтобы наглядно показать сброс
+     отступов («сноску») каждые 5 уровней и что вёрстка не уезжает вбок;
+   — несколько самостоятельных (корневых) комментариев = «новые темы»,
+     чтобы был виден контраст «где ответ, а где новый комментарий». */
 const DEEP_TEST_COMMENTS: CommentType[] = (() => {
-  let replies: CommentType[] = [];
-  for (let level = 10; level >= 1; level -= 1) {
-    const username = level === 1 ? "Jul_Mol" : level % 2 === 0 ? "MangaFan92" : "Вы";
+  const DEPTH = 22; // сброс отступа сработает 4 раза: после 5, 10, 15 и 20 уровней
+  // Имя автора на каждом уровне — чтобы пилюля «Ответ для @ник» выглядела реалистично
+  const nameFor = (level: number) =>
+    level === 1 ? "Jul_Mol" : level % 2 === 0 ? "MangaFan92" : "Otaku_San";
+
+  // Глубокая цепочка: строим снизу вверх, каждый уровень вкладывает предыдущий
+  let chain: CommentType[] = [];
+  for (let level = DEPTH; level >= 1; level -= 1) {
     const comment: CommentType = {
       id: 10000 + level,
       avatar: "/images/avatar_default.png",
-      username,
-      text: `Тестовый комментарий — уровень вложенности ${level}`,
+      username: nameFor(level),
+      text:
+        level === 1
+          ? "Оригинальный комментарий — ниже длинная ветка ответов (22 уровня подряд)"
+          : `Ответ №${level - 1} в ветке (уровень вложенности ${level})`,
       time: "Только что",
-      likes: level,
+      likes: level === 1 ? 99 : DEPTH - level,
       dislikes: 0,
       userReaction: null,
-      replyToUsername: level === 1 ? null : `уровень ${level - 1}`,
+      replyToUsername: level === 1 ? null : nameFor(level - 1),
       replyToId: level === 1 ? null : 10000 + level - 1,
-      replies,
+      replies: chain,
     };
-    replies = [comment];
+    chain = [comment];
   }
-  return replies;
+  const deepRoot = chain[0];
+
+  // Самостоятельные корневые комментарии — «новые темы» для контраста с ответами
+  const plainRoots: CommentType[] = [
+    {
+      id: 20001,
+      avatar: "/images/avatar_default.png",
+      username: "ReaderOne",
+      text: "Это отдельный новый комментарий — самостоятельная тема, не ответ никому.",
+      time: "1 час назад",
+      likes: 40,
+      dislikes: 0,
+      userReaction: null,
+      replyToUsername: null,
+      replyToId: null,
+      replies: [
+        {
+          id: 20002,
+          avatar: "/images/avatar_default.png",
+          username: "ReaderTwo",
+          text: "А это уже ответ на комментарий выше — видно по рельсу и пилюле «Ответ для».",
+          time: "50 минут назад",
+          likes: 5,
+          dislikes: 0,
+          userReaction: null,
+          replyToUsername: "ReaderOne",
+          replyToId: 20001,
+          replies: [],
+        },
+      ],
+    },
+    {
+      id: 20003,
+      avatar: "/images/avatar_default.png",
+      username: "ReaderThree",
+      text: "Ещё один новый комментарий — тоже отдельная тема, без вложенности.",
+      time: "30 минут назад",
+      likes: 25,
+      dislikes: 0,
+      userReaction: null,
+      replyToUsername: null,
+      replyToId: null,
+      replies: [],
+    },
+  ];
+
+  return [deepRoot, ...plainRoots];
 })();
 
 /* Превращает rich-text (HTML) комментария в plain-текст — для превью «на что отвечаешь» */
@@ -1355,10 +1413,10 @@ export default function MangaPage({ params }: { params: { id: string } }) {
                               return 0; // "new" — зберігаємо порядок (найновіші зверху)
                             })
                             .slice(0, visibleCommentsCount)
-                        ).map((group) => (
+                        ).map((group, idx) => (
                           <div
                             key={group.root.id}
-                            className={`manga-inner__comment-group${group.reset ? " manga-inner__comment-group--reset" : ""}`}
+                            className={`manga-inner__comment-group${group.reset ? " manga-inner__comment-group--reset" : ""}${!group.reset && idx > 0 ? " manga-inner__comment-group--new-topic" : ""}`}
                           >
                             <CommentBlock
                               comment={group.root}

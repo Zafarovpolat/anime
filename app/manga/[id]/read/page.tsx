@@ -853,10 +853,10 @@ function CommentsPanel({
           [...comments].sort((a, b) =>
             commentSort === "popular" ? b.likes - a.likes : 0
           )
-        ).map((group) => (
+        ).map((group, idx) => (
           <div
             key={group.root.id}
-            className={`reader__panel-comment-group${group.reset ? " reader__panel-comment-group--reset" : ""}`}
+            className={`reader__panel-comment-group${group.reset ? " reader__panel-comment-group--reset" : ""}${!group.reset && idx > 0 ? " reader__panel-comment-group--new-topic" : ""}`}
           >
             <CommentBlock
               comment={group.root}

@@ -6,7 +6,7 @@ import ReviewModal from "@/components/ReviewModal";
 import ReportModal from "@/components/ReportModal";
 import RichTextEditor, { parseRichText, handleSpoilerClick, RichTextEditorHandle } from "@/components/RichTextEditor";
 import Link from "next/link";
-import { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 
 /* ── mock data ── */
@@ -481,41 +481,27 @@ function ThumbDownIcon() {
 }
 
 /* Рекурсивный рендер комментария: корень и вложенные ответы используют одну и ту же разметку */
-// Каждые RESET_EVERY уровней вложенности выносим в ОТДЕЛЬНУЮ группу-<div>.
-// Внутри группы работают обычные линии-рельсы, но они ограничены высотой самой
-// группы, поэтому линия от верхних комментов НЕ тянется через всё дерево до
-// самого низа. Продолжение ветки после «сброса» показываем плашкой
-// «↳ Ответ для @ник» + собственным рельсом группы; ответ снова во всю ширину,
-// не сжат, без прокрутки влево (клиентское ТЗ п.17).
-const RESET_EVERY = 5;
+// Отступ вложенности РАСТЁТ с глубиной и упирается в максимум (как на MangaLib):
+// глубже ответ — правее, но после MAX_INDENT_DEPTH сдвиг вправо прекращается,
+// поэтому в длинных ветках не появляется горизонтальная прокрутка. В отличие от
+// прежнего «сброса» отступ НИКОГДА не прыгает обратно к левому краю — вложенность
+// читается однозначно, а новый (корневой) комментарий всегда стоит у левого края.
+// На какой именно коммент дан ответ, видно из плашки «↳ @ник: цитата» и подсветки
+// родителя по клику (клиентское ТЗ п.14, п.17).
+const MAX_INDENT_DEPTH = 6;
 
-type CommentGroup = { root: CommentType; reset: boolean };
-
-// Прямой обход дерева (pre-order): сначала сама группа (до RESET_EVERY уровней),
-// затем сразу её продолжения-группы — так сохраняется визуальный порядок
-// «ответ под ответом». Дети узла на нижней границе группы (уровень RESET_EVERY)
-// становятся корнями новых групп со сбросом отступа влево.
-function buildCommentGroups(roots: CommentType[]): CommentGroup[] {
-  const groups: CommentGroup[] = [];
-  const walk = (node: CommentType, reset: boolean) => {
-    groups.push({ root: node, reset });
-    const descend = (n: CommentType, rel: number) => {
-      if (rel >= RESET_EVERY - 1) {
-        n.replies.forEach((child) => walk(child, true));
-        return;
-      }
-      n.replies.forEach((child) => descend(child, rel + 1));
-    };
-    descend(node, 0);
-  };
-  roots.forEach((r) => walk(r, false));
-  return groups;
+// Короткая цитата родительского комментария для плашки «Ответ для …» — чтобы
+// автор ответа и читатель понимали, НА КАКОЙ именно коммент дан ответ, даже когда
+// в ветке несколько одинаковых ников.
+function parentSnippet(text: string): string {
+  const plain = text.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
+  return plain.length > 48 ? plain.slice(0, 48).trimEnd() + "…" : plain;
 }
 
 function CommentBlock({
   comment: c,
   depth = 0,
-  forceNested = false,
+  parent = null,
   editingCommentId,
   editingCommentText,
   onChangeEditText,
@@ -531,7 +517,7 @@ function CommentBlock({
 }: {
   comment: CommentType;
   depth?: number;
-  forceNested?: boolean;
+  parent?: CommentType | null;
   editingCommentId: number | null;
   editingCommentText: string;
   onChangeEditText: (text: string) => void;
@@ -545,16 +531,19 @@ function CommentBlock({
   onLike: (id: number) => void;
   onDislike: (id: number) => void;
 }) {
-  // depth — глубина ВНУТРИ группы (0..RESET_EVERY-1). Рекурсию обрезаем на
-  // границе группы: детей уровня RESET_EVERY здесь не рендерим — они уходят в
-  // отдельные группы (см. buildCommentGroups), поэтому рельс группы не выходит
-  // за её пределы и не тянется через весь тред вниз. forceNested делает карточку
-  // корня группы-продолжения «вложенной» (её отступ/рельс даёт обёртка группы).
-  const hasReplies = c.replies.length > 0 && depth + 1 < RESET_EVERY;
+  // Рендерим всё дерево целиком (без «сброса»): отступ ответов растёт с глубиной
+  // и упирается в MAX_INDENT_DEPTH (см. контейнер .comment-replies ниже).
+  const hasReplies = c.replies.length > 0;
+  // Родитель ответа: берём из позиции в дереве (надёжнее, чем только по данным),
+  // с запасным вариантом на поля replyTo* — так плашка всегда показывает, кому и
+  // на какой текст дан ответ.
+  const parentUser = parent?.username ?? c.replyToUsername;
+  const parentId = parent?.id ?? c.replyToId;
+  const parentQuote = parent ? parentSnippet(parent.text) : "";
   return (
     <div
       id={`comment-${c.id}`}
-      className={`manga-inner__comment${depth > 0 || forceNested ? " manga-inner__comment--nested" : ""}${c.replies.length > 0 ? " manga-inner__comment--has-replies" : ""}`}
+      className={`manga-inner__comment${depth > 0 ? " manga-inner__comment--nested" : ""}${c.replies.length > 0 ? " manga-inner__comment--has-replies" : ""}`}
     >
       <div className="manga-inner__comment-body">
         <div className="manga-inner__comment-top">
@@ -607,19 +596,22 @@ function CommentBlock({
               </button>
             )}
           </div>
-          {c.replyToUsername && (
+          {parentUser && (
             <div className="manga-inner__comment-replyto">
               Ответ для{" "}
-              {c.replyToId != null ? (
+              {parentId != null ? (
                 <b
                   className="manga-inner__comment-replyto-link"
-                  onClick={() => scrollToComment(c.replyToId as number)}
-                  title="Перейти к комментарию"
+                  onClick={() => scrollToComment(parentId)}
+                  title="Показать комментарий, на который дан ответ"
                 >
-                  {c.replyToUsername}
+                  {parentUser}
                 </b>
               ) : (
-                <b>{c.replyToUsername}</b>
+                <b>{parentUser}</b>
+              )}
+              {parentQuote && (
+                <span className="manga-inner__comment-replyto-quote">: «{parentQuote}»</span>
               )}
             </div>
           )}
@@ -666,12 +658,20 @@ function CommentBlock({
         </div>
 
         {hasReplies && (
-          <div className="manga-inner__comment-replies">
+          <div
+            className="manga-inner__comment-replies"
+            style={
+              depth + 1 > MAX_INDENT_DEPTH
+                ? ({ "--rail-step": "0px" } as React.CSSProperties)
+                : undefined
+            }
+          >
             {c.replies.map((r) => (
               <CommentBlock
                 key={r.id}
                 comment={r}
                 depth={depth + 1}
+                parent={c}
                 editingCommentId={editingCommentId}
                 editingCommentText={editingCommentText}
                 onChangeEditText={onChangeEditText}
@@ -1404,23 +1404,21 @@ export default function MangaPage({ params }: { params: { id: string } }) {
 
                       {/* Comments list */}
                       <div className="manga-inner__comments-list">
-                        {buildCommentGroups(
-                          [...comments]
-                            .sort((a, b) => {
-                              if (commentSort === "popular") {
-                                return b.likes - a.likes;
-                              }
-                              return 0; // "new" — зберігаємо порядок (найновіші зверху)
-                            })
-                            .slice(0, visibleCommentsCount)
-                        ).map((group, idx) => (
+                        {[...comments]
+                          .sort((a, b) => {
+                            if (commentSort === "popular") {
+                              return b.likes - a.likes;
+                            }
+                            return 0; // "new" — сохраняем порядок (новые сверху)
+                          })
+                          .slice(0, visibleCommentsCount)
+                          .map((root, idx) => (
                           <div
-                            key={group.root.id}
-                            className={`manga-inner__comment-group${group.reset ? " manga-inner__comment-group--reset" : ""}${!group.reset && idx > 0 ? " manga-inner__comment-group--new-topic" : ""}`}
+                            key={root.id}
+                            className={`manga-inner__comment-group${idx > 0 ? " manga-inner__comment-group--new-topic" : ""}`}
                           >
                             <CommentBlock
-                              comment={group.root}
-                              forceNested={group.reset}
+                              comment={root}
                               editingCommentId={editingCommentId}
                               editingCommentText={editingCommentText}
                               onChangeEditText={setEditingCommentText}

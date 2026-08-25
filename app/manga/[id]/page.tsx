@@ -51,33 +51,119 @@ type CommentType = {
   replyToId: number | null;
 };
 
-const INITIAL_COMMENTS: CommentType[] = Array.from({ length: 7 }, (_, i) => ({
-  id: i,
-  avatar: "/images/avatar_default.png",
-  username: "Jul_Mol",
-  text: "Нравится и рисовка да фантазия автора удивляет",
-  time: "14 часов назад",
-  likes: 20,
-  dislikes: 1,
-  userReaction: null,
-  replyToUsername: null,
-  replyToId: null,
-  replies: i === 0 ? [
-    {
-      id: 1000,
-      avatar: "/images/avatar_default.png",
-      username: "MangaFan92",
-      text: "Согласен, рисовка действительно очень хорошая",
-      time: "12 часов назад",
-      likes: 5,
-      dislikes: 0,
-      userReaction: null,
-      replyToUsername: "Jul_Mol",
-      replyToId: 0,
-      replies: [],
-    },
-  ] : [],
-}));
+/* Демо-данные списка комментариев к манге.
+   Разные авторы, разной длины тексты и одна живая ветка на 3 уровня —
+   чтобы на обычной (неглубокой) странице сразу было видно: где новый
+   комментарий, где ответ и кому именно он адресован. */
+const INITIAL_COMMENTS: CommentType[] = [
+  {
+    id: 0,
+    avatar: "/images/avatar_default.png",
+    username: "Алина_К",
+    text: "Первые главы затянули с головой. Рисовка чистая, а сюжет наконец-то не про очередного «избранного» — героине веришь.",
+    time: "14 часов назад",
+    likes: 42,
+    dislikes: 1,
+    userReaction: null,
+    replyToUsername: null,
+    replyToId: null,
+    replies: [
+      {
+        id: 1000,
+        avatar: "/images/avatar_default.png",
+        username: "Максим",
+        text: "Согласен про героиню. Но темп в середине проседает — глав пять почти ничего не происходит.",
+        time: "11 часов назад",
+        likes: 12,
+        dislikes: 0,
+        userReaction: null,
+        replyToUsername: "Алина_К",
+        replyToId: 0,
+        replies: [
+          {
+            id: 1001,
+            avatar: "/images/avatar_default.png",
+            username: "Алина_К",
+            text: "Это да, зато после 20-й главы снова разгоняется — дальше не оторваться.",
+            time: "9 часов назад",
+            likes: 7,
+            dislikes: 0,
+            userReaction: null,
+            replyToUsername: "Максим",
+            replyToId: 1000,
+            replies: [],
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: 1,
+    avatar: "/images/avatar_default.png",
+    username: "Дмитрий_В",
+    text: "Кто-нибудь знает, выходит ли официальный перевод? Хочу поддержать автора, а не читать пиратку.",
+    time: "13 часов назад",
+    likes: 18,
+    dislikes: 0,
+    userReaction: null,
+    replyToUsername: null,
+    replyToId: null,
+    replies: [],
+  },
+  {
+    id: 2,
+    avatar: "/images/avatar_default.png",
+    username: "Kote_chan",
+    text: "Концовка третьего тома разбила мне сердце 😭 Такого поворота вообще не ждала.",
+    time: "10 часов назад",
+    likes: 31,
+    dislikes: 2,
+    userReaction: null,
+    replyToUsername: null,
+    replyToId: null,
+    replies: [
+      {
+        id: 1002,
+        avatar: "/images/avatar_default.png",
+        username: "Дмитрий_В",
+        text: "Аккуратнее со спойлерами — я только до второго тома дочитал 🙈",
+        time: "8 часов назад",
+        likes: 9,
+        dislikes: 0,
+        userReaction: null,
+        replyToUsername: "Kote_chan",
+        replyToId: 2,
+        replies: [],
+      },
+    ],
+  },
+  {
+    id: 3,
+    avatar: "/images/avatar_default.png",
+    username: "Ветер_с_Севера",
+    text: "Арт-стиль на любителя, первые страницы показались сыроватыми. Но к 10-й главе автор явно набил руку.",
+    time: "7 часов назад",
+    likes: 6,
+    dislikes: 3,
+    userReaction: null,
+    replyToUsername: null,
+    replyToId: null,
+    replies: [],
+  },
+  {
+    id: 4,
+    avatar: "/images/avatar_default.png",
+    username: "Лия",
+    text: "Перечитываю второй раз и замечаю кучу деталей, которые в первый раз пропустила. Вот это проработка!",
+    time: "5 часов назад",
+    likes: 15,
+    dislikes: 0,
+    userReaction: null,
+    replyToUsername: null,
+    replyToId: null,
+    replies: [],
+  },
+];
 
 /* Тестовые данные дерева комментариев на странице манги:
    — одна глубокая ветка из 22 ответов подряд, чтобы наглядно показать сброс
@@ -481,14 +567,12 @@ function ThumbDownIcon() {
 }
 
 /* Рекурсивный рендер комментария: корень и вложенные ответы используют одну и ту же разметку */
-// Отступ вложенности РАСТЁТ с глубиной и упирается в максимум (как на MangaLib):
-// глубже ответ — правее, но после MAX_INDENT_DEPTH сдвиг вправо прекращается,
-// поэтому в длинных ветках не появляется горизонтальная прокрутка. В отличие от
-// прежнего «сброса» отступ НИКОГДА не прыгает обратно к левому краю — вложенность
-// читается однозначно, а новый (корневой) комментарий всегда стоит у левого края.
 // На какой именно коммент дан ответ, видно из плашки «↳ @ник: цитата» и подсветки
 // родителя по клику (клиентское ТЗ п.14, п.17).
-const MAX_INDENT_DEPTH = 6;
+// Каждые RESET_EVERY уровней вложенности отступ «сбрасывается» влево: 6-й по счёту
+// ответ начинает новую группу-«сноску», а не уезжает бесконечно вправо. Так глубокая
+// ветка остаётся читаемой, а плашка «↳ Ответ для @ник» сохраняет контекст (ТЗ п.14).
+const RESET_EVERY = 5;
 
 // Короткая цитата родительского комментария для плашки «Ответ для …» — чтобы
 // автор ответа и читатель понимали, НА КАКОЙ именно коммент дан ответ, даже когда
@@ -498,10 +582,35 @@ function parentSnippet(text: string): string {
   return plain.length > 48 ? plain.slice(0, 48).trimEnd() + "…" : plain;
 }
 
+// Группа комментариев = поддерево максимум из RESET_EVERY уровней. Когда глубина
+// превышает лимит, дочерний узел становится корнем НОВОЙ группы (reset:true), а его
+// настоящий родитель сохраняется в parent — чтобы плашка-цитата по-прежнему
+// показывала, кому именно дан ответ, хотя визуально отступ уже сброшен влево.
+type CommentGroup = { root: CommentType; reset: boolean; parent: CommentType | null };
+
+function buildCommentGroups(roots: CommentType[]): CommentGroup[] {
+  const groups: CommentGroup[] = [];
+  const walk = (node: CommentType, reset: boolean, parent: CommentType | null) => {
+    groups.push({ root: node, reset, parent });
+    const descend = (n: CommentType, rel: number) => {
+      // Дошли до последнего уровня группы — дети уходят в новые группы со сбросом.
+      if (rel >= RESET_EVERY - 1) {
+        n.replies.forEach((child) => walk(child, true, n));
+        return;
+      }
+      n.replies.forEach((child) => descend(child, rel + 1));
+    };
+    descend(node, 0);
+  };
+  roots.forEach((r) => walk(r, false, null));
+  return groups;
+}
+
 function CommentBlock({
   comment: c,
   depth = 0,
   parent = null,
+  forceNested = false,
   editingCommentId,
   editingCommentText,
   onChangeEditText,
@@ -518,6 +627,7 @@ function CommentBlock({
   comment: CommentType;
   depth?: number;
   parent?: CommentType | null;
+  forceNested?: boolean;
   editingCommentId: number | null;
   editingCommentText: string;
   onChangeEditText: (text: string) => void;
@@ -531,9 +641,10 @@ function CommentBlock({
   onLike: (id: number) => void;
   onDislike: (id: number) => void;
 }) {
-  // Рендерим всё дерево целиком (без «сброса»): отступ ответов растёт с глубиной
-  // и упирается в MAX_INDENT_DEPTH (см. контейнер .comment-replies ниже).
-  const hasReplies = c.replies.length > 0;
+  // Внутри группы рисуем максимум RESET_EVERY уровней; дальше ветку продолжает
+  // новая группа-«сноска» (см. buildCommentGroups). forceNested делает корень такой
+  // группы визуально «ответом» (отступ + рельса), хотя его depth снова 0.
+  const hasReplies = c.replies.length > 0 && depth + 1 < RESET_EVERY;
   // Родитель ответа: берём из позиции в дереве (надёжнее, чем только по данным),
   // с запасным вариантом на поля replyTo* — так плашка всегда показывает, кому и
   // на какой текст дан ответ.
@@ -543,7 +654,7 @@ function CommentBlock({
   return (
     <div
       id={`comment-${c.id}`}
-      className={`manga-inner__comment${depth > 0 ? " manga-inner__comment--nested" : ""}${c.replies.length > 0 ? " manga-inner__comment--has-replies" : ""}`}
+      className={`manga-inner__comment${depth > 0 || forceNested ? " manga-inner__comment--nested" : ""}${c.replies.length > 0 ? " manga-inner__comment--has-replies" : ""}`}
     >
       <div className="manga-inner__comment-body">
         <div className="manga-inner__comment-top">
@@ -658,14 +769,7 @@ function CommentBlock({
         </div>
 
         {hasReplies && (
-          <div
-            className="manga-inner__comment-replies"
-            style={
-              depth + 1 > MAX_INDENT_DEPTH
-                ? ({ "--rail-step": "0px" } as React.CSSProperties)
-                : undefined
-            }
-          >
+          <div className="manga-inner__comment-replies">
             {c.replies.map((r) => (
               <CommentBlock
                 key={r.id}
@@ -1404,21 +1508,30 @@ export default function MangaPage({ params }: { params: { id: string } }) {
 
                       {/* Comments list */}
                       <div className="manga-inner__comments-list">
-                        {[...comments]
-                          .sort((a, b) => {
-                            if (commentSort === "popular") {
-                              return b.likes - a.likes;
-                            }
-                            return 0; // "new" — сохраняем порядок (новые сверху)
-                          })
-                          .slice(0, visibleCommentsCount)
-                          .map((root, idx) => (
+                        {buildCommentGroups(
+                          [...comments]
+                            .sort((a, b) => {
+                              if (commentSort === "popular") {
+                                return b.likes - a.likes;
+                              }
+                              return 0; // "new" — сохраняем порядок (новые сверху)
+                            })
+                            .slice(0, visibleCommentsCount)
+                        ).map((group, idx) => (
                           <div
-                            key={root.id}
-                            className={`manga-inner__comment-group${idx > 0 ? " manga-inner__comment-group--new-topic" : ""}`}
+                            key={group.root.id}
+                            className={`manga-inner__comment-group${
+                              group.reset
+                                ? " manga-inner__comment-group--reset"
+                                : idx > 0
+                                ? " manga-inner__comment-group--new-topic"
+                                : ""
+                            }`}
                           >
                             <CommentBlock
-                              comment={root}
+                              comment={group.root}
+                              parent={group.parent}
+                              forceNested={group.reset}
                               editingCommentId={editingCommentId}
                               editingCommentText={editingCommentText}
                               onChangeEditText={setEditingCommentText}

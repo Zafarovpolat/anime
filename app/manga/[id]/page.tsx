@@ -259,8 +259,12 @@ function scrollToComment(id: number) {
   const el = document.getElementById(`comment-${id}`);
   if (!el) return;
   el.scrollIntoView({ behavior: "smooth", block: "center" });
-  el.classList.add("comment--highlight");
-  setTimeout(() => el.classList.remove("comment--highlight"), 1600);
+  // Подсвечиваем карточку (.manga-inner__comment-top, radius 20px), а не обёртку
+  // .manga-inner__comment (flex без радиуса) — иначе кольцо повторяет жёсткие 10px
+  // из .comment--highlight и не совпадает с радиусом самой карточки.
+  const card = el.querySelector<HTMLElement>(".manga-inner__comment-top") ?? el;
+  card.classList.add("comment--highlight");
+  setTimeout(() => card.classList.remove("comment--highlight"), 1600);
 }
 
 function mapCommentTree(list: CommentType[], id: number, fn: (c: CommentType) => CommentType): CommentType[] {
@@ -1027,6 +1031,17 @@ export default function MangaPage({ params }: { params: { id: string } }) {
   const [visibleReviewsCount, setVisibleReviewsCount] = useState(3);
   const [reviews, setReviews] = useState(REVIEWS.map(r => ({ ...r, userReaction: null as 'like' | null })));
   const [newComment, setNewComment] = useState("");
+  // id только что отправленного комментария — скроллим и подсвечиваем его после рендера
+  const [pendingScrollId, setPendingScrollId] = useState<number | null>(null);
+  useEffect(() => {
+    if (pendingScrollId == null) return;
+    // ждём, пока React вставит новый узел в DOM, затем скроллим к нему
+    const raf = requestAnimationFrame(() => {
+      scrollToComment(pendingScrollId);
+      setPendingScrollId(null);
+    });
+    return () => cancelAnimationFrame(raf);
+  }, [pendingScrollId]);
   const [editingCommentId, setEditingCommentId] = useState<number | null>(null);
   const [editingCommentText, setEditingCommentText] = useState("");
   const [commentMenuOpen, setCommentMenuOpen] = useState<number | null>(null);
@@ -1502,6 +1517,7 @@ export default function MangaPage({ params }: { params: { id: string } }) {
                           setComments(prev => replyingTo ? addReplyToComment(prev, replyingTo.targetId, newC) : [newC, ...prev]);
                           setNewComment("");
                           setReplyingTo(null);
+                          setPendingScrollId(newC.id); // прокрутить к своему комментарию, как на YouTube
                         }}
                         placeholder="Оставить комментарий"
                       />

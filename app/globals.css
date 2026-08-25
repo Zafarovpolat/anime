@@ -2649,7 +2649,9 @@ button {
    затем плавно гаснут (1.6s синхронно с JS-таймером scrollToComment). */
 .comment--highlight {
   animation: comment-highlight 1.6s ease;
-  border-radius: 10px;
+  /* Радиус НЕ задаём — подсветка вешается на карточку, которая уже имеет свои
+     20px (.manga-inner__comment-top / .reader__panel-comment-top). Иначе жёсткий
+     радиус здесь урезал бы карточку на время анимации. */
 }
 
 @keyframes comment-highlight {
@@ -9007,6 +9009,13 @@ button {
     height: 100%;
     max-height: 100%;
     animation: readerPanelUp 0.3s ease;
+  }
+
+  /* Панель комментариев на ≤1024 — всегда во весь экран от самого верха.
+     Перебиваем инлайн top (headerVisible ? var(--reader-header-h) : 0),
+     иначе при видимом хедере панель уходит на высоту хедера ниже экрана. */
+  .reader__panel--comments {
+    top: 0 !important;
   }
 
   .reader__panel-close {

@@ -157,8 +157,11 @@ function scrollToComment(id: number) {
   const el = document.getElementById(`comment-${id}`);
   if (!el) return;
   el.scrollIntoView({ behavior: "smooth", block: "center" });
-  el.classList.add("comment--highlight");
-  setTimeout(() => el.classList.remove("comment--highlight"), 1600);
+  // Подсвечиваем только карточку самого комментария (.reader__panel-comment-top),
+  // а не весь блок с вложенными ответами — иначе кольцо охватывает всю ветку.
+  const card = el.querySelector<HTMLElement>(".reader__panel-comment-top") ?? el;
+  card.classList.add("comment--highlight");
+  setTimeout(() => card.classList.remove("comment--highlight"), 1600);
 }
 
 function mapCommentTree(list: CommentType[], id: number, fn: (c: CommentType) => CommentType): CommentType[] {
@@ -824,6 +827,17 @@ function CommentsPanel({
   const [commentSort, setCommentSort] = useState<"new" | "popular">("new");
   const [replyingTo, setReplyingTo] = useState<{ rootId: number; targetId: number; username: string; text: string } | null>(null);
   const commentInputRef = React.useRef<RichTextEditorHandle>(null);
+  // id только что отправленного комментария — скроллим и подсвечиваем его после рендера
+  const [pendingScrollId, setPendingScrollId] = useState<number | null>(null);
+  useEffect(() => {
+    if (pendingScrollId == null) return;
+    // ждём, пока React вставит новый узел в DOM, затем скроллим к нему
+    const raf = requestAnimationFrame(() => {
+      scrollToComment(pendingScrollId);
+      setPendingScrollId(null);
+    });
+    return () => cancelAnimationFrame(raf);
+  }, [pendingScrollId]);
 
   const handleSend = () => {
     if (!newComment.trim()) return;
@@ -843,6 +857,7 @@ function CommentsPanel({
     setComments(prev => replyingTo ? addReplyToComment(prev, replyingTo.targetId, newC) : [newC, ...prev]);
     setNewComment("");
     setReplyingTo(null);
+    setPendingScrollId(newC.id); // прокрутить к своему комментарию, как на YouTube
   };
 
   const handleLike = (id: number) => {

@@ -712,19 +712,25 @@ function CommentBlock({
             )}
           </div>
           {parentUser && (
-            <div className="manga-inner__comment-replyto">
+            <div
+              className={`manga-inner__comment-replyto${parentId != null ? " manga-inner__comment-replyto--clickable" : ""}`}
+              role={parentId != null ? "button" : undefined}
+              tabIndex={parentId != null ? 0 : undefined}
+              title={parentId != null ? "Показать комментарий, на который дан ответ" : undefined}
+              onClick={parentId != null ? () => scrollToComment(parentId) : undefined}
+              onKeyDown={
+                parentId != null
+                  ? (e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        scrollToComment(parentId);
+                      }
+                    }
+                  : undefined
+              }
+            >
               Ответ для{" "}
-              {parentId != null ? (
-                <b
-                  className="manga-inner__comment-replyto-link"
-                  onClick={() => scrollToComment(parentId)}
-                  title="Показать комментарий, на который дан ответ"
-                >
-                  {parentUser}
-                </b>
-              ) : (
-                <b>{parentUser}</b>
-              )}
+              <b className={parentId != null ? "manga-inner__comment-replyto-link" : undefined}>{parentUser}</b>
               {parentQuote && (
                 <span className="manga-inner__comment-replyto-quote">: «{parentQuote}»</span>
               )}

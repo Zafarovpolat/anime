@@ -13013,6 +13013,21 @@ html.theme-switching *::after {
 .manga-inner__comment-replyto-link {
   cursor: pointer;
 }
+/* Вся плашка «↳ Ответ для @ник: «цитата»» кликабельна целиком, а не только ник:
+   клик / Enter / Space ведёт к родительскому комментарию (scrollToComment). */
+.manga-inner__comment-replyto--clickable,
+.reader__panel-comment-replyto--clickable {
+  cursor: pointer;
+}
+.manga-inner__comment-replyto--clickable:hover,
+.reader__panel-comment-replyto--clickable:hover {
+  background: color-mix(in srgb, var(--color-primary) 22%, transparent);
+}
+.manga-inner__comment-replyto--clickable:focus-visible,
+.reader__panel-comment-replyto--clickable:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
 .manga-inner__comment-replyto::before,
 .reader__panel-comment-replyto::before {
   content: "\21B3"; /* ↳ */

@@ -653,19 +653,25 @@ function CommentBlock({
             )}
           </div>
           {parentUser && (
-            <div className="reader__panel-comment-replyto">
+            <div
+              className={`reader__panel-comment-replyto${parentId != null ? " reader__panel-comment-replyto--clickable" : ""}`}
+              role={parentId != null ? "button" : undefined}
+              tabIndex={parentId != null ? 0 : undefined}
+              title={parentId != null ? "Показать комментарий, на который дан ответ" : undefined}
+              onClick={parentId != null ? () => scrollToComment(parentId) : undefined}
+              onKeyDown={
+                parentId != null
+                  ? (e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        scrollToComment(parentId);
+                      }
+                    }
+                  : undefined
+              }
+            >
               Ответ для{" "}
-              {parentId != null ? (
-                <b
-                  className="reader__panel-comment-replyto-link"
-                  onClick={() => scrollToComment(parentId)}
-                  title="Показать комментарий, на который дан ответ"
-                >
-                  {parentUser}
-                </b>
-              ) : (
-                <b>{parentUser}</b>
-              )}
+              <b className={parentId != null ? "reader__panel-comment-replyto-link" : undefined}>{parentUser}</b>
               {parentQuote && (
                 <span className="reader__panel-comment-replyto-quote">: «{parentQuote}»</span>
               )}

@@ -602,7 +602,7 @@ function CommentBlock({
       className={`reader__panel-comment${depth > 0 || forceNested ? " reader__panel-comment--nested" : ""}${c.replies.length > 0 ? " reader__panel-comment--has-replies" : ""}`}
     >
       <div className="reader__panel-comment-body">
-        <div className="reader__panel-comment-top">
+        <div className={`reader__panel-comment-top${c.username === "Вы" ? " reader__panel-comment-top--own" : ""}`}>
           <div className="reader__panel-comment-header">
             <div className="reader__panel-comment-author">
               <div className="reader__panel-comment-avatar">

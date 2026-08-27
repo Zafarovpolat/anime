@@ -661,7 +661,7 @@ function CommentBlock({
       className={`manga-inner__comment${depth > 0 || forceNested ? " manga-inner__comment--nested" : ""}${c.replies.length > 0 ? " manga-inner__comment--has-replies" : ""}`}
     >
       <div className="manga-inner__comment-body">
-        <div className="manga-inner__comment-top">
+        <div className={`manga-inner__comment-top${c.username === "Вы" ? " manga-inner__comment-top--own" : ""}`}>
           <div className="manga-inner__comment-header">
             <div className="manga-inner__comment-author">
               <div className="manga-inner__comment-avatar">

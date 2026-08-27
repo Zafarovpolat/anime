@@ -13089,3 +13089,13 @@ html.theme-switching *::after {
 .reader__panel-comment-top {
   border: 1px solid var(--comment-card-border);
 }
+
+/* Свой комментарий (username «Вы») всегда чуть выделяется акцентом: лёгкая
+   акцентная заливка поверх surface-2 + акцентная рамка — чтобы пользователь
+   сразу отличал свои комментарии от чужих (в т.ч. свои ответы). Правило идёт
+   после базовых, поэтому при равной специфичности перебивает и фон, и рамку. */
+.manga-inner__comment-top--own,
+.reader__panel-comment-top--own {
+  background: color-mix(in srgb, var(--color-primary) 8%, var(--color-surface-2));
+  border-color: color-mix(in srgb, var(--color-primary) 45%, transparent);
+}

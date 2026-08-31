@@ -627,6 +627,7 @@ function CommentBlock({
   parent = null,
   forceNested = false,
   continuations = [],
+  padBeforeReset = false,
   editingCommentId,
   editingCommentText,
   onChangeEditText,
@@ -647,6 +648,11 @@ function CommentBlock({
   /* Группы-продолжения ветки (после сбросов глубины) — рендерятся внутри рельса
      первого уровня, чтобы линия корня шла непрерывно вдоль всего треда. */
   continuations?: CommentGroup[];
+  /* Этот блок стоит НЕПОСРЕДСТВЕННО перед группой-сноской. Флаг спускается по
+     цепочке последних ответов и на самом глубоком (листовом) комментарии даёт
+     классу -body отступ снизу — он возмещает убранный gap, и все рельсы уровней
+     доходят вплотную до сноски. */
+  padBeforeReset?: boolean;
   editingCommentId: number | null;
   editingCommentText: string;
   onChangeEditText: (text: string) => void;
@@ -670,12 +676,22 @@ function CommentBlock({
   const parentUser = parent?.username ?? c.replyToUsername;
   const parentId = parent?.id ?? c.replyToId;
   const parentQuote = parent ? parentSnippet(parent.text) : "";
+  // Лист цепочки перед сноской: отступ ставим именно на его -body (самый последний
+  // -body в DOM перед сноской), иначе внутренние рельсы не дотянутся до неё.
+  const isLastBeforeReset = padBeforeReset && !hasReplies && continuations.length === 0;
+  // После последнего ответа идёт либо своя сноска, либо то, что стоит после этого
+  // блока — значит флаг просто передаём дальше по цепочке последних ответов.
+  const lastReplyPad = continuations.length > 0 ? true : padBeforeReset;
   return (
     <div
       id={`comment-${c.id}`}
       className={`manga-inner__comment${depth > 0 || forceNested ? " manga-inner__comment--nested" : ""}${c.replies.length > 0 ? " manga-inner__comment--has-replies" : ""}`}
     >
-      <div className="manga-inner__comment-body">
+      <div
+        className={`manga-inner__comment-body${
+          isLastBeforeReset ? " manga-inner__comment-body--before-reset" : ""
+        }`}
+      >
         <div className={`manga-inner__comment-top${c.username === "Вы" ? " manga-inner__comment-top--own" : ""}`}>
           <div className="manga-inner__comment-header">
             <div className="manga-inner__comment-author">
@@ -796,12 +812,13 @@ function CommentBlock({
         {(hasReplies || continuations.length > 0) && (
           <div className="manga-inner__comment-replies">
             {hasReplies &&
-              c.replies.map((r) => (
+              c.replies.map((r, i) => (
                 <CommentBlock
                   key={r.id}
                   comment={r}
                   depth={depth + 1}
                   parent={c}
+                  padBeforeReset={i === c.replies.length - 1 && lastReplyPad}
                   editingCommentId={editingCommentId}
                   editingCommentText={editingCommentText}
                   onChangeEditText={onChangeEditText}
@@ -819,7 +836,7 @@ function CommentBlock({
             {/* Продолжения ветки после сброса глубины — внутри этого же рельса,
                 поэтому линия первого уровня не разрывается. У каждой группы свой
                 отдельный рельс (.--reset), начинающийся чуть выше карточки. */}
-            {continuations.map((g) => (
+            {continuations.map((g, i) => (
               <div
                 key={g.root.id}
                 className="manga-inner__comment-group manga-inner__comment-group--reset"
@@ -828,6 +845,7 @@ function CommentBlock({
                   comment={g.root}
                   parent={g.parent}
                   forceNested
+                  padBeforeReset={i < continuations.length - 1}
                   editingCommentId={editingCommentId}
                   editingCommentText={editingCommentText}
                   onChangeEditText={onChangeEditText}

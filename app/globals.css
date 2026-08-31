@@ -13003,13 +13003,13 @@ html.theme-switching *::after {
   pointer-events: none;
 }
 
-/* Возмещаем убранный gap только там, где он нужен: у элемента, стоящего
-   НЕПОСРЕДСТВЕННО перед сноской. padding (а не margin) — чтобы отступ входил
-   в бокс предыдущего элемента и рельс уровня шёл сквозь него без разрыва. */
-.manga-inner__comment-replies > *:has(+ .manga-inner__comment-group--reset) {
-  padding-bottom: 8px;
-}
-.reader__panel-comment-replies > *:has(+ .reader__panel-comment-group--reset) {
+/* Возмещаем убранный gap только там, где он нужен: на САМОМ ПОСЛЕДНЕМ -body
+   перед сноской (лист цепочки последних ответов, класс ставит React — см.
+   padBeforeReset в CommentBlock). padding, а не margin, и именно на глубоком
+   -body: тогда отступ входит в боксы всех родителей и рельсы каждого уровня
+   доходят вплотную до сноски, без разрыва. */
+.manga-inner__comment-body--before-reset,
+.reader__panel-comment-body--before-reset {
   padding-bottom: 8px;
 }
 

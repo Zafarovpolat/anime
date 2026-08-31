@@ -12935,7 +12935,10 @@ html.theme-switching *::after {
   overflow: visible;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  /* gap НЕ используем: пустой зазор рвал бы вертикальные рельсы. Расстояние
+     задаём padding-bottom у элемента ПЕРЕД сноской (см. правило ниже) —
+     тогда линия идёт сквозь этот отступ. */
+  gap: 0;
 }
 /* Панель ридера уже основной колонки — шаг чуть меньше (у MangaLib этой
    боковой панели нет; берём пропорционально). Линия та же: 1px. */
@@ -12953,7 +12956,7 @@ html.theme-switching *::after {
   overflow: visible;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 0;
 }
 
 /* Продолжение ветки после сброса каждые RESET_EVERY уровней (класс
@@ -12981,6 +12984,33 @@ html.theme-switching *::after {
   padding-top: 10px;
   border-left: 3px solid var(--color-primary);
   border-left-color: color-mix(in srgb, var(--color-primary) 80%, transparent);
+}
+
+/* Короткая горизонтальная «полка» сверху каждой группы-сноски: 20% ширины,
+   та же толщина и цвет, что рельс. Отходит от собственного рельса группы —
+   получается уголок «здесь ветка продолжается», и он же отделяет одну сноску
+   от другой (вместо убранного gap у .comment-replies). */
+.manga-inner__comment-group--reset::before,
+.reader__panel-comment-group--reset::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 20%;
+  height: 3px;
+  background: var(--color-primary);
+  background: color-mix(in srgb, var(--color-primary) 80%, transparent);
+  pointer-events: none;
+}
+
+/* Возмещаем убранный gap только там, где он нужен: у элемента, стоящего
+   НЕПОСРЕДСТВЕННО перед сноской. padding (а не margin) — чтобы отступ входил
+   в бокс предыдущего элемента и рельс уровня шёл сквозь него без разрыва. */
+.manga-inner__comment-replies > *:has(+ .manga-inner__comment-group--reset) {
+  padding-bottom: 8px;
+}
+.reader__panel-comment-replies > *:has(+ .reader__panel-comment-group--reset) {
+  padding-bottom: 8px;
 }
 
 /* НОВАЯ ТЕМА — начало самостоятельного (корневого) комментария, а не продолжения

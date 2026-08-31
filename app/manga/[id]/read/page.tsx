@@ -533,22 +533,33 @@ function parentSnippet(text: string): string {
 // показывала, кому именно дан ответ, хотя визуально отступ уже сброшен влево.
 type CommentGroup = { root: CommentType; reset: boolean; parent: CommentType | null };
 
-function buildCommentGroups(roots: CommentType[]): CommentGroup[] {
-  const groups: CommentGroup[] = [];
-  const walk = (node: CommentType, reset: boolean, parent: CommentType | null) => {
-    groups.push({ root: node, reset, parent });
-    const descend = (n: CommentType, rel: number) => {
-      // Дошли до последнего уровня группы — дети уходят в новые группы со сбросом.
-      if (rel >= RESET_EVERY - 1) {
-        n.replies.forEach((child) => walk(child, true, n));
-        return;
-      }
-      n.replies.forEach((child) => descend(child, rel + 1));
+// Тред = корневой комментарий + ВСЕ его группы-продолжения (после сбросов глубины).
+// Продолжения рендерятся ВНУТРИ рельса первого уровня корня, поэтому самая первая
+// линия ветки никогда не разрывается: сразу видно, что все ответы относятся к нему.
+type CommentThread = { root: CommentType; continuations: CommentGroup[] };
+
+function buildCommentThreads(roots: CommentType[]): CommentThread[] {
+  const collectContinuations = (root: CommentType): CommentGroup[] => {
+    const out: CommentGroup[] = [];
+    // Обходим поддерево группы: дети последнего уровня становятся продолжениями,
+    // а их собственные поддеревья дают следующие продолжения (DFS — порядок чтения).
+    const walk = (node: CommentType) => {
+      const descend = (n: CommentType, rel: number) => {
+        if (rel >= RESET_EVERY - 1) {
+          n.replies.forEach((child) => {
+            out.push({ root: child, reset: true, parent: n });
+            walk(child);
+          });
+          return;
+        }
+        n.replies.forEach((child) => descend(child, rel + 1));
+      };
+      descend(node, 0);
     };
-    descend(node, 0);
+    walk(root);
+    return out;
   };
-  roots.forEach((r) => walk(r, false, null));
-  return groups;
+  return roots.map((root) => ({ root, continuations: collectContinuations(root) }));
 }
 
 function CommentBlock({
@@ -556,6 +567,7 @@ function CommentBlock({
   depth = 0,
   parent = null,
   forceNested = false,
+  continuations = [],
   editingCommentId,
   editingCommentText,
   onChangeEditText,
@@ -573,6 +585,9 @@ function CommentBlock({
   depth?: number;
   parent?: CommentType | null;
   forceNested?: boolean;
+  /* Группы-продолжения ветки (после сбросов глубины) — рендерятся внутри рельса
+     первого уровня, чтобы линия корня шла непрерывно вдоль всего треда. */
+  continuations?: CommentGroup[];
   editingCommentId: number | null;
   editingCommentText: string;
   onChangeEditText: (text: string) => void;
@@ -587,7 +602,7 @@ function CommentBlock({
   onDislike: (id: number) => void;
 }) {
   // Внутри группы рисуем максимум RESET_EVERY уровней; дальше ветку продолжает
-  // новая группа-«сноска» (см. buildCommentGroups). forceNested делает корень такой
+  // новая группа-«сноска» (см. buildCommentThreads). forceNested делает корень такой
   // группы визуально «ответом» (отступ + рельса), хотя его depth снова 0.
   const hasReplies = c.replies.length > 0 && depth + 1 < RESET_EVERY;
   // Родитель ответа: берём из позиции в дереве (надёжнее, чем только по данным),
@@ -715,27 +730,55 @@ function CommentBlock({
           </div>
         </div>
 
-        {hasReplies && (
+        {(hasReplies || continuations.length > 0) && (
           <div className="reader__panel-comment-replies">
-            {c.replies.map((r) => (
-              <CommentBlock
-                key={r.id}
-                comment={r}
-                depth={depth + 1}
-                parent={c}
-                editingCommentId={editingCommentId}
-                editingCommentText={editingCommentText}
-                onChangeEditText={onChangeEditText}
-                onStartEdit={onStartEdit}
-                onSaveEdit={onSaveEdit}
-                commentMenuOpen={commentMenuOpen}
-                onToggleMenu={onToggleMenu}
-                onDelete={onDelete}
-                onReport={onReport}
-                onReply={onReply}
-                onLike={onLike}
-                onDislike={onDislike}
-              />
+            {hasReplies &&
+              c.replies.map((r) => (
+                <CommentBlock
+                  key={r.id}
+                  comment={r}
+                  depth={depth + 1}
+                  parent={c}
+                  editingCommentId={editingCommentId}
+                  editingCommentText={editingCommentText}
+                  onChangeEditText={onChangeEditText}
+                  onStartEdit={onStartEdit}
+                  onSaveEdit={onSaveEdit}
+                  commentMenuOpen={commentMenuOpen}
+                  onToggleMenu={onToggleMenu}
+                  onDelete={onDelete}
+                  onReport={onReport}
+                  onReply={onReply}
+                  onLike={onLike}
+                  onDislike={onDislike}
+                />
+              ))}
+            {/* Продолжения ветки после сброса глубины — внутри этого же рельса,
+                поэтому линия первого уровня не разрывается. У каждой группы свой
+                отдельный рельс (.--reset), начинающийся чуть выше карточки. */}
+            {continuations.map((g) => (
+              <div
+                key={g.root.id}
+                className="reader__panel-comment-group reader__panel-comment-group--reset"
+              >
+                <CommentBlock
+                  comment={g.root}
+                  parent={g.parent}
+                  forceNested
+                  editingCommentId={editingCommentId}
+                  editingCommentText={editingCommentText}
+                  onChangeEditText={onChangeEditText}
+                  onStartEdit={onStartEdit}
+                  onSaveEdit={onSaveEdit}
+                  commentMenuOpen={commentMenuOpen}
+                  onToggleMenu={onToggleMenu}
+                  onDelete={onDelete}
+                  onReport={onReport}
+                  onReply={onReply}
+                  onLike={onLike}
+                  onDislike={onDislike}
+                />
+              </div>
             ))}
           </div>
         )}
@@ -971,25 +1014,20 @@ function CommentsPanel({
         </button>
       </div>
       <div className="reader__panel-comments-list">
-        {buildCommentGroups(
+        {buildCommentThreads(
           [...comments].sort((a, b) =>
             commentSort === "popular" ? b.likes - a.likes : 0
           )
-        ).map((group, idx) => (
+        ).map((thread, idx) => (
           <div
-            key={group.root.id}
+            key={thread.root.id}
             className={`reader__panel-comment-group${
-              group.reset
-                ? " reader__panel-comment-group--reset"
-                : idx > 0
-                ? " reader__panel-comment-group--new-topic"
-                : ""
+              idx > 0 ? " reader__panel-comment-group--new-topic" : ""
             }`}
           >
             <CommentBlock
-              comment={group.root}
-              parent={group.parent}
-              forceNested={group.reset}
+              comment={thread.root}
+              continuations={thread.continuations}
               editingCommentId={editingCommentId}
               editingCommentText={editingCommentText}
               onChangeEditText={setEditingCommentText}

@@ -1,0 +1,408 @@
+
+> panelia-next@1.0.0 dev
+> next dev
+
+  ▲ Next.js 14.2.35
+  - Local:        http://localhost:3000
+
+ ✓ Starting...
+ ✓ Ready in 24.3s
+ ○ Compiling /manga/[id] ...
+ ⚠ ./app/globals.css.webpack[javascript/auto]!=!./node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[14].oneOf[12].use[2]!./node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[14].oneOf[12].use[3]!./app/globals.css
+Warning
+
+(2064:3) autoprefixer: end value has mixed support, consider using flex-end instead
+
+Import trace for requested module:
+./app/globals.css.webpack[javascript/auto]!=!./node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[14].oneOf[12].use[2]!./node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[14].oneOf[12].use[3]!./app/globals.css
+./app/globals.css
+ GET /manga/test 200 in 58385ms
+<w> [webpack.cache.PackFileCacheStrategy] Skipped not serializable cache item 'Compilation/modules|D:\OLD\desktop\carreer\freelance\ruso\Panelia\anime\node_modules\next\dist\build\webpack\loaders\css-loader\src\index.js??ruleSet[1].rules[14].oneOf[12].use[2]!D:\OLD\desktop\carreer\freelance\ruso\Panelia\anime\node_modules\next\dist\build\webpack\loaders\postcss-loader\src\index.js??ruleSet[1].rules[14].oneOf[12].use[3]!D:\OLD\desktop\carreer\freelance\ruso\Panelia\anime\app\globals.css': No serializer registered for Warning
+<w> while serializing webpack/lib/cache/PackFileCacheStrategy.PackContentItems -> webpack/lib/NormalModule -> Array { 1 items } -> webpack/lib/ModuleWarning -> Warning
+ ✓ Compiled /manga/[id] in 4.7s (540 modules)
+ ⚠ ./app/globals.css.webpack[javascript/auto]!=!./node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[14].oneOf[12].use[2]!./node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[14].oneOf[12].use[3]!./app/globals.css
+Warning
+
+(2064:3) autoprefixer: end value has mixed support, consider using flex-end instead
+
+Import trace for requested module:
+./app/globals.css.webpack[javascript/auto]!=!./node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[14].oneOf[12].use[2]!./node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[14].oneOf[12].use[3]!./app/globals.css
+./app/globals.css
+ GET /manga/test 200 in 1046ms
+<w> [webpack.cache.PackFileCacheStrategy] Skipped not serializable cache item 'Compilation/modules|D:\OLD\desktop\carreer\freelance\ruso\Panelia\anime\node_modules\next\dist\build\webpack\loaders\css-loader\src\index.js??ruleSet[1].rules[14].oneOf[12].use[2]!D:\OLD\desktop\carreer\freelance\ruso\Panelia\anime\node_modules\next\dist\build\webpack\loaders\postcss-loader\src\index.js??ruleSet[1].rules[14].oneOf[12].use[3]!D:\OLD\desktop\carreer\freelance\ruso\Panelia\anime\app\globals.css': No serializer registered for Warning
+<w> while serializing webpack/lib/cache/PackFileCacheStrategy.PackContentItems -> webpack/lib/NormalModule -> Array { 1 items } -> webpack/lib/ModuleWarning -> Warning
+ ⚠ ./app/globals.css.webpack[javascript/auto]!=!./node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[14].oneOf[12].use[2]!./node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[14].oneOf[12].use[3]!./app/globals.css
+Warning
+
+(2064:3) autoprefixer: end value has mixed support, consider using flex-end instead
+
+Import trace for requested module:
+./app/globals.css.webpack[javascript/auto]!=!./node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[14].oneOf[12].use[2]!./node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[14].oneOf[12].use[3]!./app/globals.css
+./app/globals.css
+ ○ Compiling /manga/[id]/read ...
+ ✓ Compiled /manga/[id]/read in 4.2s (546 modules)
+Warning: Invalid DOM property `stroke-width`. Did you mean `strokeWidth`?
+    at path
+    at svg
+    at HeartOutlineIcon (webpack-internal:///(ssr)/./app/manga/[id]/read/page.tsx:341:29)
+    at button
+    at div
+    at aside
+    at div
+    at MangaReadPage (webpack-internal:///(ssr)/./app/manga/[id]/read/page.tsx:1414:48)
+    at ClientPageRoot (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/client-page.js:14:11)
+    at Lazy
+    at InnerLayoutRouter (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/layout-router.js:242:11)
+    at RedirectErrorBoundary (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/redirect-boundary.js:73:9)
+    at RedirectBoundary (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/redirect-boundary.js:81:11)
+    at NotFoundBoundary (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/not-found-boundary.js:84:11)
+    at LoadingBoundary (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/layout-router.js:347:11)
+    at ErrorBoundary (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/error-boundary.js:158:11)
+    at InnerScrollAndFocusHandler (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/layout-router.js:153:9)
+    at ScrollAndFocusHandler (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/layout-router.js:228:11)
+    at RenderFromTemplateContext (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/render-from-template-context.js:16:44)
+    at Lazy
+    at OuterLayoutRouter (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/layout-router.js:367:11)
+    at Lazy
+    at InnerLayoutRouter (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/layout-router.js:242:11)
+    at RedirectErrorBoundary (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/redirect-boundary.js:73:9)
+    at RedirectBoundary (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/redirect-boundary.js:81:11)
+    at NotFoundBoundary (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/not-found-boundary.js:84:11)
+    at LoadingBoundary (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/layout-router.js:347:11)
+    at ErrorBoundary (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/error-boundary.js:158:11)
+    at InnerScrollAndFocusHandler (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/layout-router.js:153:9)
+    at ScrollAndFocusHandler (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/layout-router.js:228:11)
+    at RenderFromTemplateContext (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/render-from-template-context.js:16:44)
+    at Lazy
+    at OuterLayoutRouter (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/layout-router.js:367:11)
+    at Lazy
+    at InnerLayoutRouter (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/layout-router.js:242:11)
+    at RedirectErrorBoundary (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/redirect-boundary.js:73:9)
+    at RedirectBoundary (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/redirect-boundary.js:81:11)
+    at NotFoundBoundary (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/not-found-boundary.js:84:11)
+    at LoadingBoundary (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/layout-router.js:347:11)
+    at ErrorBoundary (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/error-boundary.js:158:11)
+    at InnerScrollAndFocusHandler (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/layout-router.js:153:9)
+    at ScrollAndFocusHandler (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/layout-router.js:228:11)
+    at RenderFromTemplateContext (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/render-from-template-context.js:16:44)
+    at Lazy
+    at OuterLayoutRouter (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/layout-router.js:367:11)
+    at Lazy
+    at InnerLayoutRouter (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/layout-router.js:242:11)
+    at RedirectErrorBoundary (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/redirect-boundary.js:73:9)
+    at RedirectBoundary (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/redirect-boundary.js:81:11)
+    at NotFoundErrorBoundary (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/not-found-boundary.js:76:9)
+    at NotFoundBoundary (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/not-found-boundary.js:84:11)
+    at LoadingBoundary (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/layout-router.js:347:11)
+    at ErrorBoundary (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/error-boundary.js:158:11)
+    at InnerScrollAndFocusHandler (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/layout-router.js:153:9)
+    at ScrollAndFocusHandler (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/layout-router.js:228:11)
+    at RenderFromTemplateContext (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/render-from-template-context.js:16:44)
+    at Lazy
+    at OuterLayoutRouter (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/layout-router.js:367:11)
+    at Lazy
+    at body
+    at html
+    at RedirectErrorBoundary (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/redirect-boundary.js:73:9)
+    at RedirectBoundary (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/redirect-boundary.js:81:11)
+    at ReactDevOverlay (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/react-dev-overlay/app/ReactDevOverlay.js:87:9)
+    at HotReload (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/react-dev-overlay/app/hot-reloader-client.js:322:11)
+    at Router (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/app-router.js:202:11)
+    at ErrorBoundaryHandler (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/error-boundary.js:112:9)
+    at ErrorBoundary (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/error-boundary.js:158:11)
+    at AppRouter (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/app-router.js:564:13)
+    at Lazy
+    at r7 (D:\OLD\desktop\carreer\freelance\ruso\Panelia\anime\node_modules\next\dist\compiled\next-server\app-page.runtime.dev.js:40:19155)
+    at r7 (D:\OLD\desktop\carreer\freelance\ruso\Panelia\anime\node_modules\next\dist\compiled\next-server\app-page.runtime.dev.js:40:19155)
+    at ServerInsertedHTMLProvider (D:\OLD\desktop\carreer\freelance\ruso\Panelia\anime\node_modules\next\dist\compiled\next-server\app-page.runtime.dev.js:40:24939)
+Warning: Invalid DOM property `stroke-linecap`. Did you mean `strokeLinecap`?
+    at path
+    at svg
+    at HeartOutlineIcon (webpack-internal:///(ssr)/./app/manga/[id]/read/page.tsx:341:29)
+    at button
+    at div
+    at aside
+    at div
+    at MangaReadPage (webpack-internal:///(ssr)/./app/manga/[id]/read/page.tsx:1414:48)
+    at ClientPageRoot (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/client-page.js:14:11)
+    at Lazy
+    at InnerLayoutRouter (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/layout-router.js:242:11)
+    at RedirectErrorBoundary (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/redirect-boundary.js:73:9)
+    at RedirectBoundary (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/redirect-boundary.js:81:11)
+    at NotFoundBoundary (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/not-found-boundary.js:84:11)
+    at LoadingBoundary (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/layout-router.js:347:11)
+    at ErrorBoundary (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/error-boundary.js:158:11)
+    at InnerScrollAndFocusHandler (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/layout-router.js:153:9)
+    at ScrollAndFocusHandler (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/layout-router.js:228:11)
+    at RenderFromTemplateContext (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/render-from-template-context.js:16:44)
+    at Lazy
+    at OuterLayoutRouter (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/layout-router.js:367:11)
+    at Lazy
+    at InnerLayoutRouter (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/layout-router.js:242:11)
+    at RedirectErrorBoundary (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/redirect-boundary.js:73:9)
+    at RedirectBoundary (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/redirect-boundary.js:81:11)
+    at NotFoundBoundary (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/not-found-boundary.js:84:11)
+    at LoadingBoundary (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/layout-router.js:347:11)
+    at ErrorBoundary (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/error-boundary.js:158:11)
+    at InnerScrollAndFocusHandler (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/layout-router.js:153:9)
+    at ScrollAndFocusHandler (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/layout-router.js:228:11)
+    at RenderFromTemplateContext (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/render-from-template-context.js:16:44)
+    at Lazy
+    at OuterLayoutRouter (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/layout-router.js:367:11)
+    at Lazy
+    at InnerLayoutRouter (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/layout-router.js:242:11)
+    at RedirectErrorBoundary (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/redirect-boundary.js:73:9)
+    at RedirectBoundary (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/redirect-boundary.js:81:11)
+    at NotFoundBoundary (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/not-found-boundary.js:84:11)
+    at LoadingBoundary (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/layout-router.js:347:11)
+    at ErrorBoundary (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/error-boundary.js:158:11)
+    at InnerScrollAndFocusHandler (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/layout-router.js:153:9)
+    at ScrollAndFocusHandler (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/layout-router.js:228:11)
+    at RenderFromTemplateContext (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/render-from-template-context.js:16:44)
+    at Lazy
+    at OuterLayoutRouter (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/layout-router.js:367:11)
+    at Lazy
+    at InnerLayoutRouter (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/layout-router.js:242:11)
+    at RedirectErrorBoundary (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/redirect-boundary.js:73:9)
+    at RedirectBoundary (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/redirect-boundary.js:81:11)
+    at NotFoundErrorBoundary (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/not-found-boundary.js:76:9)
+    at NotFoundBoundary (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/not-found-boundary.js:84:11)
+    at LoadingBoundary (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/layout-router.js:347:11)
+    at ErrorBoundary (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/error-boundary.js:158:11)
+    at InnerScrollAndFocusHandler (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/layout-router.js:153:9)
+    at ScrollAndFocusHandler (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/layout-router.js:228:11)
+    at RenderFromTemplateContext (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/render-from-template-context.js:16:44)
+    at Lazy
+    at OuterLayoutRouter (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/layout-router.js:367:11)
+    at Lazy
+    at body
+    at html
+    at RedirectErrorBoundary (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/redirect-boundary.js:73:9)
+    at RedirectBoundary (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/redirect-boundary.js:81:11)
+    at ReactDevOverlay (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/react-dev-overlay/app/ReactDevOverlay.js:87:9)
+    at HotReload (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/react-dev-overlay/app/hot-reloader-client.js:322:11)
+    at Router (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/app-router.js:202:11)
+    at ErrorBoundaryHandler (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/error-boundary.js:112:9)
+    at ErrorBoundary (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/error-boundary.js:158:11)
+    at AppRouter (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/app-router.js:564:13)
+    at Lazy
+    at r7 (D:\OLD\desktop\carreer\freelance\ruso\Panelia\anime\node_modules\next\dist\compiled\next-server\app-page.runtime.dev.js:40:19155)
+    at r7 (D:\OLD\desktop\carreer\freelance\ruso\Panelia\anime\node_modules\next\dist\compiled\next-server\app-page.runtime.dev.js:40:19155)
+    at ServerInsertedHTMLProvider (D:\OLD\desktop\carreer\freelance\ruso\Panelia\anime\node_modules\next\dist\compiled\next-server\app-page.runtime.dev.js:40:24939)
+Warning: Invalid DOM property `stroke-linejoin`. Did you mean `strokeLinejoin`?
+    at path
+    at svg
+    at HeartOutlineIcon (webpack-internal:///(ssr)/./app/manga/[id]/read/page.tsx:341:29)
+    at button
+    at div
+    at aside
+    at div
+    at MangaReadPage (webpack-internal:///(ssr)/./app/manga/[id]/read/page.tsx:1414:48)
+    at ClientPageRoot (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/client-page.js:14:11)
+    at Lazy
+    at InnerLayoutRouter (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/layout-router.js:242:11)
+    at RedirectErrorBoundary (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/redirect-boundary.js:73:9)
+    at RedirectBoundary (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/redirect-boundary.js:81:11)
+    at NotFoundBoundary (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/not-found-boundary.js:84:11)
+    at LoadingBoundary (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/layout-router.js:347:11)
+    at ErrorBoundary (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/error-boundary.js:158:11)
+    at InnerScrollAndFocusHandler (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/layout-router.js:153:9)
+    at ScrollAndFocusHandler (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/layout-router.js:228:11)
+    at RenderFromTemplateContext (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/render-from-template-context.js:16:44)
+    at Lazy
+    at OuterLayoutRouter (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/layout-router.js:367:11)
+    at Lazy
+    at InnerLayoutRouter (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/layout-router.js:242:11)
+    at RedirectErrorBoundary (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/redirect-boundary.js:73:9)
+    at RedirectBoundary (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/redirect-boundary.js:81:11)
+    at NotFoundBoundary (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/not-found-boundary.js:84:11)
+    at LoadingBoundary (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/layout-router.js:347:11)
+    at ErrorBoundary (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/error-boundary.js:158:11)
+    at InnerScrollAndFocusHandler (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/layout-router.js:153:9)
+    at ScrollAndFocusHandler (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/layout-router.js:228:11)
+    at RenderFromTemplateContext (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/render-from-template-context.js:16:44)
+    at Lazy
+    at OuterLayoutRouter (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/layout-router.js:367:11)
+    at Lazy
+    at InnerLayoutRouter (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/layout-router.js:242:11)
+    at RedirectErrorBoundary (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/redirect-boundary.js:73:9)
+    at RedirectBoundary (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/redirect-boundary.js:81:11)
+    at NotFoundBoundary (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/not-found-boundary.js:84:11)
+    at LoadingBoundary (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/layout-router.js:347:11)
+    at ErrorBoundary (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/error-boundary.js:158:11)
+    at InnerScrollAndFocusHandler (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/layout-router.js:153:9)
+    at ScrollAndFocusHandler (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/layout-router.js:228:11)
+    at RenderFromTemplateContext (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/render-from-template-context.js:16:44)
+    at Lazy
+    at OuterLayoutRouter (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/layout-router.js:367:11)
+    at Lazy
+    at InnerLayoutRouter (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/layout-router.js:242:11)
+    at RedirectErrorBoundary (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/redirect-boundary.js:73:9)
+    at RedirectBoundary (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/redirect-boundary.js:81:11)
+    at NotFoundErrorBoundary (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/not-found-boundary.js:76:9)
+    at NotFoundBoundary (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/not-found-boundary.js:84:11)
+    at LoadingBoundary (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/layout-router.js:347:11)
+    at ErrorBoundary (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/error-boundary.js:158:11)
+    at InnerScrollAndFocusHandler (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/layout-router.js:153:9)
+    at ScrollAndFocusHandler (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/layout-router.js:228:11)
+    at RenderFromTemplateContext (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/render-from-template-context.js:16:44)
+    at Lazy
+    at OuterLayoutRouter (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/layout-router.js:367:11)
+    at Lazy
+    at body
+    at html
+    at RedirectErrorBoundary (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/redirect-boundary.js:73:9)
+    at RedirectBoundary (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/redirect-boundary.js:81:11)
+    at ReactDevOverlay (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/react-dev-overlay/app/ReactDevOverlay.js:87:9)
+    at HotReload (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/react-dev-overlay/app/hot-reloader-client.js:322:11)
+    at Router (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/app-router.js:202:11)
+    at ErrorBoundaryHandler (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/error-boundary.js:112:9)
+    at ErrorBoundary (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/error-boundary.js:158:11)
+    at AppRouter (webpack-internal:///(ssr)/./node_modules/next/dist/client/components/app-router.js:564:13)
+    at Lazy
+    at r7 (D:\OLD\desktop\carreer\freelance\ruso\Panelia\anime\node_modules\next\dist\compiled\next-server\app-page.runtime.dev.js:40:19155)
+    at r7 (D:\OLD\desktop\carreer\freelance\ruso\Panelia\anime\node_modules\next\dist\compiled\next-server\app-page.runtime.dev.js:40:19155)
+    at ServerInsertedHTMLProvider (D:\OLD\desktop\carreer\freelance\ruso\Panelia\anime\node_modules\next\dist\compiled\next-server\app-page.runtime.dev.js:40:24939)
+ GET /manga/0/read 200 in 7839ms
+ GET /manga/0/read 200 in 268ms
+ GET /manga/test 200 in 455ms
+ ⚠ ./app/globals.css.webpack[javascript/auto]!=!./node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[14].oneOf[12].use[2]!./node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[14].oneOf[12].use[3]!./app/globals.css
+Warning
+
+(2064:3) autoprefixer: end value has mixed support, consider using flex-end instead
+
+Import trace for requested module:
+./app/globals.css.webpack[javascript/auto]!=!./node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[14].oneOf[12].use[2]!./node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[14].oneOf[12].use[3]!./app/globals.css
+./app/globals.css
+ ⚠ ./app/globals.css.webpack[javascript/auto]!=!./node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[14].oneOf[12].use[2]!./node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[14].oneOf[12].use[3]!./app/globals.css
+Warning
+
+(2064:3) autoprefixer: end value has mixed support, consider using flex-end instead
+
+Import trace for requested module:
+./app/globals.css.webpack[javascript/auto]!=!./node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[14].oneOf[12].use[2]!./node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[14].oneOf[12].use[3]!./app/globals.css
+./app/globals.css
+ ⚠ ./app/globals.css.webpack[javascript/auto]!=!./node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[14].oneOf[12].use[2]!./node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[14].oneOf[12].use[3]!./app/globals.css
+Warning
+
+(2064:3) autoprefixer: end value has mixed support, consider using flex-end instead
+
+Import trace for requested module:
+./app/globals.css.webpack[javascript/auto]!=!./node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[14].oneOf[12].use[2]!./node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[14].oneOf[12].use[3]!./app/globals.css
+./app/globals.css
+ ⚠ ./app/globals.css.webpack[javascript/auto]!=!./node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[14].oneOf[12].use[2]!./node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[14].oneOf[12].use[3]!./app/globals.css
+Warning
+
+(2064:3) autoprefixer: end value has mixed support, consider using flex-end instead
+
+Import trace for requested module:
+./app/globals.css.webpack[javascript/auto]!=!./node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[14].oneOf[12].use[2]!./node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[14].oneOf[12].use[3]!./app/globals.css
+./app/globals.css
+ ⚠ ./app/globals.css.webpack[javascript/auto]!=!./node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[14].oneOf[12].use[2]!./node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[14].oneOf[12].use[3]!./app/globals.css
+Warning
+
+(2064:3) autoprefixer: end value has mixed support, consider using flex-end instead
+
+Import trace for requested module:
+./app/globals.css.webpack[javascript/auto]!=!./node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[14].oneOf[12].use[2]!./node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[14].oneOf[12].use[3]!./app/globals.css
+./app/globals.css
+ GET /manga/test 200 in 1638ms
+<w> [webpack.cache.PackFileCacheStrategy] Skipped not serializable cache item 'Compilation/modules|D:\OLD\desktop\carreer\freelance\ruso\Panelia\anime\node_modules\next\dist\build\webpack\loaders\css-loader\src\index.js??ruleSet[1].rules[14].oneOf[12].use[2]!D:\OLD\desktop\carreer\freelance\ruso\Panelia\anime\node_modules\next\dist\build\webpack\loaders\postcss-loader\src\index.js??ruleSet[1].rules[14].oneOf[12].use[3]!D:\OLD\desktop\carreer\freelance\ruso\Panelia\anime\app\globals.css': No serializer registered for Warning
+<w> while serializing webpack/lib/cache/PackFileCacheStrategy.PackContentItems -> webpack/lib/NormalModule -> Array { 1 items } -> webpack/lib/ModuleWarning -> Warning
+ ⚠ ./app/globals.css.webpack[javascript/auto]!=!./node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[14].oneOf[12].use[2]!./node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[14].oneOf[12].use[3]!./app/globals.css
+Warning
+
+(2064:3) autoprefixer: end value has mixed support, consider using flex-end instead
+
+Import trace for requested module:
+./app/globals.css.webpack[javascript/auto]!=!./node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[14].oneOf[12].use[2]!./node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[14].oneOf[12].use[3]!./app/globals.css
+./app/globals.css
+ ⚠ ./app/globals.css.webpack[javascript/auto]!=!./node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[14].oneOf[12].use[2]!./node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[14].oneOf[12].use[3]!./app/globals.css
+Warning
+
+(2064:3) autoprefixer: end value has mixed support, consider using flex-end instead
+
+Import trace for requested module:
+./app/globals.css.webpack[javascript/auto]!=!./node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[14].oneOf[12].use[2]!./node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[14].oneOf[12].use[3]!./app/globals.css
+./app/globals.css
+ GET /manga/test 200 in 368ms
+<w> [webpack.cache.PackFileCacheStrategy] Skipped not serializable cache item 'Compilation/modules|D:\OLD\desktop\carreer\freelance\ruso\Panelia\anime\node_modules\next\dist\build\webpack\loaders\css-loader\src\index.js??ruleSet[1].rules[14].oneOf[12].use[2]!D:\OLD\desktop\carreer\freelance\ruso\Panelia\anime\node_modules\next\dist\build\webpack\loaders\postcss-loader\src\index.js??ruleSet[1].rules[14].oneOf[12].use[3]!D:\OLD\desktop\carreer\freelance\ruso\Panelia\anime\app\globals.css': No serializer registered for Warning
+<w> while serializing webpack/lib/cache/PackFileCacheStrategy.PackContentItems -> webpack/lib/NormalModule -> Array { 1 items } -> webpack/lib/ModuleWarning -> Warning
+ ✓ Compiled in 10.2s (546 modules)
+ ✓ Compiled in 741ms (546 modules)
+ ✓ Compiled in 648ms (546 modules)
+ ✓ Compiled in 638ms (546 modules)
+ ✓ Compiled in 1437ms (546 modules)
+ ✓ Compiled in 450ms (546 modules)
+ ✓ Compiled in 487ms (546 modules)
+ ✓ Compiled in 427ms (546 modules)
+ ✓ Compiled in 418ms (546 modules)
+ ✓ Compiled in 482ms (546 modules)
+ ✓ Compiled in 496ms (546 modules)
+ ✓ Compiled in 920ms (546 modules)
+ ✓ Compiled in 457ms (546 modules)
+ ✓ Compiled in 757ms (546 modules)
+ ⚠ ./app/globals.css.webpack[javascript/auto]!=!./node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[14].oneOf[12].use[2]!./node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[14].oneOf[12].use[3]!./app/globals.css
+Warning
+
+(2064:3) autoprefixer: end value has mixed support, consider using flex-end instead
+
+Import trace for requested module:
+./app/globals.css.webpack[javascript/auto]!=!./node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[14].oneOf[12].use[2]!./node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[14].oneOf[12].use[3]!./app/globals.css
+./app/globals.css
+ ⚠ ./app/globals.css.webpack[javascript/auto]!=!./node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[14].oneOf[12].use[2]!./node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[14].oneOf[12].use[3]!./app/globals.css
+Warning
+
+(2064:3) autoprefixer: end value has mixed support, consider using flex-end instead
+
+Import trace for requested module:
+./app/globals.css.webpack[javascript/auto]!=!./node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[14].oneOf[12].use[2]!./node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[14].oneOf[12].use[3]!./app/globals.css
+./app/globals.css
+ ⚠ ./app/globals.css.webpack[javascript/auto]!=!./node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[14].oneOf[12].use[2]!./node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[14].oneOf[12].use[3]!./app/globals.css
+Warning
+
+(2064:3) autoprefixer: end value has mixed support, consider using flex-end instead
+
+Import trace for requested module:
+./app/globals.css.webpack[javascript/auto]!=!./node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[14].oneOf[12].use[2]!./node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[14].oneOf[12].use[3]!./app/globals.css
+./app/globals.css
+ ⚠ ./app/globals.css.webpack[javascript/auto]!=!./node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[14].oneOf[12].use[2]!./node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[14].oneOf[12].use[3]!./app/globals.css
+Warning
+
+(2064:3) autoprefixer: end value has mixed support, consider using flex-end instead
+
+Import trace for requested module:
+./app/globals.css.webpack[javascript/auto]!=!./node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[14].oneOf[12].use[2]!./node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[14].oneOf[12].use[3]!./app/globals.css
+./app/globals.css
+ ⚠ ./app/globals.css.webpack[javascript/auto]!=!./node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[14].oneOf[12].use[2]!./node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[14].oneOf[12].use[3]!./app/globals.css
+Warning
+
+(2064:3) autoprefixer: end value has mixed support, consider using flex-end instead
+
+Import trace for requested module:
+./app/globals.css.webpack[javascript/auto]!=!./node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[14].oneOf[12].use[2]!./node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[14].oneOf[12].use[3]!./app/globals.css
+./app/globals.css
+<w> [webpack.cache.PackFileCacheStrategy] Skipped not serializable cache item 'Compilation/modules|D:\OLD\desktop\carreer\freelance\ruso\Panelia\anime\node_modules\next\dist\build\webpack\loaders\css-loader\src\index.js??ruleSet[1].rules[14].oneOf[12].use[2]!D:\OLD\desktop\carreer\freelance\ruso\Panelia\anime\node_modules\next\dist\build\webpack\loaders\postcss-loader\src\index.js??ruleSet[1].rules[14].oneOf[12].use[3]!D:\OLD\desktop\carreer\freelance\ruso\Panelia\anime\app\globals.css': No serializer registered for Warning
+<w> while serializing webpack/lib/cache/PackFileCacheStrategy.PackContentItems -> webpack/lib/NormalModule -> Array { 1 items } -> webpack/lib/ModuleWarning -> Warning
+ GET /manga/test 200 in 2918ms
+ GET /manga/test 200 in 599ms
+ GET /manga/1 200 in 2450ms
+ GET /manga/1 200 in 320ms
+ GET /manga/test 200 in 332ms
+ ⚠ ./app/globals.css.webpack[javascript/auto]!=!./node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[14].oneOf[12].use[2]!./node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[14].oneOf[12].use[3]!./app/globals.css
+Warning
+
+(2064:3) autoprefixer: end value has mixed support, consider using flex-end instead
+
+Import trace for requested module:
+./app/globals.css.webpack[javascript/auto]!=!./node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[14].oneOf[12].use[2]!./node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[14].oneOf[12].use[3]!./app/globals.css
+./app/globals.css
+ ✓ Compiled in 1083ms (546 modules)
+ ✓ Compiled in 828ms (546 modules)
+ ✓ Compiled in 613ms (546 modules)
+ ✓ Compiled in 489ms (546 modules)
+ GET /manga/1 200 in 308ms
+<w> [webpack.cache.PackFileCacheStrategy] Skipped not serializable cache item 'Compilation/modules|D:\OLD\desktop\carreer\freelance\ruso\Panelia\anime\node_modules\next\dist\build\webpack\loaders\css-loader\src\index.js??ruleSet[1].rules[14].oneOf[12].use[2]!D:\OLD\desktop\carreer\freelance\ruso\Panelia\anime\node_modules\next\dist\build\webpack\loaders\postcss-loader\src\index.js??ruleSet[1].rules[14].oneOf[12].use[3]!D:\OLD\desktop\carreer\freelance\ruso\Panelia\anime\app\globals.css': No serializer registered for Warning
+<w> while serializing webpack/lib/cache/PackFileCacheStrategy.PackContentItems -> webpack/lib/NormalModule -> Array { 1 items } -> webpack/lib/ModuleWarning -> Warning
+ GET /manga/1 200 in 104ms
+ GET /manga/test 200 in 170ms

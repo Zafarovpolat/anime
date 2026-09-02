@@ -165,13 +165,17 @@ const INITIAL_COMMENTS: CommentType[] = [
   },
 ];
 
-/* Тестовые данные дерева комментариев на странице манги:
-   — одна глубокая ветка из 22 ответов подряд, чтобы наглядно показать сброс
-     отступов («сноску») каждые 5 уровней и что вёрстка не уезжает вбок;
+/* Тестовые данные дерева комментариев на странице манги (открываются на
+   /manga/test сразу на вкладке «Комментарии»):
+   — одна глубокая ветка из 22 ответов подряд — проверка, что отступ и линия есть
+     у КАЖДОГО уровня (никакой срезки), а вёрстка при этом не уезжает вбок:
+     работает затухание шага (полосы 1-6 / 7-12 / 13+);
    — несколько самостоятельных (корневых) комментариев = «новые темы»,
      чтобы был виден контраст «где ответ, а где новый комментарий». */
 const DEEP_TEST_COMMENTS: CommentType[] = (() => {
-  const DEPTH = 22; // сброс отступа сработает 4 раза: после 5, 10, 15 и 20 уровней
+  // 22 уровня: полный шаг на 1-6, средний на 7-12, мелкий на 13-22. Аварийный
+  // INDENT_CAP (=24) здесь не срабатывает — специально, чтобы «срезки» не было.
+  const DEPTH = 22;
   // Имя автора на каждом уровне — чтобы пилюля «Ответ для @ник» выглядела реалистично
   const nameFor = (level: number) =>
     level === 1 ? "Jul_Mol" : level % 2 === 0 ? "MangaFan92" : "Otaku_San";
@@ -573,10 +577,23 @@ function ThumbDownIcon() {
 /* Рекурсивный рендер комментария: корень и вложенные ответы используют одну и ту же разметку */
 // На какой именно коммент дан ответ, видно из плашки «↳ @ник: цитата» и подсветки
 // родителя по клику (клиентское ТЗ п.14, п.17).
-// Каждые RESET_EVERY уровней вложенности отступ «сбрасывается» влево: 6-й по счёту
-// ответ начинает новую группу-«сноску», а не уезжает бесконечно вправо. Так глубокая
-// ветка остаётся читаемой, а плашка «↳ Ответ для @ник» сохраняет контекст (ТЗ п.14).
-const RESET_EVERY = 5;
+// ГЛУБИНА НЕ ОБРЕЗАЕТСЯ: свой отступ и свой 1px рельс есть у КАЖДОГО уровня —
+// ровно как на MangaLib (padding-left + border-left контейнера ответов). Раньше
+// отступ «замирал» после 8-го уровня, и на глубокой ветке это читалось как
+// срезка/сноска. Чтобы ветка при этом не уезжала за правый край, затухает сам ШАГ
+// отступа — полосы --step-2 / --step-3 (globals.css, блок «ШАГ ОТСТУПА»).
+// INDENT_CAP — аварийный предел на случай бесконечной (например, сгенерированной)
+// ветки: глубже него отступ замирает (модификатор --capped). На реальных данных не
+// срабатывает: самая глубокая ветка мока — 22 уровня.
+// Порядок сообщений не нарушается, линия ветки не разрывается, горизонтальной
+// прокрутки нет. НА КАКОЙ именно коммент дан ответ, видно из плашки «↳ Ответ для
+// @ник: «цитата»» (кликабельна — скроллит к родителю). Клиентское ТЗ п.14, п.17.
+const INDENT_CAP = 24;
+
+// Границы полос затухания шага отступа: уровни 1-6 идут полным шагом, 7-12 —
+// средним, 13+ — мелким. Сами значения шага живут в CSS (--rail-step).
+const STEP_BAND_1_MAX = 6;
+const STEP_BAND_2_MAX = 12;
 
 // Короткая цитата родительского комментария для плашки «Ответ для …» — чтобы
 // автор ответа и читатель понимали, НА КАКОЙ именно коммент дан ответ, даже когда
@@ -585,49 +602,29 @@ function parentSnippet(text: string): string {
   const plain = text.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
   return plain.length > 48 ? plain.slice(0, 48).trimEnd() + "…" : plain;
 }
+// Сколько ответов скрыто в свёрнутой ветке — считаем всё поддерево, а не только
+// первый уровень, иначе цифра на кнопке врёт.
+function countReplies(list: CommentType[]): number {
+  return list.reduce((n, r) => n + 1 + countReplies(r.replies), 0);
+}
 
-// Группа комментариев = поддерево максимум из RESET_EVERY уровней. Когда глубина
-// превышает лимит, дочерний узел становится корнем НОВОЙ группы (reset:true), а его
-// настоящий родитель сохраняется в parent — чтобы плашка-цитата по-прежнему
-// показывала, кому именно дан ответ, хотя визуально отступ уже сброшен влево.
-type CommentGroup = { root: CommentType; reset: boolean; parent: CommentType | null };
-
-// Тред = корневой комментарий + ВСЕ его группы-продолжения (после сбросов глубины).
-// Продолжения рендерятся ВНУТРИ рельса первого уровня корня, поэтому самая первая
-// линия ветки никогда не разрывается: сразу видно, что все ответы относятся к нему.
-type CommentThread = { root: CommentType; continuations: CommentGroup[] };
-
-function buildCommentThreads(roots: CommentType[]): CommentThread[] {
-  const collectContinuations = (root: CommentType): CommentGroup[] => {
-    const out: CommentGroup[] = [];
-    // Обходим поддерево группы: дети последнего уровня становятся продолжениями,
-    // а их собственные поддеревья дают следующие продолжения (DFS — порядок чтения).
-    const walk = (node: CommentType) => {
-      const descend = (n: CommentType, rel: number) => {
-        if (rel >= RESET_EVERY - 1) {
-          n.replies.forEach((child) => {
-            out.push({ root: child, reset: true, parent: n });
-            walk(child);
-          });
-          return;
-        }
-        n.replies.forEach((child) => descend(child, rel + 1));
-      };
-      descend(node, 0);
-    };
-    walk(root);
-    return out;
-  };
-  return roots.map((root) => ({ root, continuations: collectContinuations(root) }));
+// Русские окончания для кнопки: 1 ответ / 2 ответа / 5 ответов.
+function repliesLabel(n: number): string {
+  const tail = n % 10;
+  const hundred = n % 100;
+  const word =
+    tail === 1 && hundred !== 11
+      ? "ответ"
+      : tail >= 2 && tail <= 4 && (hundred < 12 || hundred > 14)
+        ? "ответа"
+        : "ответов";
+  return `Показать ${n} ${word}`;
 }
 
 function CommentBlock({
   comment: c,
   depth = 0,
   parent = null,
-  forceNested = false,
-  continuations = [],
-  padBeforeReset = false,
   editingCommentId,
   editingCommentText,
   onChangeEditText,
@@ -644,15 +641,6 @@ function CommentBlock({
   comment: CommentType;
   depth?: number;
   parent?: CommentType | null;
-  forceNested?: boolean;
-  /* Группы-продолжения ветки (после сбросов глубины) — рендерятся внутри рельса
-     первого уровня, чтобы линия корня шла непрерывно вдоль всего треда. */
-  continuations?: CommentGroup[];
-  /* Этот блок стоит НЕПОСРЕДСТВЕННО перед группой-сноской. Флаг спускается по
-     цепочке последних ответов и на самом глубоком (листовом) комментарии даёт
-     классу -body отступ снизу — он возмещает убранный gap, и все рельсы уровней
-     доходят вплотную до сноски. */
-  padBeforeReset?: boolean;
   editingCommentId: number | null;
   editingCommentText: string;
   onChangeEditText: (text: string) => void;
@@ -666,32 +654,29 @@ function CommentBlock({
   onLike: (id: number) => void;
   onDislike: (id: number) => void;
 }) {
-  // Внутри группы рисуем максимум RESET_EVERY уровней; дальше ветку продолжает
-  // новая группа-«сноска» (см. buildCommentThreads). forceNested делает корень такой
-  // группы визуально «ответом» (отступ + рельса), хотя его depth снова 0.
-  const hasReplies = c.replies.length > 0 && depth + 1 < RESET_EVERY;
+  const hasReplies = c.replies.length > 0;
+  // Ветку можно свернуть кликом по её линии (как на MangaLib: .comment__collapse).
+  const [collapsed, setCollapsed] = useState(false);
   // Родитель ответа: берём из позиции в дереве (надёжнее, чем только по данным),
   // с запасным вариантом на поля replyTo* — так плашка всегда показывает, кому и
   // на какой текст дан ответ.
   const parentUser = parent?.username ?? c.replyToUsername;
   const parentId = parent?.id ?? c.replyToId;
   const parentQuote = parent ? parentSnippet(parent.text) : "";
-  // Лист цепочки перед сноской: отступ ставим именно на его -body (самый последний
-  // -body в DOM перед сноской), иначе внутренние рельсы не дотянутся до неё.
-  const isLastBeforeReset = padBeforeReset && !hasReplies && continuations.length === 0;
-  // После последнего ответа идёт либо своя сноска, либо то, что стоит после этого
-  // блока — значит флаг просто передаём дальше по цепочке последних ответов.
-  const lastReplyPad = continuations.length > 0 ? true : padBeforeReset;
+  // Уровень контейнера ответов = depth + 1. Свой отступ и свой 1px рельс получает
+  // каждый уровень; глубже аварийного INDENT_CAP отступ замирает (--capped).
+  const replyLevel = depth + 1;
+  const repliesModifier = replyLevel > INDENT_CAP ? "capped" : `level-${replyLevel}`;
+  // Полоса затухания шага (см. INDENT_CAP выше). Класс ставим только со 2-й полосы:
+  // на первой работает базовый шаг из токена --rail-step.
+  const stepBand =
+    replyLevel <= STEP_BAND_1_MAX ? 1 : replyLevel <= STEP_BAND_2_MAX ? 2 : 3;
   return (
     <div
       id={`comment-${c.id}`}
-      className={`manga-inner__comment${depth > 0 || forceNested ? " manga-inner__comment--nested" : ""}${c.replies.length > 0 ? " manga-inner__comment--has-replies" : ""}`}
+      className={`manga-inner__comment${depth > 0 ? " manga-inner__comment--nested" : ""}${c.replies.length > 0 ? " manga-inner__comment--has-replies" : ""}`}
     >
-      <div
-        className={`manga-inner__comment-body${
-          isLastBeforeReset ? " manga-inner__comment-body--before-reset" : ""
-        }`}
-      >
+      <div className="manga-inner__comment-body">
         <div className={`manga-inner__comment-top${c.username === "Вы" ? " manga-inner__comment-top--own" : ""}`}>
           <div className="manga-inner__comment-header">
             <div className="manga-inner__comment-author">
@@ -809,16 +794,39 @@ function CommentBlock({
           </div>
         </div>
 
-        {(hasReplies || continuations.length > 0) && (
-          <div className="manga-inner__comment-replies">
-            {hasReplies &&
-              c.replies.map((r, i) => (
+        {hasReplies && (
+          <div
+            className={`manga-inner__comment-replies manga-inner__comment-replies--${repliesModifier}${
+              stepBand > 1 ? ` manga-inner__comment-replies--step-${stepBand}` : ""
+            }`}
+          >
+            {/* Прозрачная полоса поверх линии: клик по линии сворачивает/разворачивает
+                ветку. На --capped её нет — там нет ни отступа, ни своей линии. */}
+            {repliesModifier !== "capped" && (
+              <button
+                type="button"
+                className="manga-inner__comment-collapse"
+                aria-expanded={!collapsed}
+                aria-label={collapsed ? "Развернуть ветку" : "Свернуть ветку"}
+                title={collapsed ? "Развернуть ветку" : "Свернуть ветку"}
+                onClick={() => setCollapsed((v) => !v)}
+              />
+            )}
+            {collapsed ? (
+              <button
+                type="button"
+                className="manga-inner__comment-expand"
+                onClick={() => setCollapsed(false)}
+              >
+                {repliesLabel(countReplies(c.replies))}
+              </button>
+            ) : (
+              c.replies.map((r) => (
                 <CommentBlock
                   key={r.id}
                   comment={r}
                   depth={depth + 1}
                   parent={c}
-                  padBeforeReset={i === c.replies.length - 1 && lastReplyPad}
                   editingCommentId={editingCommentId}
                   editingCommentText={editingCommentText}
                   onChangeEditText={onChangeEditText}
@@ -832,35 +840,8 @@ function CommentBlock({
                   onLike={onLike}
                   onDislike={onDislike}
                 />
-              ))}
-            {/* Продолжения ветки после сброса глубины — внутри этого же рельса,
-                поэтому линия первого уровня не разрывается. У каждой группы свой
-                отдельный рельс (.--reset), начинающийся чуть выше карточки. */}
-            {continuations.map((g, i) => (
-              <div
-                key={g.root.id}
-                className="manga-inner__comment-group manga-inner__comment-group--reset"
-              >
-                <CommentBlock
-                  comment={g.root}
-                  parent={g.parent}
-                  forceNested
-                  padBeforeReset={i < continuations.length - 1}
-                  editingCommentId={editingCommentId}
-                  editingCommentText={editingCommentText}
-                  onChangeEditText={onChangeEditText}
-                  onStartEdit={onStartEdit}
-                  onSaveEdit={onSaveEdit}
-                  commentMenuOpen={commentMenuOpen}
-                  onToggleMenu={onToggleMenu}
-                  onDelete={onDelete}
-                  onReport={onReport}
-                  onReply={onReply}
-                  onLike={onLike}
-                  onDislike={onDislike}
-                />
-              </div>
-            ))}
+              ))
+            )}
           </div>
         )}
       </div>
@@ -1591,40 +1572,38 @@ export default function MangaPage({ params }: { params: { id: string } }) {
 
                       {/* Comments list */}
                       <div className="manga-inner__comments-list">
-                        {buildCommentThreads(
-                          [...comments]
-                            .sort((a, b) => {
-                              if (commentSort === "popular") {
-                                return b.likes - a.likes;
-                              }
-                              return 0; // "new" — сохраняем порядок (новые сверху)
-                            })
-                            .slice(0, visibleCommentsCount)
-                        ).map((thread, idx) => (
-                          <div
-                            key={thread.root.id}
-                            className={`manga-inner__comment-group${
-                              idx > 0 ? " manga-inner__comment-group--new-topic" : ""
-                            }`}
-                          >
-                            <CommentBlock
-                              comment={thread.root}
-                              continuations={thread.continuations}
-                              editingCommentId={editingCommentId}
-                              editingCommentText={editingCommentText}
-                              onChangeEditText={setEditingCommentText}
-                              onStartEdit={handleCommentStartEdit}
-                              onSaveEdit={handleCommentSaveEdit}
-                              commentMenuOpen={commentMenuOpen}
-                              onToggleMenu={setCommentMenuOpen}
-                              onDelete={handleCommentDelete}
-                              onReport={() => setReportOpen(true)}
-                              onReply={handleCommentReply}
-                              onLike={handleCommentLike}
-                              onDislike={handleCommentDislike}
-                            />
-                          </div>
-                        ))}
+                        {[...comments]
+                          .sort((a, b) => {
+                            if (commentSort === "popular") {
+                              return b.likes - a.likes;
+                            }
+                            return 0; // "new" — сохраняем порядок (новые сверху)
+                          })
+                          .slice(0, visibleCommentsCount)
+                          .map((root, idx) => (
+                            <div
+                              key={root.id}
+                              className={`manga-inner__comment-group${
+                                idx > 0 ? " manga-inner__comment-group--new-topic" : ""
+                              }`}
+                            >
+                              <CommentBlock
+                                comment={root}
+                                editingCommentId={editingCommentId}
+                                editingCommentText={editingCommentText}
+                                onChangeEditText={setEditingCommentText}
+                                onStartEdit={handleCommentStartEdit}
+                                onSaveEdit={handleCommentSaveEdit}
+                                commentMenuOpen={commentMenuOpen}
+                                onToggleMenu={setCommentMenuOpen}
+                                onDelete={handleCommentDelete}
+                                onReport={() => setReportOpen(true)}
+                                onReply={handleCommentReply}
+                                onLike={handleCommentLike}
+                                onDislike={handleCommentDislike}
+                              />
+                            </div>
+                          ))}
                       </div>
 
                       {visibleCommentsCount < comments.length && (

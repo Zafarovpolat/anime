@@ -513,23 +513,41 @@ function ThumbDownIcon() {
 }
 
 /* Рекурсивный рендер комментария: корень и вложенные ответы используют одну и ту же разметку */
-// ГЛУБИНА НЕ ОБРЕЗАЕТСЯ: свой отступ и свой 1px рельс есть у КАЖДОГО уровня —
-// ровно как на MangaLib (padding-left + border-left контейнера ответов). Раньше
-// отступ «замирал» после 8-го уровня, и на глубокой ветке это читалось как
-// срезка/сноска. Чтобы ветка при этом не уезжала за правый край, затухает сам ШАГ
-// отступа — полосы --step-2 / --step-3 (globals.css, блок «ШАГ ОТСТУПА»).
-// INDENT_CAP — аварийный предел на случай бесконечной (например, сгенерированной)
-// ветки: глубже него отступ замирает (модификатор --capped). На реальных данных не
-// срабатывает: самая глубокая ветка мока — 22 уровня.
-// Порядок сообщений не нарушается, линия ветки не разрывается, горизонтальной
-// прокрутки нет. НА КАКОЙ именно коммент дан ответ, видно из плашки «↳ Ответ для
-// @ник: «цитата»» (кликабельна — скроллит к родителю). Клиентское ТЗ п.14, п.17.
-const INDENT_CAP = 24;
+// ОДИН УРОВЕНЬ ВЛОЖЕННОСТИ — модель гитхаба (Issues / Discussions / review-треды
+// в PR). Корневой комментарий = тема, под ним ОДИН контейнер-тред, и в нём лежат
+// ВСЕ ответы ветки любой глубины — ПЛОСКИМ списком в хронологии. Второго уровня
+// отступа не существует. Кому именно отвечают, показывает плашка «↳ Ответ для
+// @ник: «цитата»» (кликабельна — скроллит к родителю): на гитхабе адресата ровно
+// так же показывает цитата «Quote reply», а не отступ.
+//
+// Почему не деревом: клиент отклонил вложенность дважды — сначала сброс отступа
+// каждые 5 уровней («1. Нарушается порядок сообщений 2. Заканчивается линия»),
+// потом бесконечную глубину — и попросил «как на гитхабе». Один уровень снимает
+// оба возражения:
+//   1. порядок — внутри треда строгая хронология по id, обхода дерева в глубину
+//      больше нет, поэтому переставить сообщения попросту нечем;
+//   2. линия — рельс один на весь тред, от первого ответа до последнего:
+//      обрываться посреди ветки ему негде.
+// Цена модели (её платит и гитхаб): структура ветки не видна геометрически и
+// живёт только в плашке-ссылке на родителя. Клиентское ТЗ п.14, п.17.
+type ThreadItem = { comment: CommentType; parent: CommentType };
 
-// Границы полос затухания шага отступа: уровни 1-6 идут полным шагом, 7-12 —
-// средним, 13+ — мелким. Сами значения шага живут в CSS (--rail-step).
-const STEP_BAND_1_MAX = 6;
-const STEP_BAND_2_MAX = 12;
+// Все ответы ветки одним плоским списком в хронологии. Родителя несём рядом с
+// ответом: после сплющивания только он знает, кому дан ответ, — позиция в DOM
+// этого больше не говорит.
+function flattenThread(root: CommentType): ThreadItem[] {
+  const out: ThreadItem[] = [];
+  const walk = (parent: CommentType) => {
+    for (const reply of parent.replies) {
+      out.push({ comment: reply, parent });
+      walk(reply);
+    }
+  };
+  walk(root);
+  // Хронология = id: у новых комментариев id = Date.now(), в моках id монотонны
+  // (отдельного timestamp в модели нет, time — человекочитаемая строка).
+  return out.sort((a, b) => a.comment.id - b.comment.id);
+}
 
 // Короткая цитата родительского комментария для плашки «Ответ для …» — чтобы
 // автор ответа и читатель понимали, НА КАКОЙ именно коммент дан ответ, даже когда
@@ -538,12 +556,6 @@ function parentSnippet(text: string): string {
   const plain = text.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
   return plain.length > 48 ? plain.slice(0, 48).trimEnd() + "…" : plain;
 }
-// Сколько ответов скрыто в свёрнутой ветке — считаем всё поддерево, а не только
-// первый уровень, иначе цифра на кнопке врёт.
-function countReplies(list: CommentType[]): number {
-  return list.reduce((n, r) => n + 1 + countReplies(r.replies), 0);
-}
-
 // Русские окончания для кнопки: 1 ответ / 2 ответа / 5 ответов.
 function repliesLabel(n: number): string {
   const tail = n % 10;
@@ -590,8 +602,12 @@ function CommentBlock({
   onLike: (id: number) => void;
   onDislike: (id: number) => void;
 }) {
-  const hasReplies = c.replies.length > 0;
-  // Ветку можно свернуть кликом по её линии (как на MangaLib: .comment__collapse).
+  // Тред собираем только у корневого комментария: ответы любой глубины попадают
+  // в него плоским списком (flattenThread выше). У самих ответов своего
+  // контейнера ответов нет — второго уровня отступа не существует.
+  const thread: ThreadItem[] = depth === 0 ? flattenThread(c) : [];
+  const hasReplies = thread.length > 0;
+  // Тред сворачивается кликом по его линии (как .comment__collapse на MangaLib).
   const [collapsed, setCollapsed] = useState(false);
   // Родитель ответа: берём из позиции в дереве (надёжнее, чем только по данным),
   // с запасным вариантом на поля replyTo* — так плашка всегда показывает, кому и
@@ -599,18 +615,10 @@ function CommentBlock({
   const parentUser = parent?.username ?? c.replyToUsername;
   const parentId = parent?.id ?? c.replyToId;
   const parentQuote = parent ? parentSnippet(parent.text) : "";
-  // Уровень контейнера ответов = depth + 1. Свой отступ и свой 1px рельс получает
-  // каждый уровень; глубже аварийного INDENT_CAP отступ замирает (--capped).
-  const replyLevel = depth + 1;
-  const repliesModifier = replyLevel > INDENT_CAP ? "capped" : `level-${replyLevel}`;
-  // Полоса затухания шага (см. INDENT_CAP выше). Класс ставим только со 2-й полосы:
-  // на первой работает базовый шаг из токена --rail-step.
-  const stepBand =
-    replyLevel <= STEP_BAND_1_MAX ? 1 : replyLevel <= STEP_BAND_2_MAX ? 2 : 3;
   return (
     <div
       id={`comment-${c.id}`}
-      className={`reader__panel-comment${depth > 0 ? " reader__panel-comment--nested" : ""}${c.replies.length > 0 ? " reader__panel-comment--has-replies" : ""}`}
+      className={`reader__panel-comment${depth > 0 ? " reader__panel-comment--nested" : ""}${hasReplies ? " reader__panel-comment--has-replies" : ""}`}
     >
       <div className="reader__panel-comment-body">
         <div className={`reader__panel-comment-top${c.username === "Вы" ? " reader__panel-comment-top--own" : ""}`}>
@@ -727,38 +735,34 @@ function CommentBlock({
         </div>
 
         {hasReplies && (
-          <div
-            className={`reader__panel-comment-replies reader__panel-comment-replies--${repliesModifier}${
-              stepBand > 1 ? ` reader__panel-comment-replies--step-${stepBand}` : ""
-            }`}
-          >
-            {/* Прозрачная полоса поверх линии: клик по линии сворачивает/разворачивает
-                ветку. На --capped её нет — там нет ни отступа, ни своей линии. */}
-            {repliesModifier !== "capped" && (
-              <button
-                type="button"
-                className="reader__panel-comment-collapse"
-                aria-expanded={!collapsed}
-                aria-label={collapsed ? "Развернуть ветку" : "Свернуть ветку"}
-                title={collapsed ? "Развернуть ветку" : "Свернуть ветку"}
-                onClick={() => setCollapsed((v) => !v)}
-              />
-            )}
+          <div className="reader__panel-comment-replies reader__panel-comment-replies--level-1">
+            {/* Прозрачная полоса поверх линии: клик по линии сворачивает и
+                разворачивает весь тред. Уровень один, поэтому и полоса одна. */}
+            <button
+              type="button"
+              className="reader__panel-comment-collapse"
+              aria-expanded={!collapsed}
+              aria-label={collapsed ? "Развернуть ветку" : "Свернуть ветку"}
+              title={collapsed ? "Развернуть ветку" : "Свернуть ветку"}
+              onClick={() => setCollapsed((v) => !v)}
+            />
             {collapsed ? (
               <button
                 type="button"
                 className="reader__panel-comment-expand"
                 onClick={() => setCollapsed(false)}
               >
-                {repliesLabel(countReplies(c.replies))}
+                {repliesLabel(thread.length)}
               </button>
             ) : (
-              c.replies.map((r) => (
+              /* Плоский тред: depth у всех ответов = 1, родитель приходит из
+                 ThreadItem — из позиции в списке его уже не вычислить. */
+              thread.map(({ comment: r, parent: p }) => (
                 <CommentBlock
                   key={r.id}
                   comment={r}
-                  depth={depth + 1}
-                  parent={c}
+                  depth={1}
+                  parent={p}
                   editingCommentId={editingCommentId}
                   editingCommentText={editingCommentText}
                   onChangeEditText={onChangeEditText}

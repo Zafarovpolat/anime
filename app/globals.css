@@ -12859,21 +12859,17 @@ html.theme-switching *::after {
      Свёрнутая ветка показывает кнопку «Показать N ответов» (.comment-expand),
      рельс при этом остаётся: видно, что ветка сложена, а не исчезла.
 
-   Отличия от MangaLib и почему они есть:
-   - ОДИН УРОВЕНЬ ВЛОЖЕННОСТИ — главное отличие от MangaLib, модель гитхаба.
-     Корневой комментарий = тема, под ним ОДИН контейнер-тред, и в нём лежат
-     ВСЕ ответы ветки любой глубины — плоским списком в хронологии. Второго
-     уровня отступа не существует, поэтому «частокола» линий на глубине нет.
-     Клиент отклонил вложенность дважды: сначала сброс отступа каждые 5 уровней
-     («1. Нарушается порядок сообщений 2. Заканчивается линия»), потом
-     бесконечную глубину — и попросил «как на гитхабе». Один уровень снимает
-     оба возражения: порядок внутри треда — строгая хронология по id (обхода
-     дерева в глубину больше нет, переставить сообщения нечем), а рельс один на
-     весь тред, от первого ответа до последнего, и обрываться посреди ветки ему
-     негде. Сплющивает РЕНДЕР (flattenThread в CommentBlock —
-     app/manga/[id]/page.tsx и app/manga/[id]/read/page.tsx), сами данные
-     остаются деревом. Цена модели (её платит и гитхаб): структура ветки не
-     видна геометрически и живёт только в плашке-ссылке на родителя (ниже).
+   Дерево MangaLib:
+   - Каждый комментарий рендерит контейнер только своих прямых детей. Контейнеры
+     физически вложены друг в друга, поэтому рельс родителя идёт вдоль всего его
+     поддерева, а у глубокого ответа одновременно видны рельсы всех предков.
+   - Шаг уровня постоянный: 25px на десктопе и измеренные у MangaLib 14px на
+     мобильном. После пяти вложенных ответов следующий визуальный сегмент
+     возвращается к колонке второго комментария, как на референсе.
+   - Логическое дерево при переносе не меняется: шестой ответ остаётся ребёнком
+     пятого. Мобильный depth-reset сдвигает весь его DOM-подтред и маскирует
+     внутренние рельсы прошлого сегмента; внешний корневой рельс остаётся
+     непрерывным, а новые внутренние рельсы снова накапливаются справа от него.
    - КРЮЧКИ («веточки»): у них ответ связан с родителем только вертикальной
      линией. Клиент попросил явную связь «ответ ↔ на что отвечают», поэтому от
      рельса к каждой карточке ответа уходит скруглённый уголок (блок «КРЮЧОК»
@@ -12894,7 +12890,8 @@ html.theme-switching *::after {
      «ответ» не путались.
    ========================================================================= */
 
-/* Список не скроллится по горизонтали ни при какой глубине */
+/* На обычной глубине горизонтального скролла нет; мобильная защита для
+   экстремальных веток включается ниже. */
 .manga-inner__comments-list,
 .reader__panel-comments-list {
   overflow-x: hidden;
@@ -12931,12 +12928,9 @@ html.theme-switching *::after {
   display: none !important;
 }
 
-/* НЕПРЕРЫВНЫЙ РЕЛЬС: контейнер ответов один на весь тред, поэтому его линия
-   тянется от первого ответа до последнего и «закончиться» посреди ветки не
-   может — ровно то возражение клиента она и снимает. Отступ = padding-left =
-   --rail-step (25px, как .comment__children на MangaLib) и применяется РОВНО
-   ОДИН раз: вложенных контейнеров больше нет, копить отступ нечему, уезжать за
-   правый край нечем — поэтому и полосы затухания шага больше не нужны. */
+/* НЕПРЕРЫВНЫЙ РЕЛЬС: каждый контейнер прямых ответов рисует собственную линию
+   вдоль всего поддерева родителя. Вложенные контейнеры накапливают одинаковый
+   --rail-step, поэтому глубокий ответ сохраняет слева линии всех предков. */
 .manga-inner__comment-replies {
   --rail-step: 25px;
   /* Высота крючка: горизонтальная часть входит в карточку на уровне аватара. */
@@ -13120,14 +13114,11 @@ html.theme-switching *::after {
    Внутри ветки этого разделителя нет ни на одном уровне. */
 .manga-inner__comment-group--new-topic,
 .reader__panel-comment-group--new-topic {
-  margin-top: 28px;
-  padding-top: 28px;
-  /* Граница НОВОГО комментария — заметная ГОРИЗОНТАЛЬНАЯ серая линия во всю
-     ширину (--color-gray-text виден и на тёмной, и на светлой теме). Другой
-     цвет и другая ось, чем у фиолетовых вертикальных рельсов ответов, — глаз
-     мгновенно отличает «новый комментарий» от «продолжения ветки». */
-  border-top: 2px solid var(--color-gray-text);
-  border-top-color: color-mix(in srgb, var(--color-gray-text) 72%, transparent);
+  margin-top: 14px;
+  padding-top: 14px;
+  /* Тихая граница обозначает новую тему без большого «белого горизонта». */
+  border-top: 1px solid var(--color-gray-text);
+  border-top-color: color-mix(in srgb, var(--color-gray-text) 28%, transparent);
 }
 
 /* Плашка «Ответ для @ник» — лёгкая подпись со стрелкой; помогает быстро
@@ -13193,19 +13184,183 @@ html.theme-switching *::after {
   }
 }
 
-/* Мобильные: шаг MangaLib = 14px (замерено на ширине 390px). Меняем только
-   --rail-step — padding пересчитается сам. Специфичность .manga-inner ...
-   чтобы перекрыть ранние правила внутри @media 400/340px. */
+/* Мобильные: постоянный шаг MangaLib 14px. После пяти вложенных ответов
+   следующий комментарий начинает новый визуальный сегмент с первой вложенной
+   колонки. DOM остаётся рекурсивным: поэтому parent, порядок, сворачивание и
+   адресация ответов продолжают работать по исходному логическому дереву. */
 @media (max-width: 540px) {
-  .manga-inner .manga-inner__comment-replies {
+  .manga-inner__comments-list,
+  .reader__panel-comments-list {
+    overflow-x: hidden;
+    overscroll-behavior-x: none;
+  }
+  .manga-inner .manga-inner__comment-replies,
+  .reader__panel-comment-replies {
     --rail-step: 14px;
     --elbow-y: 22px;
   }
-  .reader__panel-comment-replies {
-    --rail-step: 12px;
-    --elbow-y: 22px;
+  .manga-inner__comment--nested,
+  .reader__panel-comment--nested {
+    min-width: 0;
+    max-width: 100%;
   }
 }
+
+/* =========================================================================
+   СЕГМЕНТИРОВАННОЕ ДЕРЕВО КОММЕНТАРИЕВ
+   Логическое replies-дерево остаётся рекурсивным, но каждые пять уровней
+   рендерятся отдельным физическим сегментом. Поэтому внутренние рельсы
+   заканчиваются на границе, а корневой рельс остаётся общим.
+   ========================================================================= */
+.segmented-comment-tree--manga {
+  --rail-step: 25px;
+  --elbow-y: 24px;
+}
+.segmented-comment-tree--reader {
+  --rail-step: 20px;
+  --elbow-y: 24px;
+}
+.manga-inner__comments-list,
+.reader__panel-comments-list,
+.segmented-comment-tree,
+.segmented-comment-tree__root,
+.segmented-comment-tree__segment,
+.segmented-comment-tree__group,
+.segmented-comment-tree__card {
+  min-width: 0;
+}
+.manga-inner__comments-list,
+.reader__panel-comments-list {
+  overflow-x: hidden;
+}
+.segmented-comment-tree__root,
+.segmented-comment-tree__segment,
+.segmented-comment-tree__group,
+.segmented-comment-tree__children {
+  position: relative;
+}
+.segmented-comment-tree__root-rail {
+  position: relative;
+  margin-top: 0;
+  padding-top: 8px;
+  padding-left: var(--rail-step);
+  border-left: 1px solid var(--comment-card-border);
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.segmented-comment-tree__segment {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.segmented-comment-tree--reader .segmented-comment-tree__segment {
+  gap: 8px;
+}
+.segmented-comment-tree__segment--continuation {
+  padding-top: 12px;
+}
+.segmented-comment-tree__segment--continuation::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: calc(-1 * var(--rail-step) - 1px);
+  width: calc(var(--rail-step) * 5 + 1px);
+  border-top: 1px solid var(--comment-card-border);
+  pointer-events: none;
+}
+.segmented-comment-tree__group {
+  width: auto;
+  max-width: 100%;
+}
+.segmented-comment-tree__children {
+  margin-top: 0;
+  padding-top: 8px;
+  padding-left: var(--rail-step);
+  border-left: 1px solid var(--comment-card-border);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.segmented-comment-tree--reader .segmented-comment-tree__children {
+  gap: 8px;
+}
+.segmented-comment-tree__segment > .segmented-comment-tree__group::before,
+.segmented-comment-tree__children > .segmented-comment-tree__group::before {
+  content: "";
+  position: absolute;
+  left: calc(-1 * var(--rail-step) - 1px);
+  top: 0;
+  width: calc(var(--rail-step) + 1px);
+  height: var(--elbow-y);
+  border-left: 1px solid var(--comment-card-border);
+  border-bottom: 1px solid var(--comment-card-border);
+  border-bottom-left-radius: min(12px, calc(var(--rail-step) * 0.7));
+  pointer-events: none;
+}
+.segmented-comment-tree__segment--continuation > .segmented-comment-tree__group::before {
+  content: none;
+}
+.segmented-comment-tree__collapse {
+  position: absolute;
+  inset: 0 auto 0 -1px;
+  width: min(16px, calc(var(--rail-step) + 1px));
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  z-index: 1;
+}
+.segmented-comment-tree__collapse::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 1px;
+  background: transparent;
+  transition: background 0.15s ease;
+}
+.segmented-comment-tree__collapse:hover::before {
+  background: var(--color-gray-text);
+}
+.segmented-comment-tree__expand {
+  margin: 6px 0 6px var(--rail-step);
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--color-primary);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+}
+.segmented-comment-tree__expand:hover {
+  text-decoration: underline;
+}
+.manga-inner__comment--nested,
+.reader__panel-comment--nested {
+  margin-left: 0 !important;
+  padding-left: 0 !important;
+}
+.manga-inner__comment--nested > .manga-inner__comment-body > .manga-inner__comment-top::before,
+.reader__panel-comment--nested > .reader__panel-comment-body > .reader__panel-comment-top::before {
+  content: none !important;
+  display: none !important;
+}
+@media (max-width: 540px) {
+  .segmented-comment-tree--manga,
+  .segmented-comment-tree--reader {
+    --rail-step: 14px;
+    --elbow-y: 22px;
+  }
+  .manga-inner__comments-list,
+  .reader__panel-comments-list {
+    overflow-x: hidden;
+    overscroll-behavior-x: none;
+  }
+  .segmented-comment-tree__collapse {
+    width: 10px;
+  }
+}
+
 
 /* ============================================================
    КОММЕНТАРИИ — итоговый слой (добавлен поверх всех прежних правил).
@@ -13239,4 +13394,96 @@ html.theme-switching *::after {
 .reader__panel-comment-top--own {
   background: color-mix(in srgb, var(--color-primary) 8%, var(--color-surface-2));
   border-color: color-mix(in srgb, var(--color-primary) 45%, transparent);
+}
+
+/* Один и тот же редактор ответа перемещается непосредственно под выбранный пост. */
+.manga-inner__inline-reply-editor,
+.reader__panel-inline-reply-editor {
+  width: 100%;
+  min-width: 0;
+  margin-top: 10px;
+}
+.manga-inner__inline-reply-editor .richtext-editor-v2,
+.reader__panel-inline-reply-editor .richtext-editor-v2 {
+  margin-bottom: 0;
+}
+
+/* Меню живёт portal-ом в body, поэтому не обрезается scroll/overflow родителей. */
+.comment-menu-overlay {
+  z-index: 9998;
+}
+.comment-menu-dropdown {
+  z-index: 9999;
+  max-width: calc(100vw - 16px);
+}
+
+/* Обязательная часть подписи не переносится, а цитата сжимается с ellipsis. */
+.manga-inner__comment-replyto,
+.reader__panel-comment-replyto {
+  overflow: hidden;
+}
+.manga-inner__comment-replyto-target,
+.reader__panel-comment-replyto-target {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+.manga-inner__comment-replyto-quote,
+.reader__panel-comment-replyto-quote {
+  flex: 1 1 auto;
+}
+
+@media (max-width: 540px) {
+  .manga-inner__comments-list,
+  .reader__panel-comments-list {
+    gap: 18px;
+  }
+  .manga-inner__comment-top,
+  .manga-inner__comment--nested .manga-inner__comment-top,
+  .reader__panel-comment-top,
+  .reader__panel-comment--nested .reader__panel-comment-top {
+    padding: 13px;
+  }
+  .manga-inner__comment-header,
+  .reader__panel-comment-header {
+    margin-bottom: 12px;
+  }
+  .manga-inner__comment-author,
+  .reader__panel-comment-author {
+    gap: 8px;
+  }
+  .manga-inner__comment-name,
+  .reader__panel-comment-name {
+    font-size: 14px;
+  }
+  .manga-inner__comment-text,
+  .reader__panel-comment-text {
+    font-size: 12.5px;
+  }
+  .manga-inner__comment-footer,
+  .reader__panel-comment-footer {
+    gap: 14px;
+    margin-top: 7px;
+  }
+  .manga-inner__comment-replyto,
+  .reader__panel-comment-replyto {
+    gap: 3px;
+    padding: 2px 7px;
+    font-size: 11.5px;
+  }
+  .manga-inner__comment-replyto-quote,
+  .reader__panel-comment-replyto-quote {
+    max-width: 130px;
+  }
+  .comment-menu-dropdown {
+    width: 176px;
+    padding: 7px;
+    gap: 3px;
+    border-radius: 16px;
+    box-shadow: 0 6px 28px rgba(0, 0, 0, 0.13);
+  }
+  .comment-menu-dropdown__item {
+    padding: 11px 13px;
+    border-radius: 11px;
+    font-size: 14px;
+  }
 }

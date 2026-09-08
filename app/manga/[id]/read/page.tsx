@@ -4,7 +4,12 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ReportModal from "@/components/ReportModal";
 import RichTextEditor, { parseRichText, handleSpoilerClick, RichTextEditorHandle } from "@/components/RichTextEditor";
+import {
+  SegmentedCommentTree,
+  type SegmentedCommentRenderContext,
+} from "@/components/comments/SegmentedCommentTree";
 import React, { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 
 /* ── Mock Data ── */
 const CHAPTERS = Array.from({ length: 15 }, (_, i) => ({
@@ -186,6 +191,19 @@ function addReplyToComment(list: CommentType[], targetId: number, reply: Comment
       ? { ...c, replies: addReplyToComment(c.replies, targetId, reply) }
       : c;
   });
+}
+
+function findAncestorIds(
+  list: CommentType[],
+  targetId: number,
+  ancestors: number[] = [],
+): number[] | null {
+  for (const comment of list) {
+    if (comment.id === targetId) return ancestors;
+    const result = findAncestorIds(comment.replies, targetId, [...ancestors, comment.id]);
+    if (result) return result;
+  }
+  return null;
 }
 
 const BOOKMARK_OPTIONS = [
@@ -512,43 +530,7 @@ function ThumbDownIcon() {
   );
 }
 
-/* Рекурсивный рендер комментария: корень и вложенные ответы используют одну и ту же разметку */
-// ОДИН УРОВЕНЬ ВЛОЖЕННОСТИ — модель гитхаба (Issues / Discussions / review-треды
-// в PR). Корневой комментарий = тема, под ним ОДИН контейнер-тред, и в нём лежат
-// ВСЕ ответы ветки любой глубины — ПЛОСКИМ списком в хронологии. Второго уровня
-// отступа не существует. Кому именно отвечают, показывает плашка «↳ Ответ для
-// @ник: «цитата»» (кликабельна — скроллит к родителю): на гитхабе адресата ровно
-// так же показывает цитата «Quote reply», а не отступ.
-//
-// Почему не деревом: клиент отклонил вложенность дважды — сначала сброс отступа
-// каждые 5 уровней («1. Нарушается порядок сообщений 2. Заканчивается линия»),
-// потом бесконечную глубину — и попросил «как на гитхабе». Один уровень снимает
-// оба возражения:
-//   1. порядок — внутри треда строгая хронология по id, обхода дерева в глубину
-//      больше нет, поэтому переставить сообщения попросту нечем;
-//   2. линия — рельс один на весь тред, от первого ответа до последнего:
-//      обрываться посреди ветки ему негде.
-// Цена модели (её платит и гитхаб): структура ветки не видна геометрически и
-// живёт только в плашке-ссылке на родителя. Клиентское ТЗ п.14, п.17.
-type ThreadItem = { comment: CommentType; parent: CommentType };
-
-// Все ответы ветки одним плоским списком в хронологии. Родителя несём рядом с
-// ответом: после сплющивания только он знает, кому дан ответ, — позиция в DOM
-// этого больше не говорит.
-function flattenThread(root: CommentType): ThreadItem[] {
-  const out: ThreadItem[] = [];
-  const walk = (parent: CommentType) => {
-    for (const reply of parent.replies) {
-      out.push({ comment: reply, parent });
-      walk(reply);
-    }
-  };
-  walk(root);
-  // Хронология = id: у новых комментариев id = Date.now(), в моках id монотонны
-  // (отдельного timestamp в модели нет, time — человекочитаемая строка).
-  return out.sort((a, b) => a.comment.id - b.comment.id);
-}
-
+/* Карточка комментария получает структуру ветки из SegmentedCommentTree. */
 // Короткая цитата родительского комментария для плашки «Ответ для …» — чтобы
 // автор ответа и читатель понимали, НА КАКОЙ именно коммент дан ответ, даже когда
 // в ветке несколько одинаковых ников.
@@ -556,23 +538,106 @@ function parentSnippet(text: string): string {
   const plain = text.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
   return plain.length > 48 ? plain.slice(0, 48).trimEnd() + "…" : plain;
 }
-// Русские окончания для кнопки: 1 ответ / 2 ответа / 5 ответов.
-function repliesLabel(n: number): string {
-  const tail = n % 10;
-  const hundred = n % 100;
-  const word =
-    tail === 1 && hundred !== 11
-      ? "ответ"
-      : tail >= 2 && tail <= 4 && (hundred < 12 || hundred > 14)
-        ? "ответа"
-        : "ответов";
-  return `Показать ${n} ${word}`;
+
+function CommentActionsMenu({
+  className,
+  open,
+  onOpen,
+  onClose,
+  onEdit,
+  onDelete,
+}: {
+  className: string;
+  open: boolean;
+  onOpen: () => void;
+  onClose: () => void;
+  onEdit: () => void;
+  onDelete: () => void;
+}) {
+  const buttonRef = React.useRef<HTMLButtonElement>(null);
+  const menuRef = React.useRef<HTMLDivElement>(null);
+  const [position, setPosition] = useState<{ top: number; left: number } | null>(null);
+
+  React.useLayoutEffect(() => {
+    if (!open || !buttonRef.current) {
+      setPosition(null);
+      return;
+    }
+    const button = buttonRef.current.getBoundingClientRect();
+    const menuWidth = menuRef.current?.offsetWidth ?? 200;
+    const menuHeight = menuRef.current?.offsetHeight ?? 126;
+    const gap = 6;
+    const edge = 8;
+    const left = Math.min(
+      window.innerWidth - menuWidth - edge,
+      Math.max(edge, button.right - menuWidth),
+    );
+    const below = button.bottom + gap;
+    const top =
+      below + menuHeight <= window.innerHeight - edge
+        ? below
+        : Math.max(edge, button.top - menuHeight - gap);
+    setPosition({ top, left });
+
+    const closeOnViewportChange = () => onClose();
+    window.addEventListener("resize", closeOnViewportChange);
+    window.addEventListener("scroll", closeOnViewportChange, true);
+    return () => {
+      window.removeEventListener("resize", closeOnViewportChange);
+      window.removeEventListener("scroll", closeOnViewportChange, true);
+    };
+  }, [open]);
+
+  return (
+    <>
+      <button
+        ref={buttonRef}
+        className={className}
+        onClick={open ? onClose : onOpen}
+        aria-label="Меню"
+        aria-expanded={open}
+      >
+        <HorizontalDotsIcon />
+      </button>
+      {open && typeof document !== "undefined" &&
+        createPortal(
+          <>
+            <div className="comment-menu-overlay" onClick={onClose} />
+            <div
+              ref={menuRef}
+              className="comment-menu-dropdown"
+              style={{
+                position: "fixed",
+                top: position?.top ?? 0,
+                left: position?.left ?? 0,
+                right: "auto",
+                visibility: position ? "visible" : "hidden",
+              }}
+            >
+              <button
+                className="comment-menu-dropdown__item comment-menu-dropdown__item--active"
+                onClick={onEdit}
+              >
+                Редактировать
+              </button>
+              <button
+                className="comment-menu-dropdown__item"
+                style={{ color: "#EF4444" }}
+                onClick={onDelete}
+              >
+                Удалить
+              </button>
+            </div>
+          </>,
+          document.body,
+        )}
+    </>
+  );
 }
 
 function CommentBlock({
   comment: c,
-  depth = 0,
-  parent = null,
+  context,
   editingCommentId,
   editingCommentText,
   onChangeEditText,
@@ -583,12 +648,13 @@ function CommentBlock({
   onDelete,
   onReport,
   onReply,
+  replyingToId,
+  renderReplyComposer,
   onLike,
   onDislike,
 }: {
   comment: CommentType;
-  depth?: number;
-  parent?: CommentType | null;
+  context: SegmentedCommentRenderContext<CommentType, number>;
   editingCommentId: number | null;
   editingCommentText: string;
   onChangeEditText: (text: string) => void;
@@ -599,26 +665,20 @@ function CommentBlock({
   onDelete: (id: number) => void;
   onReport: () => void;
   onReply: (c: CommentType) => void;
+  replyingToId: number | null;
+  renderReplyComposer: () => React.ReactNode;
   onLike: (id: number) => void;
   onDislike: (id: number) => void;
 }) {
-  // Тред собираем только у корневого комментария: ответы любой глубины попадают
-  // в него плоским списком (flattenThread выше). У самих ответов своего
-  // контейнера ответов нет — второго уровня отступа не существует.
-  const thread: ThreadItem[] = depth === 0 ? flattenThread(c) : [];
-  const hasReplies = thread.length > 0;
-  // Тред сворачивается кликом по его линии (как .comment__collapse на MangaLib).
-  const [collapsed, setCollapsed] = useState(false);
-  // Родитель ответа: берём из позиции в дереве (надёжнее, чем только по данным),
-  // с запасным вариантом на поля replyTo* — так плашка всегда показывает, кому и
-  // на какой текст дан ответ.
+  const hasReplies = context.hasReplies;
+  const parent = context.parent;
   const parentUser = parent?.username ?? c.replyToUsername;
   const parentId = parent?.id ?? c.replyToId;
   const parentQuote = parent ? parentSnippet(parent.text) : "";
   return (
     <div
       id={`comment-${c.id}`}
-      className={`reader__panel-comment${depth > 0 ? " reader__panel-comment--nested" : ""}${hasReplies ? " reader__panel-comment--has-replies" : ""}`}
+      className={`reader__panel-comment${!context.isRoot ? " reader__panel-comment--nested" : ""}${hasReplies ? " reader__panel-comment--has-replies" : ""}`}
     >
       <div className="reader__panel-comment-body">
         <div className={`reader__panel-comment-top${c.username === "Вы" ? " reader__panel-comment-top--own" : ""}`}>
@@ -630,41 +690,20 @@ function CommentBlock({
               <span className="reader__panel-comment-name">{c.username}</span>
             </div>
             {c.username === "Вы" ? (
-              <div style={{ position: "relative" }}>
-                <button
-                  className="reader__panel-comment-menu"
-                  onClick={() => onToggleMenu(commentMenuOpen === c.id ? null : c.id)}
-                  aria-label="Меню"
-                >
-                  <HorizontalDotsIcon />
-                </button>
-                {commentMenuOpen === c.id && (
-                  <>
-                    <div className="comment-menu-overlay" onClick={() => onToggleMenu(null)} />
-                    <div className="comment-menu-dropdown">
-                      <button
-                        className="comment-menu-dropdown__item comment-menu-dropdown__item--active"
-                        onClick={() => {
-                          onToggleMenu(null);
-                          onStartEdit(c);
-                        }}
-                      >
-                        Редактировать
-                      </button>
-                      <button
-                        className="comment-menu-dropdown__item"
-                        style={{ color: "#EF4444" }}
-                        onClick={() => {
-                          onToggleMenu(null);
-                          onDelete(c.id);
-                        }}
-                      >
-                        Удалить
-                      </button>
-                    </div>
-                  </>
-                )}
-              </div>
+              <CommentActionsMenu
+                className="reader__panel-comment-menu"
+                open={commentMenuOpen === c.id}
+                onOpen={() => onToggleMenu(c.id)}
+                onClose={() => onToggleMenu(null)}
+                onEdit={() => {
+                  onToggleMenu(null);
+                  onStartEdit(c);
+                }}
+                onDelete={() => {
+                  onToggleMenu(null);
+                  onDelete(c.id);
+                }}
+              />
             ) : (
               <button className="reader__panel-comment-menu" onClick={onReport} title="Пожаловаться" aria-label="Пожаловаться">
                 <ReportIcon />
@@ -689,8 +728,10 @@ function CommentBlock({
                   : undefined
               }
             >
-              Ответ для{" "}
-              <b className={parentId != null ? "reader__panel-comment-replyto-link" : undefined}>{parentUser}</b>
+              <span className="reader__panel-comment-replyto-target">
+                Ответ для{" "}
+                <b className={parentId != null ? "reader__panel-comment-replyto-link" : undefined}>{parentUser}</b>
+              </span>
               {parentQuote && (
                 <span className="reader__panel-comment-replyto-quote">: «{parentQuote}»</span>
               )}
@@ -733,51 +774,9 @@ function CommentBlock({
             </button>
           </div>
         </div>
-
-        {hasReplies && (
-          <div className="reader__panel-comment-replies reader__panel-comment-replies--level-1">
-            {/* Прозрачная полоса поверх линии: клик по линии сворачивает и
-                разворачивает весь тред. Уровень один, поэтому и полоса одна. */}
-            <button
-              type="button"
-              className="reader__panel-comment-collapse"
-              aria-expanded={!collapsed}
-              aria-label={collapsed ? "Развернуть ветку" : "Свернуть ветку"}
-              title={collapsed ? "Развернуть ветку" : "Свернуть ветку"}
-              onClick={() => setCollapsed((v) => !v)}
-            />
-            {collapsed ? (
-              <button
-                type="button"
-                className="reader__panel-comment-expand"
-                onClick={() => setCollapsed(false)}
-              >
-                {repliesLabel(thread.length)}
-              </button>
-            ) : (
-              /* Плоский тред: depth у всех ответов = 1, родитель приходит из
-                 ThreadItem — из позиции в списке его уже не вычислить. */
-              thread.map(({ comment: r, parent: p }) => (
-                <CommentBlock
-                  key={r.id}
-                  comment={r}
-                  depth={1}
-                  parent={p}
-                  editingCommentId={editingCommentId}
-                  editingCommentText={editingCommentText}
-                  onChangeEditText={onChangeEditText}
-                  onStartEdit={onStartEdit}
-                  onSaveEdit={onSaveEdit}
-                  commentMenuOpen={commentMenuOpen}
-                  onToggleMenu={onToggleMenu}
-                  onDelete={onDelete}
-                  onReport={onReport}
-                  onReply={onReply}
-                  onLike={onLike}
-                  onDislike={onDislike}
-                />
-              ))
-            )}
+        {replyingToId === c.id && (
+          <div className="reader__panel-inline-reply-editor">
+            {renderReplyComposer()}
           </div>
         )}
       </div>
@@ -872,6 +871,9 @@ function CommentsPanel({
   const [editingCommentText, setEditingCommentText] = useState("");
   const [commentMenuOpen, setCommentMenuOpen] = useState<number | null>(null);
   const [commentSort, setCommentSort] = useState<"new" | "popular">("new");
+  const [collapsedCommentIds, setCollapsedCommentIds] = useState<ReadonlySet<number>>(
+    () => new Set(),
+  );
   const [replyingTo, setReplyingTo] = useState<{ rootId: number; targetId: number; username: string; text: string } | null>(null);
   const commentInputRef = React.useRef<RichTextEditorHandle>(null);
   // id только что отправленного комментария — скроллим и подсвечиваем его после рендера
@@ -901,6 +903,15 @@ function CommentsPanel({
       replyToId: replyingTo ? replyingTo.targetId : null,
       replies: [],
     };
+    if (replyingTo) {
+      const ancestorIds = findAncestorIds(comments, replyingTo.targetId) ?? [];
+      setCollapsedCommentIds((previous) => {
+        const next = new Set(previous);
+        ancestorIds.forEach((ancestorId) => next.delete(ancestorId));
+        next.delete(replyingTo.targetId);
+        return next;
+      });
+    }
     setComments(prev => replyingTo ? addReplyToComment(prev, replyingTo.targetId, newC) : [newC, ...prev]);
     setNewComment("");
     setReplyingTo(null);
@@ -956,21 +967,11 @@ function CommentsPanel({
       username: c.username,
       text: stripHtml(c.text),
     });
-    if (commentInputRef.current) commentInputRef.current.focus();
+    requestAnimationFrame(() => commentInputRef.current?.focus());
   };
 
-  return (
+  const renderCommentComposer = () => (
     <>
-      <div className="reader__panel-header">
-        <h3 className="reader__panel-title">Комментарии</h3>
-        <button
-          className="reader__panel-close reader__panel-close--dark"
-          onClick={onClose}
-          aria-label="Закрыть"
-        >
-          <CloseIcon />
-        </button>
-      </div>
       {replyingTo && (
         <div className="reader__panel-reply-preview">
           <div className="reader__panel-reply-preview-body">
@@ -997,6 +998,22 @@ function CommentsPanel({
         onSubmit={handleSend}
         placeholder="Оставить комментарий"
       />
+    </>
+  );
+
+  return (
+    <>
+      <div className="reader__panel-header">
+        <h3 className="reader__panel-title">Комментарии</h3>
+        <button
+          className="reader__panel-close reader__panel-close--dark"
+          onClick={onClose}
+          aria-label="Закрыть"
+        >
+          <CloseIcon />
+        </button>
+      </div>
+      {!replyingTo && renderCommentComposer()}
       <div className="reader__panel-comments-filter">
         <button
           className={`reader__panel-filter-btn${commentSort === "new" ? " reader__panel-filter-btn--active" : ""}`}
@@ -1021,20 +1038,31 @@ function CommentsPanel({
                 idx > 0 ? " reader__panel-comment-group--new-topic" : ""
               }`}
             >
-              <CommentBlock
-                comment={root}
-                editingCommentId={editingCommentId}
-                editingCommentText={editingCommentText}
-                onChangeEditText={setEditingCommentText}
-                onStartEdit={handleStartEdit}
-                onSaveEdit={handleSaveEdit}
-                commentMenuOpen={commentMenuOpen}
-                onToggleMenu={setCommentMenuOpen}
-                onDelete={handleDelete}
-                onReport={onReport}
-                onReply={handleReply}
-                onLike={handleLike}
-                onDislike={handleDislike}
+              <SegmentedCommentTree
+                comments={[root]}
+                collapsedIds={collapsedCommentIds}
+                onCollapsedIdsChange={setCollapsedCommentIds}
+                variant="reader"
+                renderComment={(comment, context) => (
+                  <CommentBlock
+                    comment={comment}
+                    context={context}
+                    editingCommentId={editingCommentId}
+                    editingCommentText={editingCommentText}
+                    onChangeEditText={setEditingCommentText}
+                    onStartEdit={handleStartEdit}
+                    onSaveEdit={handleSaveEdit}
+                    commentMenuOpen={commentMenuOpen}
+                    onToggleMenu={setCommentMenuOpen}
+                    onDelete={handleDelete}
+                    onReport={onReport}
+                    onReply={handleReply}
+                    replyingToId={replyingTo?.targetId ?? null}
+                    renderReplyComposer={renderCommentComposer}
+                    onLike={handleLike}
+                    onDislike={handleDislike}
+                  />
+                )}
               />
             </div>
           ))}

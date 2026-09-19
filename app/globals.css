@@ -10656,6 +10656,107 @@ button {
   background: var(--color-danger-surface);
 }
 
+/* ── Сортировка колонок ── */
+.admin-table__th--sortable {
+  cursor: pointer;
+  user-select: none;
+  transition: color 0.15s;
+}
+.admin-table__th--sortable:hover { color: var(--color-text); }
+
+.admin-table__th-inner {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.admin-table__sort {
+  display: inline-flex;
+  align-items: center;
+  color: var(--color-gray-text);
+  opacity: 0.4;
+  transition: opacity 0.15s, color 0.15s;
+}
+.admin-table__sort svg { transition: transform 0.15s; }
+.admin-table__th--sortable:hover .admin-table__sort { opacity: 0.7; }
+.admin-table__sort--active { color: var(--color-primary); opacity: 1; }
+.admin-table__sort--desc svg { transform: rotate(180deg); }
+
+/* ── Мягкое удаление с таймером восстановления ── */
+.admin-table__row--deleted { opacity: 0.5; }
+.admin-table__row--deleted .admin-table__td { color: var(--color-gray-text); }
+
+.admin-table__actions--restore {
+  gap: 10px;
+  white-space: nowrap;
+}
+.admin-table__deleted-note {
+  font-size: 13px;
+  color: var(--color-danger-strong);
+}
+
+/* ── Причина санкции под статусом ── */
+.admin-table__reason {
+  display: block;
+  margin-top: 4px;
+  max-width: 260px;
+  font-size: 12px;
+  color: var(--color-gray-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Ник-ссылка на профиль в таблице пользователей */
+.admin-user__link {
+  color: var(--color-text);
+  text-decoration: none;
+  transition: color 0.15s;
+}
+.admin-user__link:hover { color: var(--color-primary); }
+
+/* Бейдж типа для журнала действий */
+.admin-badge--warn { background: var(--color-warning-surface); color: var(--color-warning-text); }
+
+/* ── Модалка с формой (причина бана/ограничения) ── */
+.admin-modal--form {
+  width: min(440px, 92vw);
+  gap: 18px;
+}
+.admin-modal--form .admin-modal__text { text-align: left; }
+
+.admin-modal__field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.admin-modal__label {
+  font-family: "Golos Text", sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+/* Причина бана — тот же вид, что у остальных текстовых полей на сайте
+   (модалки отзыва/жалобы): заливка surface-2, без рамки, скруглённая. */
+.admin-textarea--sm {
+  border: none;
+  outline: none;
+  background: var(--color-surface-2);
+  font-family: var(--font-body);
+  font-size: 16px;
+  font-weight: 400;
+  color: var(--color-text);
+  width: 100%;
+  resize: none;
+  min-height: 110px;
+  line-height: 1.6;
+  padding: 18px 20px;
+  border-radius: 20px;
+}
+.admin-textarea--sm::placeholder { color: var(--color-gray-text); }
+
 /* ── Form layout (add work / chapter) ── */
 .admin-form-layout {
   display: grid;

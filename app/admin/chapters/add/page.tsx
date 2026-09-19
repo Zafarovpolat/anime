@@ -3,19 +3,26 @@
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import AdminLayout from '@/components/AdminLayout';
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import CustomSelect from '@/components/CustomSelect';
+import { ADMIN_WORKS } from '@/lib/admin/mock-data';
 
-const WORKS = [
-  'Наномашины','Мир Зомби','Истинная красота','Следуйте за своим сердцем',
-  'Таков закон','Выбери меня!','Игрок падшего дворянского рода','Леди-малышка изменяет мир деньгами',
-];
+const WORKS = ADMIN_WORKS.map(w => w.title);
 
 export default function AdminAddChapterPage() {
   const [pages, setPages] = useState<string[]>([]);
   const [work, setWork] = useState('');
   const fileRef = useRef<HTMLInputElement>(null);
+
+  // Кнопка «+ глава» из списка произведений передаёт ?work=<id> — сразу выбираем это произведение.
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const workId = params.get('work');
+    if (!workId) return;
+    const found = ADMIN_WORKS.find(w => w.id === Number(workId));
+    if (found) setWork(found.title);
+  }, []);
 
   const handleFiles = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);

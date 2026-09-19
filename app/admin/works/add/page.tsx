@@ -3,10 +3,11 @@
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import AdminLayout from '@/components/AdminLayout';
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import CustomSelect from '@/components/CustomSelect';
+import { ADMIN_WORKS } from '@/lib/admin/mock-data';
 
 const GENRES = [
   "Боевые искусства","Гарем","Гендерная интрига","Героическое фэнтези",
@@ -20,12 +21,39 @@ const YEARS = Array.from({ length: 30 }, (_, i) => String(2025 - i));
 
 export default function AdminAddWorkPage() {
   const [cover, setCover] = useState<string | null>(null);
+  const [title, setTitle] = useState('');
+  const [author, setAuthor] = useState('');
+  const [publisher, setPublisher] = useState('');
+  const [description, setDescription] = useState('');
   const [selectedGenres, setSelectedGenres] = useState<string[]>([]);
   const [type, setType] = useState(TYPES[0]);
   const [year, setYear] = useState(YEARS[0]);
   const [yearEnd, setYearEnd] = useState('');
   const [status, setStatus] = useState(STATUSES[0]);
+  const [editId, setEditId] = useState<number | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
+
+  // Режим редактирования: ?edit=<id> подставляет данные произведения в форму.
+  // Раньше форма всегда открывалась пустой — это и был баг «редактирование как создание».
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const edit = params.get('edit');
+    if (!edit) return;
+    const work = ADMIN_WORKS.find(w => w.id === Number(edit));
+    if (!work) return;
+    setEditId(work.id);
+    setTitle(work.title);
+    setAuthor(work.author);
+    setPublisher(work.publisher);
+    setDescription(work.description);
+    setType(work.type);
+    setStatus(work.status);
+    setYear(work.year);
+    setSelectedGenres(work.genres);
+    setCover(work.cover);
+  }, []);
+
+  const isEdit = editId !== null;
 
   const toggleGenre = (g: string) =>
     setSelectedGenres(prev => prev.includes(g) ? prev.filter(x => x !== g) : [...prev, g]);
@@ -42,10 +70,20 @@ export default function AdminAddWorkPage() {
                   <div className="admin-breadcrumb">
                     <Link href="/admin/works" className="admin-breadcrumb__link">Произведения</Link>
                     <span className="admin-breadcrumb__sep">/</span>
-                    <span className="admin-breadcrumb__cur">Добавить</span>
+                    <span className="admin-breadcrumb__cur">{isEdit ? 'Редактировать' : 'Добавить'}</span>
                   </div>
-                  <h2 className="profile-content__title">ДОБАВИТЬ ПРОИЗВЕДЕНИЕ</h2>
+                  <h2 className="profile-content__title">{isEdit ? 'РЕДАКТИРОВАТЬ ПРОИЗВЕДЕНИЕ' : 'ДОБАВИТЬ ПРОИЗВЕДЕНИЕ'}</h2>
                 </div>
+                {isEdit && (
+                  <div className="admin-page__head-actions">
+                    <Link href={`/admin/chapters/add?work=${editId}`} className="admin-btn admin-btn--primary">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                        <path d="M12 5V19M5 12H19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                      Добавить главу
+                    </Link>
+                  </div>
+                )}
               </div>
 
               <div className="admin-form-layout">
@@ -77,47 +115,55 @@ export default function AdminAddWorkPage() {
                   <div className="admin-fields__row">
                     <div className="admin-field">
                       <label className="admin-field__label">Название *</label>
-                      <div className="profile-form__input-wrap"><input className="profile-form__input" type="text" placeholder="Введите название" /></div>
+                      <div className="profile-form__input-wrap"><input className="profile-form__input" type="text" placeholder="Введите название" value={title} onChange={e => setTitle(e.target.value)} /></div>
                     </div>
                     <div className="admin-field">
                       <label className="admin-field__label">Автор *</label>
-                      <div className="profile-form__input-wrap"><input className="profile-form__input" type="text" placeholder="Имя автора" /></div>
+                      <div className="profile-form__input-wrap"><input className="profile-form__input" type="text" placeholder="Имя автора" value={author} onChange={e => setAuthor(e.target.value)} /></div>
                     </div>
                   </div>
 
                   <div className="admin-fields__row">
+                    <div className="admin-field">
+                      <label className="admin-field__label">Издатель</label>
+                      <div className="profile-form__input-wrap"><input className="profile-form__input" type="text" placeholder="Издательство" value={publisher} onChange={e => setPublisher(e.target.value)} /></div>
+                    </div>
                     <div className="admin-field">
                       <label className="admin-field__label">Тип</label>
                       <div className="profile-form__input-wrap">
                         <CustomSelect options={TYPES} value={type} onChange={setType} />
                       </div>
                     </div>
+                  </div>
+
+                  <div className="admin-fields__row">
                     <div className="admin-field">
                       <label className="admin-field__label">Статус</label>
                       <div className="profile-form__input-wrap">
                         <CustomSelect options={STATUSES} value={status} onChange={setStatus} />
                       </div>
                     </div>
-                  </div>
-
-                  <div className="admin-fields__row">
                     <div className="admin-field">
                       <label className="admin-field__label">Год выпуска</label>
                       <div className="profile-form__input-wrap">
                         <CustomSelect options={YEARS} value={year} onChange={setYear} />
                       </div>
                     </div>
+                  </div>
+
+                  <div className="admin-fields__row">
                     <div className="admin-field">
                       <label className="admin-field__label">Год окончания</label>
                       <div className="profile-form__input-wrap">
                         <CustomSelect options={YEARS} value={yearEnd} onChange={setYearEnd} placeholder="—" />
                       </div>
                     </div>
+                    <div className="admin-field" />
                   </div>
 
                   <div className="admin-field">
                     <label className="admin-field__label">Описание</label>
-                    <textarea className="admin-textarea" rows={4} placeholder="Краткое описание произведения..." />
+                    <textarea className="admin-textarea" rows={4} placeholder="Краткое описание произведения..." value={description} onChange={e => setDescription(e.target.value)} />
                   </div>
 
                   <div className="admin-field">
@@ -147,7 +193,7 @@ export default function AdminAddWorkPage() {
                   </div>
 
                   <div className="admin-actions">
-                    <button className="admin-btn admin-btn--primary admin-btn--wide">Сохранить</button>
+                    <button className="admin-btn admin-btn--primary admin-btn--wide">{isEdit ? 'Сохранить изменения' : 'Сохранить'}</button>
                     <Link href="/admin/works" className="admin-btn admin-btn--ghost admin-btn--wide">Отмена</Link>
                   </div>
                 </div>

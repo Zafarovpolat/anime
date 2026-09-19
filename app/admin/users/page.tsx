@@ -3,8 +3,11 @@
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import AdminLayout from '@/components/AdminLayout';
+import AdminSortTh from '@/components/AdminSortTh';
+import Link from 'next/link';
 import { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
+import { useTableSort } from '@/lib/admin/table-sort';
 
 function BanIcon() {
   return (
@@ -37,7 +40,17 @@ type Status = 'active' | 'banned' | 'restricted';
 
 const STATUS_LABEL: Record<Status, string> = { active: 'Активен', banned: 'Заблокирован', restricted: 'Ограничен' };
 
-const USERS = Array.from({ length: 12 }, (_, i) => ({
+interface AdminUser {
+  id: number;
+  avatar: string;
+  username: string;
+  email: string;
+  registered: string;
+  status: Status;
+  reason?: string;
+}
+
+const USERS: AdminUser[] = Array.from({ length: 12 }, (_, i) => ({
   id: i + 1,
   avatar: i < 3 ? `/images/avatar${i + 1}.png` : '',
   username: ['Sempai_11','OtakuKing','MangaLover','DarkReader','SakuraChan','NightWolf','AniMax','ZeroOne','StarDust','ShadowByte','CrystalMoon','IronFist'][i],
@@ -49,12 +62,16 @@ const USERS = Array.from({ length: 12 }, (_, i) => ({
 type Action = 'ban' | 'restrict' | 'unban';
 const ACTION_LABEL: Record<Action, string> = { ban: 'заблокировать', restrict: 'ограничить', unban: 'разблокировать' };
 
+type UserSortKey = 'username' | 'email' | 'registered' | 'status';
+const getUserValue = (u: AdminUser, key: UserSortKey): string => key === 'status' ? STATUS_LABEL[u.status] : u[key];
+
 export default function AdminUsersPage() {
-  const [users, setUsers] = useState(USERS);
+  const [users, setUsers] = useState<AdminUser[]>(USERS);
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState<Status | 'all'>('all');
   const [filterOpen, setFilterOpen] = useState(false);
   const [confirm, setConfirm] = useState<{ id: number; action: Action } | null>(null);
+  const [reason, setReason] = useState('');
   const filterRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -69,9 +86,21 @@ export default function AdminUsersPage() {
     (filter === 'all' || u.status === filter) &&
     (u.username.toLowerCase().includes(search.toLowerCase()) || u.email.toLowerCase().includes(search.toLowerCase()))
   );
+  const { sort, toggle, sorted } = useTableSort<AdminUser, UserSortKey>(filtered, getUserValue);
 
-  const apply = (id: number, action: Action) => {
-    setUsers(prev => prev.map(u => u.id !== id ? u : { ...u, status: action === 'ban' ? 'banned' : action === 'restrict' ? 'restricted' : 'active' }));
+  const openConfirm = (id: number, action: Action) => {
+    setReason('');
+    setConfirm({ id, action });
+  };
+
+  const apply = () => {
+    if (!confirm) return;
+    const { id, action } = confirm;
+    setUsers(prev => prev.map(u => u.id !== id ? u : {
+      ...u,
+      status: action === 'ban' ? 'banned' : action === 'restrict' ? 'restricted' : 'active',
+      reason: action === 'unban' ? undefined : reason.trim() || undefined,
+    }));
     setConfirm(null);
   };
 
@@ -121,15 +150,15 @@ export default function AdminUsersPage() {
                 <table className="admin-table">
                   <thead>
                     <tr>
-                      <th className="admin-table__th">Пользователь</th>
-                      <th className="admin-table__th">Email</th>
-                      <th className="admin-table__th">Регистрация</th>
-                      <th className="admin-table__th">Статус</th>
+                      <AdminSortTh label="Пользователь" sortKey="username" activeKey={sort.key} direction={sort.direction} onSort={toggle} />
+                      <AdminSortTh label="Email" sortKey="email" activeKey={sort.key} direction={sort.direction} onSort={toggle} />
+                      <AdminSortTh label="Регистрация" sortKey="registered" activeKey={sort.key} direction={sort.direction} onSort={toggle} />
+                      <AdminSortTh label="Статус" sortKey="status" activeKey={sort.key} direction={sort.direction} onSort={toggle} />
                       <th className="admin-table__th admin-table__th--right">Действия</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {filtered.map(user => (
+                    {sorted.map(user => (
                       <tr key={user.id} className="admin-table__row">
                         <td className="admin-table__td">
                           <div className="admin-user">
@@ -139,30 +168,31 @@ export default function AdminUsersPage() {
                                 : <span className="admin-user__initial">{user.username[0].toUpperCase()}</span>
                               }
                             </div>
-                            <span className="admin-table__td--bold">{user.username}</span>
+                            <Link href="/profile" className="admin-table__td--bold admin-user__link">{user.username}</Link>
                           </div>
                         </td>
                         <td className="admin-table__td admin-table__td--muted">{user.email}</td>
                         <td className="admin-table__td admin-table__td--muted">{user.registered}</td>
                         <td className="admin-table__td">
                           <span className={`admin-badge admin-badge--${user.status}`}>{STATUS_LABEL[user.status]}</span>
+                          {user.reason && <span className="admin-table__reason" title={user.reason}>Причина: {user.reason}</span>}
                         </td>
                         <td className="admin-table__td admin-table__td--right">
                           <div className="admin-table__actions">
                             {user.status !== 'banned' && (
-                              <button className="admin-btn admin-btn--sm admin-btn--danger-ghost admin-btn--icon" title="Заблокировать" onClick={() => setConfirm({ id: user.id, action: 'ban' })}><BanIcon /></button>
+                              <button className="admin-btn admin-btn--sm admin-btn--danger-ghost admin-btn--icon" title="Заблокировать" onClick={() => openConfirm(user.id, 'ban')}><BanIcon /></button>
                             )}
                             {user.status === 'active' && (
-                              <button className="admin-btn admin-btn--sm admin-btn--warn-ghost admin-btn--icon" title="Ограничить" onClick={() => setConfirm({ id: user.id, action: 'restrict' })}><RestrictIcon /></button>
+                              <button className="admin-btn admin-btn--sm admin-btn--warn-ghost admin-btn--icon" title="Ограничить" onClick={() => openConfirm(user.id, 'restrict')}><RestrictIcon /></button>
                             )}
                             {user.status !== 'active' && (
-                              <button className="admin-btn admin-btn--sm admin-btn--ghost admin-btn--icon" title="Разблокировать" onClick={() => setConfirm({ id: user.id, action: 'unban' })}><UnbanIcon /></button>
+                              <button className="admin-btn admin-btn--sm admin-btn--ghost admin-btn--icon" title="Разблокировать" onClick={() => openConfirm(user.id, 'unban')}><UnbanIcon /></button>
                             )}
                           </div>
                         </td>
                       </tr>
                     ))}
-                    {filtered.length === 0 && (
+                    {sorted.length === 0 && (
                       <tr><td colSpan={5} className="admin-table__empty">Пользователи не найдены</td></tr>
                     )}
                   </tbody>
@@ -176,10 +206,23 @@ export default function AdminUsersPage() {
 
       {confirm && (
         <div className="admin-overlay" onClick={() => setConfirm(null)}>
-          <div className="admin-modal" onClick={e => e.stopPropagation()}>
+          <div className="admin-modal admin-modal--form" onClick={e => e.stopPropagation()}>
             <p className="admin-modal__text">Вы уверены, что хотите <strong>{ACTION_LABEL[confirm.action]}</strong> пользователя?</p>
+            {confirm.action !== 'unban' && (
+              <div className="admin-modal__field">
+                <label className="admin-modal__label">Причина {confirm.action === 'ban' ? 'блокировки' : 'ограничения'}</label>
+                <textarea
+                  className="admin-textarea admin-textarea--sm"
+                  rows={3}
+                  placeholder="Опишите причину (видно в карточке пользователя)..."
+                  value={reason}
+                  onChange={e => setReason(e.target.value)}
+                  autoFocus
+                />
+              </div>
+            )}
             <div className="admin-modal__btns">
-              <button className={`admin-btn ${confirm.action === 'unban' ? 'admin-btn--primary' : 'admin-btn--danger'}`} onClick={() => apply(confirm.id, confirm.action)}>Подтвердить</button>
+              <button className={`admin-btn ${confirm.action === 'unban' ? 'admin-btn--primary' : 'admin-btn--danger'}`} onClick={apply}>Подтвердить</button>
               <button className="admin-btn admin-btn--ghost" onClick={() => setConfirm(null)}>Отмена</button>
             </div>
           </div>

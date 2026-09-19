@@ -3,24 +3,18 @@
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import AdminLayout from '@/components/AdminLayout';
+import AdminSortTh from '@/components/AdminSortTh';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
+import { WORK_TYPES, type AdminWork } from '@/lib/admin/mock-data';
+import { useWorks, worksStore } from '@/lib/admin/works-store';
+import { useTableSort } from '@/lib/admin/table-sort';
 
-const MOCK_WORKS = Array.from({ length: 10 }, (_, i) => ({
-  id: i + 1,
-  cover: `/images/cover_${(i % 12) + 1}.jpg`,
-  title: [
-    'Наномашины', 'Мир Зомби', 'Истинная красота', 'Следуйте за своим сердцем',
-    'Таков закон', 'Выбери меня!', 'Игрок падшего дворянского рода',
-    'Леди-малышка изменяет мир деньгами', 'Присцилла просит о замужестве',
-    'План перерожденного наёмника',
-  ][i],
-  type: 'Манга',
-  status: i % 3 === 0 ? 'Завершено' : 'Выходит',
-  chapters: 40 + i * 12,
-  author: 'Автор ' + (i + 1),
-}));
+type WorkSortKey = 'title' | 'type' | 'status' | 'chapters' | 'author' | 'publisher';
+
+const getWorkValue = (w: AdminWork, key: WorkSortKey): string | number =>
+  key === 'chapters' ? w.chapters : w[key];
 
 function PencilIcon() {
   return (
@@ -40,18 +34,41 @@ function TrashIcon() {
   );
 }
 
+function PlusIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+      <path d="M12 5V19M5 12H19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+    </svg>
+  );
+}
+
 export default function AdminWorksPage() {
-  const [works, setWorks] = useState(MOCK_WORKS);
+  const works = useWorks();
   const [search, setSearch] = useState('');
+  const [typeFilter, setTypeFilter] = useState<string>('all');
+  const [typeOpen, setTypeOpen] = useState(false);
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [previewCover, setPreviewCover] = useState<string | null>(null);
+  const typeRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (typeRef.current && !typeRef.current.contains(e.target as Node)) setTypeOpen(false);
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
 
   const filtered = works.filter(w =>
-    w.title.toLowerCase().includes(search.toLowerCase())
+    (typeFilter === 'all' || w.type === typeFilter) &&
+    (w.title.toLowerCase().includes(search.toLowerCase()) ||
+      w.author.toLowerCase().includes(search.toLowerCase()) ||
+      w.publisher.toLowerCase().includes(search.toLowerCase()))
   );
+  const { sort, toggle, sorted } = useTableSort<AdminWork, WorkSortKey>(filtered, getWorkValue);
 
-  const handleDelete = (id: number) => {
-    setWorks(prev => prev.filter(w => w.id !== id));
+  const confirmDelete = (id: number) => {
+    worksStore.remove(id);
     setDeleteId(null);
   };
 
@@ -82,11 +99,38 @@ export default function AdminWorksPage() {
                   <input
                     className="admin-search__input"
                     type="text"
-                    placeholder="Поиск по названию..."
+                    placeholder="Поиск по названию, автору или издателю..."
                     value={search}
                     onChange={e => setSearch(e.target.value)}
                   />
                 </label>
+                <div className="catalog-sort-wrapper" ref={typeRef}>
+                  <button className="catalog-sort-btn" onClick={() => setTypeOpen(o => !o)}>
+                    <span>{typeFilter === 'all' ? 'Все типы' : `Только ${typeFilter.toLowerCase()}`}</span>
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                      <path d="M6 9L12 15L18 9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </button>
+                  {typeOpen && (
+                    <ul className="catalog-sort-dropdown">
+                      <li
+                        className={`catalog-sort-option${typeFilter === 'all' ? ' catalog-sort-option--active' : ''}`}
+                        onClick={() => { setTypeFilter('all'); setTypeOpen(false); }}
+                      >
+                        Все типы
+                      </li>
+                      {WORK_TYPES.map(t => (
+                        <li
+                          key={t}
+                          className={`catalog-sort-option${typeFilter === t ? ' catalog-sort-option--active' : ''}`}
+                          onClick={() => { setTypeFilter(t); setTypeOpen(false); }}
+                        >
+                          Только {t.toLowerCase()}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
               </div>
 
               <div className="admin-table-wrap">
@@ -94,16 +138,17 @@ export default function AdminWorksPage() {
                   <thead>
                     <tr>
                       <th className="admin-table__th admin-table__th--center">Обложка</th>
-                      <th className="admin-table__th">Название</th>
-                      <th className="admin-table__th admin-table__th--center">Тип</th>
-                      <th className="admin-table__th admin-table__th--center">Статус</th>
-                      <th className="admin-table__th admin-table__th--center">Глав</th>
-                      <th className="admin-table__th">Автор</th>
+                      <AdminSortTh label="Название" sortKey="title" activeKey={sort.key} direction={sort.direction} onSort={toggle} />
+                      <AdminSortTh label="Тип" sortKey="type" activeKey={sort.key} direction={sort.direction} onSort={toggle} align="center" />
+                      <AdminSortTh label="Статус" sortKey="status" activeKey={sort.key} direction={sort.direction} onSort={toggle} align="center" />
+                      <AdminSortTh label="Глав" sortKey="chapters" activeKey={sort.key} direction={sort.direction} onSort={toggle} align="center" />
+                      <AdminSortTh label="Автор" sortKey="author" activeKey={sort.key} direction={sort.direction} onSort={toggle} />
+                      <AdminSortTh label="Издатель" sortKey="publisher" activeKey={sort.key} direction={sort.direction} onSort={toggle} />
                       <th className="admin-table__th admin-table__th--right">Действия</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {filtered.map(work => (
+                    {sorted.map(work => (
                       <tr key={work.id} className="admin-table__row">
                         <td className="admin-table__td admin-table__td--center">
                           <div
@@ -123,8 +168,12 @@ export default function AdminWorksPage() {
                         </td>
                         <td className="admin-table__td admin-table__td--muted admin-table__td--center">{work.chapters}</td>
                         <td className="admin-table__td admin-table__td--muted">{work.author}</td>
+                        <td className="admin-table__td admin-table__td--muted">{work.publisher}</td>
                         <td className="admin-table__td admin-table__td--right">
                           <div className="admin-table__actions">
+                            <Link href={`/admin/chapters/add?work=${work.id}`} className="admin-btn admin-btn--sm admin-btn--ghost admin-btn--icon" title="Добавить главу">
+                              <PlusIcon />
+                            </Link>
                             <Link href={`/admin/works/add?edit=${work.id}`} className="admin-btn admin-btn--sm admin-btn--ghost admin-btn--icon" title="Редактировать">
                               <PencilIcon />
                             </Link>
@@ -135,8 +184,8 @@ export default function AdminWorksPage() {
                         </td>
                       </tr>
                     ))}
-                    {filtered.length === 0 && (
-                      <tr><td colSpan={7} className="admin-table__empty">Ничего не найдено</td></tr>
+                    {sorted.length === 0 && (
+                      <tr><td colSpan={8} className="admin-table__empty">Ничего не найдено</td></tr>
                     )}
                   </tbody>
                 </table>
@@ -150,9 +199,9 @@ export default function AdminWorksPage() {
       {deleteId !== null && (
         <div className="admin-overlay" onClick={() => setDeleteId(null)}>
           <div className="admin-modal" onClick={e => e.stopPropagation()}>
-            <p className="admin-modal__text">Удалить произведение?</p>
+            <p className="admin-modal__text">Удалить произведение? Оно переместится в корзину и будет храниться 7 дней — оттуда его можно вернуть.</p>
             <div className="admin-modal__btns">
-              <button className="admin-btn admin-btn--danger" onClick={() => handleDelete(deleteId)}>Удалить</button>
+              <button className="admin-btn admin-btn--danger" onClick={() => confirmDelete(deleteId)}>В корзину</button>
               <button className="admin-btn admin-btn--ghost" onClick={() => setDeleteId(null)}>Отмена</button>
             </div>
           </div>
@@ -163,7 +212,6 @@ export default function AdminWorksPage() {
         <div className="admin-overlay admin-cover-preview" onClick={() => setPreviewCover(null)}>
           <div className="admin-cover-preview__inner" onClick={e => e.stopPropagation()}>
             <img src={previewCover} alt="Обложка" className="admin-cover-preview__img" />
-            <button className="admin-cover-preview__close" onClick={() => setPreviewCover(null)}>✕</button>
           </div>
         </div>
       )}

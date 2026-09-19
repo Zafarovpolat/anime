@@ -3,7 +3,9 @@
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import AdminLayout from '@/components/AdminLayout';
+import AdminSortTh from '@/components/AdminSortTh';
 import { useState } from 'react';
+import { useTableSort } from '@/lib/admin/table-sort';
 
 function TrashIcon() {
   return (
@@ -19,6 +21,15 @@ function BanIcon() {
     <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
       <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"/>
       <path d="M4.93 4.93L19.07 19.07" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+    </svg>
+  );
+}
+
+function RestrictIcon() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+      <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d="M12 9v4M12 17h.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
     </svg>
   );
 }
@@ -52,28 +63,44 @@ const COMMENTS: Comment[] = Array.from({ length: 14 }, (_, i) => ({
   date: `${10 + i}.0${(i % 9) + 1}.2024`,
 }));
 
+type ModAction = 'ban' | 'restrict';
+const MOD_LABEL: Record<ModAction, string> = { ban: 'заблокировать', restrict: 'ограничить' };
+const MOD_STATUS: Record<ModAction, string> = { ban: 'Заблокирован', restrict: 'Ограничен' };
+
+type CommentSortKey = 'username' | 'text' | 'work' | 'date';
+const getCommentValue = (c: Comment, key: CommentSortKey): string => c[key];
+
 export default function AdminCommentsPage() {
   const [comments, setComments] = useState(COMMENTS);
   const [search, setSearch] = useState('');
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [viewComment, setViewComment] = useState<Comment | null>(null);
-  const [bannedUsers, setBannedUsers] = useState<string[]>([]);
-  const [banTarget, setBanTarget] = useState<{ id: number; username: string } | null>(null);
+  // username -> применённая мера ('ban' | 'restrict'). Хранит модерацию прямо со страницы комментариев.
+  const [moderated, setModerated] = useState<Record<string, ModAction>>({});
+  const [modTarget, setModTarget] = useState<{ username: string; action: ModAction } | null>(null);
+  const [reason, setReason] = useState('');
 
   const filtered = comments.filter(c =>
     c.username.toLowerCase().includes(search.toLowerCase()) ||
     c.text.toLowerCase().includes(search.toLowerCase()) ||
     c.work.toLowerCase().includes(search.toLowerCase())
   );
+  const { sort, toggle, sorted } = useTableSort<Comment, CommentSortKey>(filtered, getCommentValue);
 
   const remove = (id: number) => {
     setComments(prev => prev.filter(c => c.id !== id));
     setDeleteId(null);
   };
 
-  const banForProfanity = (username: string) => {
-    setBannedUsers(prev => prev.includes(username) ? prev : [...prev, username]);
-    setBanTarget(null);
+  const openMod = (username: string, action: ModAction) => {
+    setReason('');
+    setModTarget({ username, action });
+  };
+
+  const applyMod = () => {
+    if (!modTarget) return;
+    setModerated(prev => ({ ...prev, [modTarget.username]: modTarget.action }));
+    setModTarget(null);
   };
 
   return (
@@ -96,7 +123,7 @@ export default function AdminCommentsPage() {
                   <input
                     className="admin-search__input"
                     type="text"
-                    placeholder="Поиск по автору, тексту или произведению..."
+                    placeholder="Поиск по пользователю, тексту или произведению..."
                     value={search}
                     onChange={e => setSearch(e.target.value)}
                   />
@@ -107,17 +134,17 @@ export default function AdminCommentsPage() {
                 <table className="admin-table">
                   <thead>
                     <tr>
-                      <th className="admin-table__th">Пользователь</th>
-                      <th className="admin-table__th">Комментарий</th>
-                      <th className="admin-table__th">Произведение</th>
-                      <th className="admin-table__th">Дата</th>
+                      <AdminSortTh label="Пользователь" sortKey="username" activeKey={sort.key} direction={sort.direction} onSort={toggle} />
+                      <AdminSortTh label="Комментарий" sortKey="text" activeKey={sort.key} direction={sort.direction} onSort={toggle} />
+                      <AdminSortTh label="Произведение" sortKey="work" activeKey={sort.key} direction={sort.direction} onSort={toggle} />
+                      <AdminSortTh label="Дата" sortKey="date" activeKey={sort.key} direction={sort.direction} onSort={toggle} />
                       <th className="admin-table__th admin-table__th--right">Действия</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {filtered.map(comment => {
+                    {sorted.map(comment => {
                       const flagged = isFlagged(comment.text);
-                      const banned = bannedUsers.includes(comment.username);
+                      const mod = moderated[comment.username];
                       return (
                       <tr
                         key={comment.id}
@@ -126,7 +153,7 @@ export default function AdminCommentsPage() {
                       >
                         <td className="admin-table__td admin-table__td--bold">
                           {comment.username}
-                          {banned && <span className="admin-badge admin-badge--banned" style={{ marginLeft: 8 }}>Заблокирован</span>}
+                          {mod && <span className="admin-badge admin-badge--banned" style={{ marginLeft: 8 }}>{MOD_STATUS[mod]}</span>}
                         </td>
                         <td className="admin-table__td admin-table__td--muted admin-table__td--clamp">
                           {comment.text}
@@ -136,13 +163,22 @@ export default function AdminCommentsPage() {
                         <td className="admin-table__td admin-table__td--muted">{comment.date}</td>
                         <td className="admin-table__td admin-table__td--right">
                           <div className="admin-table__actions">
-                            {flagged && !banned && (
+                            {mod !== 'ban' && (
                               <button
                                 className="admin-btn admin-btn--sm admin-btn--danger-ghost admin-btn--icon"
-                                onClick={e => { e.stopPropagation(); setBanTarget({ id: comment.id, username: comment.username }); }}
-                                title="Забанить за нецензурную лексику"
+                                onClick={e => { e.stopPropagation(); openMod(comment.username, 'ban'); }}
+                                title="Заблокировать пользователя"
                               >
                                 <BanIcon />
+                              </button>
+                            )}
+                            {!mod && (
+                              <button
+                                className="admin-btn admin-btn--sm admin-btn--warn-ghost admin-btn--icon"
+                                onClick={e => { e.stopPropagation(); openMod(comment.username, 'restrict'); }}
+                                title="Ограничить пользователя"
+                              >
+                                <RestrictIcon />
                               </button>
                             )}
                             <button
@@ -157,7 +193,7 @@ export default function AdminCommentsPage() {
                       </tr>
                       );
                     })}
-                    {filtered.length === 0 && (
+                    {sorted.length === 0 && (
                       <tr><td colSpan={5} className="admin-table__empty">Комментарии не найдены</td></tr>
                     )}
                   </tbody>
@@ -196,13 +232,24 @@ export default function AdminCommentsPage() {
         </div>
       )}
 
-      {banTarget && (
-        <div className="admin-overlay" onClick={() => setBanTarget(null)}>
-          <div className="admin-modal" onClick={e => e.stopPropagation()}>
-            <p className="admin-modal__text">Заблокировать пользователя <strong>{banTarget.username}</strong> за нецензурную лексику?</p>
+      {modTarget && (
+        <div className="admin-overlay" onClick={() => setModTarget(null)}>
+          <div className="admin-modal admin-modal--form" onClick={e => e.stopPropagation()}>
+            <p className="admin-modal__text">Вы уверены, что хотите <strong>{MOD_LABEL[modTarget.action]}</strong> пользователя <strong>{modTarget.username}</strong>?</p>
+            <div className="admin-modal__field">
+              <label className="admin-modal__label">Причина {modTarget.action === 'ban' ? 'блокировки' : 'ограничения'}</label>
+              <textarea
+                className="admin-textarea admin-textarea--sm"
+                rows={3}
+                placeholder="Опишите причину..."
+                value={reason}
+                onChange={e => setReason(e.target.value)}
+                autoFocus
+              />
+            </div>
             <div className="admin-modal__btns">
-              <button className="admin-btn admin-btn--danger" onClick={() => banForProfanity(banTarget.username)}>Заблокировать</button>
-              <button className="admin-btn admin-btn--ghost" onClick={() => setBanTarget(null)}>Отмена</button>
+              <button className="admin-btn admin-btn--danger" onClick={applyMod}>Подтвердить</button>
+              <button className="admin-btn admin-btn--ghost" onClick={() => setModTarget(null)}>Отмена</button>
             </div>
           </div>
         </div>

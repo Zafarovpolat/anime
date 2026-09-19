@@ -16,6 +16,16 @@ const ADMIN_MENU: { href: string; label: string; alsoActive?: string[]; icon: Re
     ),
   },
   {
+    href: '/admin/trash',
+    label: 'Корзина',
+    icon: (
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+        <path opacity="0.4" d="M5 7L6 20C6 21.1 6.9 22 8 22H16C17.1 22 18 21.1 18 20L19 7H5Z" fill="currentColor"/>
+        <path d="M3 6H21M9 6V4C9 3.4 9.4 3 10 3H14C14.6 3 15 3.4 15 4V6" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+      </svg>
+    ),
+  },
+  {
     href: '/admin/users',
     label: 'Пользователи',
     icon: (
@@ -32,6 +42,26 @@ const ADMIN_MENU: { href: string; label: string; alsoActive?: string[]; icon: Re
       <svg width="24" height="24" viewBox="0 0 28 28" fill="none">
         <path opacity="0.4" d="M21.5475 19.6349L22.0025 23.3216C22.1192 24.2899 21.0808 24.9666 20.2525 24.4649L15.3642 21.5599C14.8275 21.5599 14.3025 21.5249 13.7892 21.4549C14.6525 20.4399 15.1658 19.1566 15.1658 17.7682C15.1658 14.4549 12.2958 11.7716 8.74917 11.7716C7.39584 11.7716 6.14751 12.1566 5.10918 12.8333C5.07418 12.5416 5.0625 12.2499 5.0625 11.9466C5.0625 6.63824 9.67084 2.33325 15.3642 2.33325C21.0575 2.33325 25.6658 6.63824 25.6658 11.9466C25.6658 15.0966 24.0442 17.8849 21.5475 19.6349Z" fill="currentColor"/>
         <path d="M15.1654 17.7683C15.1654 19.1567 14.652 20.44 13.7887 21.455C12.6337 22.855 10.802 23.7533 8.7487 23.7533L5.7037 25.5617C5.19036 25.8767 4.53703 25.445 4.60703 24.85L4.89869 22.5517C3.33536 21.4667 2.33203 19.7283 2.33203 17.7683C2.33203 15.715 3.4287 13.9067 5.1087 12.8334C6.14704 12.1567 7.39536 11.7717 8.7487 11.7717C12.2954 11.7717 15.1654 14.455 15.1654 17.7683Z" fill="currentColor"/>
+      </svg>
+    ),
+  },
+  {
+    href: '/admin/reports',
+    label: 'Жалобы',
+    icon: (
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+        <path opacity="0.4" d="M4 22V4C4 2.9 4.9 2 6 2H18C19.1 2 20 2.9 20 4V14C20 15.1 19.1 16 18 16H8L4 22Z" fill="currentColor"/>
+        <path d="M12 6V10M12 12.5V13" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/>
+      </svg>
+    ),
+  },
+  {
+    href: '/admin/activity',
+    label: 'Недавние действия',
+    icon: (
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+        <path opacity="0.4" d="M12 22C17.5 22 22 17.5 22 12C22 6.5 17.5 2 12 2C6.5 2 2 6.5 2 12C2 17.5 6.5 22 12 22Z" fill="currentColor"/>
+        <path d="M12 7V12L15 14" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
       </svg>
     ),
   },

@@ -7,7 +7,7 @@ import AdminSortTh from '@/components/AdminSortTh';
 import Link from 'next/link';
 import { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
-import { WORK_TYPES, type AdminWork } from '@/lib/admin/mock-data';
+import { WORK_TYPES, WORK_STATUSES, type AdminWork } from '@/lib/admin/mock-data';
 import { useWorks, worksStore } from '@/lib/admin/works-store';
 import { useTableSort } from '@/lib/admin/table-sort';
 
@@ -47,13 +47,17 @@ export default function AdminWorksPage() {
   const [search, setSearch] = useState('');
   const [typeFilter, setTypeFilter] = useState<string>('all');
   const [typeOpen, setTypeOpen] = useState(false);
+  const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [statusOpen, setStatusOpen] = useState(false);
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [previewCover, setPreviewCover] = useState<string | null>(null);
   const typeRef = useRef<HTMLDivElement>(null);
+  const statusRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
       if (typeRef.current && !typeRef.current.contains(e.target as Node)) setTypeOpen(false);
+      if (statusRef.current && !statusRef.current.contains(e.target as Node)) setStatusOpen(false);
     };
     document.addEventListener('mousedown', handler);
     return () => document.removeEventListener('mousedown', handler);
@@ -61,6 +65,7 @@ export default function AdminWorksPage() {
 
   const filtered = works.filter(w =>
     (typeFilter === 'all' || w.type === typeFilter) &&
+    (statusFilter === 'all' || w.status === statusFilter) &&
     (w.title.toLowerCase().includes(search.toLowerCase()) ||
       w.author.toLowerCase().includes(search.toLowerCase()) ||
       w.publisher.toLowerCase().includes(search.toLowerCase()))
@@ -82,9 +87,6 @@ export default function AdminWorksPage() {
               <div className="admin-page__head">
                 <h2 className="profile-content__title">ПРОИЗВЕДЕНИЯ</h2>
                 <div className="admin-page__head-actions">
-                  <Link href="/admin/chapters/add" className="admin-btn admin-btn--ghost">
-                    Добавить главу
-                  </Link>
                   <Link href="/admin/works/add" className="admin-btn admin-btn--primary">
                     Добавить произведение
                   </Link>
@@ -131,6 +133,33 @@ export default function AdminWorksPage() {
                     </ul>
                   )}
                 </div>
+                <div className="catalog-sort-wrapper" ref={statusRef}>
+                  <button className="catalog-sort-btn" onClick={() => setStatusOpen(o => !o)}>
+                    <span>{statusFilter === 'all' ? 'Все статусы' : statusFilter}</span>
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                      <path d="M6 9L12 15L18 9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </button>
+                  {statusOpen && (
+                    <ul className="catalog-sort-dropdown">
+                      <li
+                        className={`catalog-sort-option${statusFilter === 'all' ? ' catalog-sort-option--active' : ''}`}
+                        onClick={() => { setStatusFilter('all'); setStatusOpen(false); }}
+                      >
+                        Все статусы
+                      </li>
+                      {WORK_STATUSES.map(s => (
+                        <li
+                          key={s}
+                          className={`catalog-sort-option${statusFilter === s ? ' catalog-sort-option--active' : ''}`}
+                          onClick={() => { setStatusFilter(s); setStatusOpen(false); }}
+                        >
+                          {s}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
               </div>
 
               <div className="admin-table-wrap">
@@ -159,16 +188,24 @@ export default function AdminWorksPage() {
                             <Image src={work.cover} alt={work.title} fill sizes="48px" style={{ objectFit: 'cover' }} />
                           </div>
                         </td>
-                        <td className="admin-table__td admin-table__td--bold">{work.title}</td>
-                        <td className="admin-table__td admin-table__td--muted admin-table__td--center">{work.type}</td>
+                        <td className="admin-table__td admin-table__td--bold">
+                          <Link href={`/manga/${work.id}`} className="admin-user__link" title="Открыть страницу произведения">{work.title}</Link>
+                        </td>
+                        <td className="admin-table__td admin-table__td--muted admin-table__td--center">
+                          <Link href={`/catalog?type=${encodeURIComponent(work.type)}`} className="admin-user__link">{work.type}</Link>
+                        </td>
                         <td className="admin-table__td admin-table__td--center">
                           <span className={`admin-badge ${work.status === 'Выходит' ? 'admin-badge--green' : 'admin-badge--purple'}`}>
                             {work.status}
                           </span>
                         </td>
                         <td className="admin-table__td admin-table__td--muted admin-table__td--center">{work.chapters}</td>
-                        <td className="admin-table__td admin-table__td--muted">{work.author}</td>
-                        <td className="admin-table__td admin-table__td--muted">{work.publisher}</td>
+                        <td className="admin-table__td admin-table__td--muted">
+                          <Link href={`/catalog?author=${encodeURIComponent(work.author)}`} className="admin-user__link">{work.author}</Link>
+                        </td>
+                        <td className="admin-table__td admin-table__td--muted">
+                          <Link href={`/catalog?publisher=${encodeURIComponent(work.publisher)}`} className="admin-user__link">{work.publisher}</Link>
+                        </td>
                         <td className="admin-table__td admin-table__td--right">
                           <div className="admin-table__actions">
                             <Link href={`/admin/chapters/add?work=${work.id}`} className="admin-btn admin-btn--sm admin-btn--ghost admin-btn--icon" title="Добавить главу">

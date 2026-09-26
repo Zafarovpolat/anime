@@ -13,7 +13,15 @@ const WORKS = ADMIN_WORKS.map(w => w.title);
 export default function AdminAddChapterPage() {
   const [pages, setPages] = useState<string[]>([]);
   const [work, setWork] = useState('');
+  const [chapter, setChapter] = useState('');
   const fileRef = useRef<HTMLInputElement>(null);
+
+  // Смена произведения подставляет следующий номер главы (текущее число глав + 1).
+  const selectWork = (title: string) => {
+    setWork(title);
+    const found = ADMIN_WORKS.find(w => w.title === title);
+    setChapter(found ? String(found.chapters + 1) : '');
+  };
 
   // Кнопка «+ глава» из списка произведений передаёт ?work=<id> — сразу выбираем это произведение.
   useEffect(() => {
@@ -21,7 +29,10 @@ export default function AdminAddChapterPage() {
     const workId = params.get('work');
     if (!workId) return;
     const found = ADMIN_WORKS.find(w => w.id === Number(workId));
-    if (found) setWork(found.title);
+    if (found) {
+      setWork(found.title);
+      setChapter(String(found.chapters + 1));
+    }
   }, []);
 
   const handleFiles = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -60,7 +71,7 @@ export default function AdminAddChapterPage() {
                   <div className="admin-field">
                     <label className="admin-field__label">Произведение *</label>
                     <div className="profile-form__input-wrap">
-                      <CustomSelect options={WORKS} value={work} onChange={setWork} placeholder="— Выбрать —" />
+                      <CustomSelect options={WORKS} value={work} onChange={selectWork} placeholder="— Выбрать —" />
                     </div>
                   </div>
                   <div className="admin-field">
@@ -72,7 +83,7 @@ export default function AdminAddChapterPage() {
                 <div className="admin-fields__row">
                   <div className="admin-field">
                     <label className="admin-field__label">Номер главы *</label>
-                    <div className="profile-form__input-wrap"><input className="profile-form__input" type="number" min="1" placeholder="Например: 42" /></div>
+                    <div className="profile-form__input-wrap"><input className="profile-form__input" type="number" min="1" placeholder="Например: 42" value={chapter} onChange={e => setChapter(e.target.value)} /></div>
                   </div>
                   <div className="admin-field">
                     <label className="admin-field__label">Название главы</label>

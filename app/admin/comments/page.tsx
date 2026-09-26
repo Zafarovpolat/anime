@@ -4,8 +4,10 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import AdminLayout from '@/components/AdminLayout';
 import AdminSortTh from '@/components/AdminSortTh';
+import Link from 'next/link';
 import { useState } from 'react';
-import { useTableSort } from '@/lib/admin/table-sort';
+import { useTableSort, parseRuDate } from '@/lib/admin/table-sort';
+import { useComments, commentsStore, type Comment } from '@/lib/admin/comments-store';
 
 function TrashIcon() {
   return (
@@ -38,40 +40,16 @@ function RestrictIcon() {
 const FLAGGED_WORDS = ['дурак', 'идиот', 'кретин', 'мразь', 'сволочь', 'тупица'];
 const isFlagged = (text: string) => FLAGGED_WORDS.some(w => text.toLowerCase().includes(w));
 
-type Comment = { id: number; username: string; text: string; work: string; date: string };
-
-const COMMENTS: Comment[] = Array.from({ length: 14 }, (_, i) => ({
-  id: i + 1,
-  username: ['Sempai_11','OtakuKing','MangaLover','DarkReader','SakuraChan','NightWolf','AniMax','ZeroOne','StarDust','ShadowByte','CrystalMoon','IronFist','VoidWalker','NeonByte'][i],
-  text: [
-    'Надеюсь я дождусь до финала данного шедевра.',
-    'Лучшая манга что я читал в этом году!',
-    'Глава вышла раньше ожидаемого, спасибо!',
-    'Перевод топовый, продолжайте в том же духе.',
-    'Когда будет следующая глава?',
-    'Сюжет становится всё интереснее и интереснее.',
-    'Главный герой просто невероятный персонаж.',
-    'Арт в этой главе просто потрясающий!',
-    'Автор совсем дурак, испортил такую историю.',
-    'Спасибо переводчику за быстрый выпуск.',
-    'Это был неожиданный поворот сюжета.',
-    'Читаю с самого начала, не разочарован.',
-    'Когда выйдет новая глава?',
-    'Эта арка лучшая во всей манге.',
-  ][i],
-  work: ['НАНОМАШИНЫ', 'Демон с нулевым рангом', 'Леди-малышка', 'Я — охотник', 'Выбери меня!', 'Наследник клана', 'НАНОМАШИНЫ', 'Тёмный охотник', 'Я стала дочерью', 'Леди-малышка', 'Выбери меня!', 'Демон', 'НАНОМАШИНЫ', 'Тёмный охотник'][i],
-  date: `${10 + i}.0${(i % 9) + 1}.2024`,
-}));
-
 type ModAction = 'ban' | 'restrict';
 const MOD_LABEL: Record<ModAction, string> = { ban: 'заблокировать', restrict: 'ограничить' };
 const MOD_STATUS: Record<ModAction, string> = { ban: 'Заблокирован', restrict: 'Ограничен' };
 
 type CommentSortKey = 'username' | 'text' | 'work' | 'date';
-const getCommentValue = (c: Comment, key: CommentSortKey): string => c[key];
+const getCommentValue = (c: Comment, key: CommentSortKey): string | number =>
+  key === 'date' ? parseRuDate(c.date) : c[key];
 
 export default function AdminCommentsPage() {
-  const [comments, setComments] = useState(COMMENTS);
+  const comments = useComments();
   const [search, setSearch] = useState('');
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [viewComment, setViewComment] = useState<Comment | null>(null);
@@ -88,7 +66,7 @@ export default function AdminCommentsPage() {
   const { sort, toggle, sorted } = useTableSort<Comment, CommentSortKey>(filtered, getCommentValue);
 
   const remove = (id: number) => {
-    setComments(prev => prev.filter(c => c.id !== id));
+    commentsStore.remove(id);
     setDeleteId(null);
   };
 
@@ -152,14 +130,16 @@ export default function AdminCommentsPage() {
                         onClick={() => setViewComment(comment)}
                       >
                         <td className="admin-table__td admin-table__td--bold">
-                          {comment.username}
+                          <Link href="/profile" className="admin-user__link" onClick={e => e.stopPropagation()}>{comment.username}</Link>
                           {mod && <span className="admin-badge admin-badge--banned" style={{ marginLeft: 8 }}>{MOD_STATUS[mod]}</span>}
                         </td>
                         <td className="admin-table__td admin-table__td--muted admin-table__td--clamp">
                           {comment.text}
                           {flagged && <span className="admin-badge admin-badge--banned" style={{ marginLeft: 8 }}>Нецензурно</span>}
                         </td>
-                        <td className="admin-table__td admin-table__td--muted">{comment.work}</td>
+                        <td className="admin-table__td admin-table__td--muted">
+                          <Link href={`/catalog?q=${encodeURIComponent(comment.work)}`} className="admin-user__link" onClick={e => e.stopPropagation()}>{comment.work}</Link>
+                        </td>
                         <td className="admin-table__td admin-table__td--muted">{comment.date}</td>
                         <td className="admin-table__td admin-table__td--right">
                           <div className="admin-table__actions">
@@ -223,7 +203,7 @@ export default function AdminCommentsPage() {
       {deleteId !== null && (
         <div className="admin-overlay" onClick={() => setDeleteId(null)}>
           <div className="admin-modal" onClick={e => e.stopPropagation()}>
-            <p className="admin-modal__text">Удалить комментарий?</p>
+            <p className="admin-modal__text">Удалить комментарий? Он переместится в корзину и будет храниться 7 дней — оттуда его можно вернуть.</p>
             <div className="admin-modal__btns">
               <button className="admin-btn admin-btn--danger" onClick={() => remove(deleteId)}>Удалить</button>
               <button className="admin-btn admin-btn--ghost" onClick={() => setDeleteId(null)}>Отмена</button>

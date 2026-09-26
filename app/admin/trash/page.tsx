@@ -7,6 +7,7 @@ import AdminSortTh from '@/components/AdminSortTh';
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
 import { useTrash, worksStore, TRASH_MS, type TrashedWork } from '@/lib/admin/works-store';
+import { useCommentsTrash, commentsStore, COMMENT_TRASH_MS, type TrashedComment } from '@/lib/admin/comments-store';
 import { useTableSort } from '@/lib/admin/table-sort';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -29,25 +30,35 @@ function TrashIcon() {
 }
 
 type TrashSortKey = 'title' | 'type' | 'deletedAt';
-const getTrashValue = (t: TrashedWork, key: TrashSortKey): string | number =>
+const getWorkValue = (t: TrashedWork, key: TrashSortKey): string | number =>
+  key === 'deletedAt' ? t.deletedAt : t[key];
+
+type CommentTrashSortKey = 'username' | 'text' | 'deletedAt';
+const getCommentValue = (t: TrashedComment, key: CommentTrashSortKey): string | number =>
   key === 'deletedAt' ? t.deletedAt : t[key];
 
 const formatDate = (ms: number) => {
   const d = new Date(ms);
   return `${String(d.getDate()).padStart(2, '0')}.${String(d.getMonth() + 1).padStart(2, '0')}.${d.getFullYear()}`;
 };
-const daysLeft = (deletedAt: number) => Math.max(0, Math.ceil((deletedAt + TRASH_MS - Date.now()) / DAY_MS));
+const daysLeft = (deletedAt: number, ttl: number) => Math.max(0, Math.ceil((deletedAt + ttl - Date.now()) / DAY_MS));
 
 export default function AdminTrashPage() {
-  const trash = useTrash();
-  const [purgeId, setPurgeId] = useState<number | null>(null);
+  const works = useTrash();
+  const comments = useCommentsTrash();
+  // purge = { kind, id } — что подтверждаем к окончательному удалению.
+  const [purge, setPurge] = useState<{ kind: 'work' | 'comment'; id: number } | null>(null);
 
   // При заходе в корзину убираем записи, чей 7-дневный срок истёк.
   useEffect(() => {
     worksStore.purgeExpired();
+    commentsStore.purgeExpired();
   }, []);
 
-  const { sort, toggle, sorted } = useTableSort<TrashedWork, TrashSortKey>(trash, getTrashValue);
+  const worksSort = useTableSort<TrashedWork, TrashSortKey>(works, getWorkValue);
+  const commentsSort = useTableSort<TrashedComment, CommentTrashSortKey>(comments, getCommentValue);
+
+  const total = works.length + comments.length;
 
   return (
     <>
@@ -58,23 +69,24 @@ export default function AdminTrashPage() {
             <AdminLayout>
               <div className="admin-page__head">
                 <h2 className="profile-content__title">КОРЗИНА</h2>
-                <span className="admin-counter">{trash.length} в корзине · хранится 7 дней</span>
+                <span className="admin-counter">{total} в корзине · хранится 7 дней</span>
               </div>
 
+              <h3 className="admin-subhead">Произведения · {works.length}</h3>
               <div className="admin-table-wrap">
                 <table className="admin-table">
                   <thead>
                     <tr>
                       <th className="admin-table__th admin-table__th--center">Обложка</th>
-                      <AdminSortTh label="Название" sortKey="title" activeKey={sort.key} direction={sort.direction} onSort={toggle} />
-                      <AdminSortTh label="Тип" sortKey="type" activeKey={sort.key} direction={sort.direction} onSort={toggle} align="center" />
-                      <AdminSortTh label="Удалено" sortKey="deletedAt" activeKey={sort.key} direction={sort.direction} onSort={toggle} />
+                      <AdminSortTh label="Название" sortKey="title" activeKey={worksSort.sort.key} direction={worksSort.sort.direction} onSort={worksSort.toggle} />
+                      <AdminSortTh label="Тип" sortKey="type" activeKey={worksSort.sort.key} direction={worksSort.sort.direction} onSort={worksSort.toggle} align="center" />
+                      <AdminSortTh label="Удалено" sortKey="deletedAt" activeKey={worksSort.sort.key} direction={worksSort.sort.direction} onSort={worksSort.toggle} />
                       <th className="admin-table__th">Осталось</th>
                       <th className="admin-table__th admin-table__th--right">Действия</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {sorted.map(work => (
+                    {worksSort.sorted.map(work => (
                       <tr key={work.id} className="admin-table__row">
                         <td className="admin-table__td admin-table__td--center">
                           <div className="admin-table__cover">
@@ -85,7 +97,7 @@ export default function AdminTrashPage() {
                         <td className="admin-table__td admin-table__td--muted admin-table__td--center">{work.type}</td>
                         <td className="admin-table__td admin-table__td--muted">{formatDate(work.deletedAt)}</td>
                         <td className="admin-table__td">
-                          <span className="admin-badge admin-badge--warn">{daysLeft(work.deletedAt)} дн.</span>
+                          <span className="admin-badge admin-badge--warn">{daysLeft(work.deletedAt, TRASH_MS)} дн.</span>
                         </td>
                         <td className="admin-table__td admin-table__td--right">
                           <div className="admin-table__actions">
@@ -93,15 +105,56 @@ export default function AdminTrashPage() {
                               <RestoreIcon />
                               Восстановить
                             </button>
-                            <button className="admin-btn admin-btn--sm admin-btn--danger-ghost admin-btn--icon" onClick={() => setPurgeId(work.id)} title="Удалить навсегда">
+                            <button className="admin-btn admin-btn--sm admin-btn--danger-ghost admin-btn--icon" onClick={() => setPurge({ kind: 'work', id: work.id })} title="Удалить навсегда">
                               <TrashIcon />
                             </button>
                           </div>
                         </td>
                       </tr>
                     ))}
-                    {sorted.length === 0 && (
-                      <tr><td colSpan={6} className="admin-table__empty">Корзина пуста</td></tr>
+                    {worksSort.sorted.length === 0 && (
+                      <tr><td colSpan={6} className="admin-table__empty">Здесь пусто</td></tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+
+              <h3 className="admin-subhead">Комментарии · {comments.length}</h3>
+              <div className="admin-table-wrap">
+                <table className="admin-table">
+                  <thead>
+                    <tr>
+                      <AdminSortTh label="Пользователь" sortKey="username" activeKey={commentsSort.sort.key} direction={commentsSort.sort.direction} onSort={commentsSort.toggle} />
+                      <AdminSortTh label="Комментарий" sortKey="text" activeKey={commentsSort.sort.key} direction={commentsSort.sort.direction} onSort={commentsSort.toggle} />
+                      <AdminSortTh label="Удалено" sortKey="deletedAt" activeKey={commentsSort.sort.key} direction={commentsSort.sort.direction} onSort={commentsSort.toggle} />
+                      <th className="admin-table__th">Осталось</th>
+                      <th className="admin-table__th admin-table__th--right">Действия</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {commentsSort.sorted.map(comment => (
+                      <tr key={comment.id} className="admin-table__row">
+                        <td className="admin-table__td admin-table__td--bold">{comment.username}</td>
+                        <td className="admin-table__td admin-table__td--muted admin-table__td--clamp">{comment.text}</td>
+                        <td className="admin-table__td admin-table__td--muted">{formatDate(comment.deletedAt)}</td>
+                        <td className="admin-table__td">
+                          <span className="admin-badge admin-badge--warn">{daysLeft(comment.deletedAt, COMMENT_TRASH_MS)} дн.</span>
+                        </td>
+                        <td className="admin-table__td admin-table__td--right">
+                          <div className="admin-table__actions">
+                            <button className="admin-btn admin-btn--sm admin-btn--ghost" onClick={() => commentsStore.restore(comment.id)} title="Восстановить">
+                              <RestoreIcon />
+                              Восстановить
+                            </button>
+                            <button className="admin-btn admin-btn--sm admin-btn--danger-ghost admin-btn--icon" onClick={() => setPurge({ kind: 'comment', id: comment.id })} title="Удалить навсегда">
+                              <TrashIcon />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                    {commentsSort.sorted.length === 0 && (
+                      <tr><td colSpan={5} className="admin-table__empty">Здесь пусто</td></tr>
                     )}
                   </tbody>
                 </table>
@@ -112,13 +165,26 @@ export default function AdminTrashPage() {
       </main>
       <Footer />
 
-      {purgeId !== null && (
-        <div className="admin-overlay" onClick={() => setPurgeId(null)}>
+      {purge !== null && (
+        <div className="admin-overlay" onClick={() => setPurge(null)}>
           <div className="admin-modal" onClick={e => e.stopPropagation()}>
-            <p className="admin-modal__text">Удалить произведение навсегда? Это действие нельзя отменить.</p>
+            <p className="admin-modal__text">
+              {purge.kind === 'work'
+                ? 'Удалить произведение навсегда? Это действие нельзя отменить.'
+                : 'Удалить комментарий навсегда? Это действие нельзя отменить.'}
+            </p>
             <div className="admin-modal__btns">
-              <button className="admin-btn admin-btn--danger" onClick={() => { worksStore.purge(purgeId); setPurgeId(null); }}>Удалить навсегда</button>
-              <button className="admin-btn admin-btn--ghost" onClick={() => setPurgeId(null)}>Отмена</button>
+              <button
+                className="admin-btn admin-btn--danger"
+                onClick={() => {
+                  if (purge.kind === 'work') worksStore.purge(purge.id);
+                  else commentsStore.purge(purge.id);
+                  setPurge(null);
+                }}
+              >
+                Удалить навсегда
+              </button>
+              <button className="admin-btn admin-btn--ghost" onClick={() => setPurge(null)}>Отмена</button>
             </div>
           </div>
         </div>

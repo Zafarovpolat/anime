@@ -3680,6 +3680,17 @@ button {
   outline: none;
 }
 
+/* Убираем дефолтные стрелки-спиннеры у числовых полей (том, номер главы). */
+.profile-form__input[type="number"] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+.profile-form__input[type="number"]::-webkit-outer-spin-button,
+.profile-form__input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
 .profile-form__select {
   width: 100%;
   height: 100%;
@@ -5396,6 +5407,14 @@ button {
   min-width: 180px;
   z-index: 50;
   border: 1px solid var(--color-gray-border);
+}
+
+/* Выпадающий список фильтров в админке — во всю ширину кнопки-триггера. */
+.admin-search-wrap .catalog-sort-dropdown {
+  left: 0;
+  right: auto;
+  width: 100%;
+  min-width: 0;
 }
 
 .catalog-sort-option {
@@ -10324,6 +10343,14 @@ button {
   width: fit-content;
 }
 
+/* Ярлык фильтра фиксированной ширины, чтобы кнопка не «прыгала» при смене
+   выбранного значения (напр. «Все статусы» → «Выходит»). ch тянется за
+   font-size, поэтому масштабируется на всех брейкпоинтах. */
+.admin-search-wrap .catalog-sort-btn > span {
+  min-width: 15ch;
+  text-align: left;
+}
+
 /* ── Filter tabs ── */
 .admin-filter-tabs {
   display: flex;
@@ -10738,10 +10765,10 @@ button {
   color: var(--color-text);
 }
 
-/* Причина бана — тот же вид, что у остальных текстовых полей на сайте
-   (модалки отзыва/жалобы): заливка surface-2, без рамки, скруглённая. */
+/* Причина бана/меры — как обычное текстовое поле: заливка surface-2,
+   рамка как у остальных инпутов, скруглённая. */
 .admin-textarea--sm {
-  border: none;
+  border: 1.5px solid var(--color-border-strong);
   outline: none;
   background: var(--color-surface-2);
   font-family: var(--font-body);
@@ -10756,6 +10783,24 @@ button {
   border-radius: 20px;
 }
 .admin-textarea--sm::placeholder { color: var(--color-gray-text); }
+
+/* Селект внутри модалки «Принять меры» — та же рамка, что у текстового поля. */
+.admin-modal--form .custom-select__trigger {
+  border: 1.5px solid var(--color-border-strong);
+  border-radius: 20px;
+  background: var(--color-surface-2);
+  min-height: 60px;
+}
+
+/* Подзаголовок раздела в корзине (Произведения / Комментарии). */
+.admin-subhead {
+  font-family: "Golos Text", sans-serif;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--color-text);
+  margin: 28px 0 12px;
+}
+.admin-subhead:first-of-type { margin-top: 8px; }
 
 /* ── Form layout (add work / chapter) ── */
 .admin-form-layout {
@@ -10845,7 +10890,7 @@ button {
 .admin-textarea {
   width: 100%;
   background: var(--color-surface);
-  border: none;
+  border: 1.5px solid var(--color-border-strong);
   border-radius: 25px;
   padding: 20px;
   font-family: "Golos Text", sans-serif;
@@ -11279,9 +11324,12 @@ button {
   .admin-actions { flex-direction: column; }
   .admin-actions .admin-btn { height: 54px; border-radius: 15px; }
   .admin-btn--wide { max-width: 100%; }
-  .admin-search-wrap { flex-wrap: nowrap; }
-  .admin-search { min-width: 0; }
-  .admin-search-wrap .catalog-sort-btn { flex-shrink: 0; }
+  /* На узких экранах поиск занимает всю ширину сверху, а два фильтра
+     ложатся в сетку 1fr 1fr — рядом и ровно по 50%. */
+  .admin-search-wrap { display: grid; grid-template-columns: 1fr 1fr; align-items: stretch; }
+  .admin-search { grid-column: 1 / -1; min-width: 0; }
+  .admin-search-wrap .catalog-sort-wrapper { min-width: 0; }
+  .admin-search-wrap .catalog-sort-wrapper .catalog-sort-btn { width: 100%; max-width: none; justify-content: space-between; }
   .admin-fields__row,
   .admin-fields__row--3 { grid-template-columns: 1fr; }
   .admin-genres { grid-template-columns: 1fr; border-radius: 15px; }
@@ -11317,7 +11365,7 @@ button {
   .admin-sidebar__item svg,
   .admin-sidebar__back svg { width: 16px; height: 16px; }
   .admin-content .profile-content__title { font-size: 18px; }
-  .admin-search { min-height: 50px; border-radius: 14px; padding: 0 14px; gap: 8px; flex: 1; }
+  .admin-search { min-height: 50px; border-radius: 14px; padding: 0 14px; gap: 8px; flex: 1 1 100%; }
   .admin-search__input { font-size: 14px; }
   .admin-search-wrap .catalog-sort-btn { min-height: 50px; border-radius: 14px; font-size: 13px; padding: 0 14px; }
   .admin-actions .admin-btn { height: 50px; border-radius: 14px; }

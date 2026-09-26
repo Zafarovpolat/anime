@@ -4,10 +4,11 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import AdminLayout from '@/components/AdminLayout';
 import AdminSortTh from '@/components/AdminSortTh';
+import CustomSelect from '@/components/CustomSelect';
 import Link from 'next/link';
 import { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
-import { useTableSort } from '@/lib/admin/table-sort';
+import { useTableSort, parseRuDate } from '@/lib/admin/table-sort';
 
 function BanIcon() {
   return (
@@ -62,8 +63,12 @@ const USERS: AdminUser[] = Array.from({ length: 12 }, (_, i) => ({
 type Action = 'ban' | 'restrict' | 'unban';
 const ACTION_LABEL: Record<Action, string> = { ban: 'заблокировать', restrict: 'ограничить', unban: 'разблокировать' };
 
+/* Темы блокировки/ограничения — фиксированный список, чтобы причины были единообразными. */
+const BAN_REASONS = ['Спам', 'Нарушение правил', 'Оскорбления', 'Экстремизм', 'Мошенничество', 'Другое'];
+
 type UserSortKey = 'username' | 'email' | 'registered' | 'status';
-const getUserValue = (u: AdminUser, key: UserSortKey): string => key === 'status' ? STATUS_LABEL[u.status] : u[key];
+const getUserValue = (u: AdminUser, key: UserSortKey): string | number =>
+  key === 'status' ? STATUS_LABEL[u.status] : key === 'registered' ? parseRuDate(u.registered) : u[key];
 
 export default function AdminUsersPage() {
   const [users, setUsers] = useState<AdminUser[]>(USERS);
@@ -71,6 +76,7 @@ export default function AdminUsersPage() {
   const [filter, setFilter] = useState<Status | 'all'>('all');
   const [filterOpen, setFilterOpen] = useState(false);
   const [confirm, setConfirm] = useState<{ id: number; action: Action } | null>(null);
+  const [reasonCat, setReasonCat] = useState('');
   const [reason, setReason] = useState('');
   const filterRef = useRef<HTMLDivElement>(null);
 
@@ -89,6 +95,7 @@ export default function AdminUsersPage() {
   const { sort, toggle, sorted } = useTableSort<AdminUser, UserSortKey>(filtered, getUserValue);
 
   const openConfirm = (id: number, action: Action) => {
+    setReasonCat('');
     setReason('');
     setConfirm({ id, action });
   };
@@ -96,10 +103,13 @@ export default function AdminUsersPage() {
   const apply = () => {
     if (!confirm) return;
     const { id, action } = confirm;
+    // Причина = выбранная тема + необязательный комментарий
+    const detail = reason.trim();
+    const fullReason = reasonCat && detail ? `${reasonCat} — ${detail}` : reasonCat || detail || undefined;
     setUsers(prev => prev.map(u => u.id !== id ? u : {
       ...u,
       status: action === 'ban' ? 'banned' : action === 'restrict' ? 'restricted' : 'active',
-      reason: action === 'unban' ? undefined : reason.trim() || undefined,
+      reason: action === 'unban' ? undefined : fullReason,
     }));
     setConfirm(null);
   };
@@ -211,13 +221,14 @@ export default function AdminUsersPage() {
             {confirm.action !== 'unban' && (
               <div className="admin-modal__field">
                 <label className="admin-modal__label">Причина {confirm.action === 'ban' ? 'блокировки' : 'ограничения'}</label>
+                <CustomSelect options={BAN_REASONS} value={reasonCat} onChange={setReasonCat} placeholder="Выберите тему…" />
                 <textarea
                   className="admin-textarea admin-textarea--sm"
-                  rows={3}
-                  placeholder="Опишите причину (видно в карточке пользователя)..."
+                  rows={2}
+                  placeholder="Комментарий (необязательно, виден в карточке пользователя)…"
                   value={reason}
                   onChange={e => setReason(e.target.value)}
-                  autoFocus
+                  style={{ marginTop: 10 }}
                 />
               </div>
             )}

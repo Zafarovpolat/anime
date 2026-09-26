@@ -3,7 +3,8 @@
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { Suspense, useEffect, useRef, useState } from "react";
 
 const MANGA_TITLES = [
   "Выбери меня!",
@@ -215,6 +216,15 @@ function HomeIcon() {
 }
 
 export default function CatalogPage() {
+  return (
+    <Suspense fallback={null}>
+      <CatalogInner />
+    </Suspense>
+  );
+}
+
+function CatalogInner() {
+  const searchParams = useSearchParams();
   const [sortOpen, setSortOpen] = useState(false);
   const [filterOpen, setFilterOpen] = useState(false);
   const sortRef = useRef<HTMLDivElement>(null);
@@ -244,6 +254,16 @@ export default function CatalogPage() {
   const [chaptersTo, setChaptersTo] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const totalPages = 148;
+
+  /* Префилл фильтров из query-параметров (переходы из админки: тип/автор/издатель). */
+  useEffect(() => {
+    const type = searchParams.get("type");
+    if (type && CATEGORIES.includes(type)) {
+      setCategoryStates((prev) => ({ ...prev, [type]: "include" }));
+    }
+    const query = searchParams.get("author") ?? searchParams.get("publisher") ?? searchParams.get("q");
+    if (query) setNameSearch(query);
+  }, [searchParams]);
 
   const filteredGenres = GENRES.filter((g) =>
     g.toLowerCase().includes(genreSearch.toLowerCase()),

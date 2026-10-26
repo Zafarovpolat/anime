@@ -16,6 +16,14 @@ type WorkSortKey = 'title' | 'type' | 'status' | 'chapters' | 'author' | 'publis
 const getWorkValue = (w: AdminWork, key: WorkSortKey): string | number =>
   key === 'chapters' ? w.chapters : w[key];
 
+/* Цвет плашки статуса произведения — статусы из ТЗ заказчика */
+const STATUS_BADGE: Record<string, string> = {
+  'Выходит': 'admin-badge--green',
+  'Анонс': 'admin-badge--purple',
+  'Приостановлено': 'admin-badge--warn',
+  'Закрыто': 'admin-badge--muted',
+};
+
 function PencilIcon() {
   return (
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
@@ -195,7 +203,7 @@ export default function AdminWorksPage() {
                           <Link href={`/catalog?type=${encodeURIComponent(work.type)}`} className="admin-user__link">{work.type}</Link>
                         </td>
                         <td className="admin-table__td admin-table__td--center">
-                          <span className={`admin-badge ${work.status === 'Выходит' ? 'admin-badge--green' : 'admin-badge--purple'}`}>
+                          <span className={`admin-badge ${STATUS_BADGE[work.status] ?? 'admin-badge--purple'}`}>
                             {work.status}
                           </span>
                         </td>

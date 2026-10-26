@@ -1032,7 +1032,26 @@ function ProfilePageInner() {
                 {/* ── Tab: Настройки аккаунта ── */}
                 {activeTab === 'settings' && (
                   <div className="profile-tab-settings">
-                    <h2 className="profile-content__title">СМЕНА ПАРОЛЯ</h2>
+                    <h2 className="profile-content__title">ЛОГИН И ПОЧТА</h2>
+                    <div className="profile-settings__account">
+                      <div className="profile-form__row">
+                        <div className="profile-form__field">
+                          <label className="profile-form__label">Логин</label>
+                          <div className="profile-form__input-wrap">
+                            <input className="profile-form__input" type="text" defaultValue="Sempai_11" />
+                          </div>
+                        </div>
+                        <div className="profile-form__field">
+                          <label className="profile-form__label">Электронная почта</label>
+                          <div className="profile-form__input-wrap">
+                            <input className="profile-form__input" type="email" defaultValue="sempai_11@mail.ru" />
+                          </div>
+                        </div>
+                      </div>
+                      <button className="profile-form__save">Сохранить</button>
+                    </div>
+
+                    <h2 className="profile-content__title profile-content__title--mt">СМЕНА ПАРОЛЯ</h2>
                     <div className="profile-settings__password">
                       <div className="profile-form__field profile-form__field--full">
                         <label className="profile-form__label">Старый пароль</label>

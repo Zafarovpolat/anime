@@ -16,7 +16,7 @@ const GENRES = [
   "Сёнэн","Сёдзё","Фэнтези",
 ];
 const TYPES = ['Манга','Манхва','Маньхуа','Руманга'];
-const STATUSES = ['Выходит','Завершено','Анонс','Заморожено'];
+const STATUSES = ['Выходит','Анонс','Приостановлено','Закрыто'];
 const YEARS = Array.from({ length: 30 }, (_, i) => String(2025 - i));
 
 export default function AdminAddWorkPage() {
@@ -30,6 +30,8 @@ export default function AdminAddWorkPage() {
   const [year, setYear] = useState(YEARS[0]);
   const [yearEnd, setYearEnd] = useState('');
   const [status, setStatus] = useState(STATUSES[0]);
+  /* Дата, с которой действует выбранный статус (анонс/выходит/приостановлено/закрыто) */
+  const [statusDate, setStatusDate] = useState('');
   const [editId, setEditId] = useState<number | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -158,7 +160,12 @@ export default function AdminAddWorkPage() {
                         <CustomSelect options={YEARS} value={yearEnd} onChange={setYearEnd} placeholder="—" />
                       </div>
                     </div>
-                    <div className="admin-field" />
+                    <div className="admin-field">
+                      <label className="admin-field__label">Дата статуса</label>
+                      <div className="profile-form__input-wrap">
+                        <input className="profile-form__input" type="text" placeholder="Например: 12.03.2024" value={statusDate} onChange={e => setStatusDate(e.target.value)} />
+                      </div>
+                    </div>
                   </div>
 
                   <div className="admin-field">

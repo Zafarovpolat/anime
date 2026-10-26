@@ -1876,6 +1876,8 @@ button {
   height: 402px;
   border-radius: 16px;
   overflow: hidden;
+  /* База для плашек оценки и возрастного ограничения поверх обложки */
+  position: relative;
 }
 
 .manga-inner__cover img {
@@ -13634,5 +13636,392 @@ html.theme-switching *::after {
     padding: 11px 13px;
     border-radius: 11px;
     font-size: 14px;
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   Правки по документу клиента: оценка на обложке, статус с датой,
+   автор и студия, модалка оценки, логин и почта в профиле,
+   вкладки жанров и годы по десятилетиям в каталоге.
+   ══════════════════════════════════════════════════════════════ */
+
+/* ── Возрастное ограничение и оценка на обложке ── */
+.manga-inner__cover-age {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  padding: 4px 10px;
+  border-radius: 10px;
+  background: var(--color-overlay);
+  color: #ffffff;
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.manga-inner__cover-rating {
+  position: absolute;
+  left: 12px;
+  bottom: 12px;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 6px 14px;
+  border: none;
+  border-radius: 14px;
+  background: var(--color-overlay);
+  color: #ffffff;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.manga-inner__cover-rating:hover {
+  background: rgba(0, 0, 0, 0.78);
+}
+
+.manga-inner__cover-rating-val {
+  font-family: var(--font-heading);
+  font-size: 28px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.manga-inner__cover-rating-count {
+  font-family: var(--font-body);
+  font-size: 12px;
+  opacity: 0.85;
+}
+
+/* ── Автор, студия и статус с датой ── */
+.manga-inner__meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.manga-inner__meta-item {
+  font-family: var(--font-body);
+  font-size: 15px;
+  color: var(--color-text);
+}
+
+.manga-inner__meta-label,
+.manga-inner__meta-sep {
+  color: var(--color-gray-text);
+}
+
+.manga-inner__status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: 10px;
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.manga-inner__status--ongoing {
+  background: var(--color-success-surface);
+  color: var(--color-success-text);
+}
+
+.manga-inner__status--announce {
+  background: var(--color-primary-tint);
+  color: var(--color-primary);
+}
+
+.manga-inner__status--paused {
+  background: var(--color-warning-surface);
+  color: var(--color-warning-text);
+}
+
+.manga-inner__status--closed {
+  background: var(--color-surface-3);
+  color: var(--color-gray-text);
+}
+
+.manga-inner__status-date {
+  font-weight: 400;
+  opacity: 0.8;
+}
+
+/* Кнопка «Написать отзыв» переехала из шапки в таб отзывов */
+.manga-inner__review-write {
+  max-width: fit-content;
+  margin-bottom: 16px;
+}
+
+/* ── Модальное окно оценки ── */
+.rating-modal {
+  max-width: 560px;
+}
+
+.rating-modal__title {
+  font-family: var(--font-heading);
+  font-size: 30px;
+  font-weight: 800;
+  color: var(--color-text);
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  margin: 0 0 20px;
+}
+
+.rating-modal__score {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 22px;
+}
+
+.rating-modal__score-val {
+  font-family: var(--font-heading);
+  font-size: 56px;
+  font-weight: 800;
+  color: var(--color-text);
+  line-height: 1;
+}
+
+.rating-modal__score-count {
+  font-family: var(--font-body);
+  font-size: 15px;
+  color: var(--color-gray-text);
+}
+
+.rating-modal__stars {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.rating-modal__star {
+  background: none;
+  border: none;
+  padding: 2px;
+  line-height: 0;
+  cursor: pointer;
+  color: var(--color-primary-disabled);
+  transition: color 0.12s, transform 0.1s;
+}
+
+.rating-modal__star:hover,
+.rating-modal__star--active {
+  color: var(--color-primary);
+  transform: scale(1.12);
+}
+
+.rating-modal__hint {
+  font-family: var(--font-body);
+  font-size: 15px;
+  color: var(--color-gray-text);
+  text-align: center;
+  margin: 0 0 26px;
+}
+
+.rating-modal__actions {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.rating-modal__save {
+  min-width: 240px;
+  height: 60px;
+  padding: 0 24px;
+  background: var(--color-primary);
+  color: var(--color-white);
+  border: none;
+  border-radius: 15px;
+  font-family: var(--font-body);
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.rating-modal__save:hover:not(:disabled) {
+  background: var(--color-primary-strong);
+}
+
+.rating-modal__save:disabled {
+  background: var(--color-primary-disabled);
+  cursor: default;
+}
+
+.rating-modal__clear {
+  height: 60px;
+  padding: 0 22px;
+  background: none;
+  border: 1.5px solid var(--color-border-strong);
+  border-radius: 15px;
+  font-family: var(--font-body);
+  font-size: 16px;
+  color: var(--color-gray-text);
+  cursor: pointer;
+  transition: color 0.2s, border-color 0.2s;
+}
+
+.rating-modal__clear:hover {
+  color: var(--color-danger);
+  border-color: var(--color-danger-border);
+}
+
+[data-theme="dark"] .rating-modal__save {
+  color: var(--color-text);
+}
+
+/* Тёмная тема: у --color-primary-disabled нет тёмного значения, поэтому кнопка
+   «Сохранить оценку» без выбранной оценки оставалась светло-сиреневой, а текст
+   на ней — почти белым. Красим приглушённым фиолетовым. */
+[data-theme="dark"] .rating-modal__save:disabled {
+  background: var(--color-primary-tint);
+  color: var(--color-primary);
+}
+
+/* ── Настройки аккаунта: логин и почта ── */
+.profile-settings__account {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+/* ── Каталог: вкладки жанров и годы по десятилетиям ── */
+.catalog-filter__tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.catalog-filter__tab {
+  padding: 6px 12px;
+  background: var(--color-surface-3);
+  border: none;
+  border-radius: 10px;
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--color-gray-text);
+  cursor: pointer;
+  transition: background-color 0.15s, color 0.15s;
+}
+
+.catalog-filter__tab:hover {
+  color: var(--color-text);
+}
+
+.catalog-filter__tab--active {
+  background: var(--color-primary-tint);
+  color: var(--color-primary);
+  font-weight: 500;
+}
+
+.catalog-filter__year-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+}
+
+.catalog-filter__year-chip {
+  height: 36px;
+  background: var(--color-surface-3);
+  border: 1.5px solid transparent;
+  border-radius: 10px;
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--color-text);
+  cursor: pointer;
+  transition: background-color 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.catalog-filter__year-chip:hover {
+  background: var(--color-surface-2);
+}
+
+.catalog-filter__year-chip--active {
+  background: var(--color-primary-tint);
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+/* Тёмная тема: --color-surface-3 совпадает с --color-surface-2 (фон карточки фильтра),
+   поэтому вкладки букв жанров и плитки годов сливались с карточкой. Даём им фон
+   темнее карточки, а активное состояние оставляем фиолетовым. */
+[data-theme="dark"] .catalog-filter__tab,
+[data-theme="dark"] .catalog-filter__year-chip {
+  background: var(--color-surface);
+}
+
+[data-theme="dark"] .catalog-filter__year-chip:hover {
+  background: var(--color-gray-light);
+}
+
+[data-theme="dark"] .catalog-filter__tab--active,
+[data-theme="dark"] .catalog-filter__year-chip--active {
+  background: var(--color-primary-tint);
+  color: var(--color-primary);
+}
+
+/* ── Админка: плашка статуса «Закрыто» ── */
+.admin-badge--muted {
+  background: var(--color-surface-3);
+  color: var(--color-gray-text);
+}
+
+/* Найденный баг: в тёмной теме заголовок и подпись модалки отзыва
+   были чёрными на тёмном фоне — текст не читался */
+[data-theme="dark"] .review-modal__title,
+[data-theme="dark"] .review-modal__label {
+  color: var(--color-text);
+}
+
+@media (max-width: 1024px) {
+  .manga-inner__cover-rating {
+    padding: 5px 11px;
+  }
+
+  .manga-inner__cover-rating-val {
+    font-size: 24px;
+  }
+
+  .manga-inner__cover-age {
+    padding: 3px 8px;
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 768px) {
+  .rating-modal__title {
+    font-size: 24px;
+  }
+
+  .rating-modal__score-val {
+    font-size: 46px;
+  }
+
+  .rating-modal__star > svg {
+    width: 22px;
+    height: 22px;
+  }
+
+  .rating-modal__actions {
+    flex-direction: column;
+  }
+
+  .rating-modal__save,
+  .rating-modal__clear {
+    width: 100%;
+  }
+
+  .catalog-filter__year-grid {
+    grid-template-columns: repeat(3, 1fr);
   }
 }

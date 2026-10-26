@@ -42,6 +42,20 @@ const GENRES = [
   "Фэнтези",
 ];
 
+/* Вкладки-буквы для блока «Жанры»: «Все» + первые буквы названий жанров */
+const GENRE_LETTERS = ["Все", ...Array.from(new Set(GENRES.map((g) => g[0].toUpperCase())))];
+
+/* Годы разделены по десятилетиям — для блока «Год выпуска».
+   chips: у старых периодов плиток годов нет, иначе внизу вырастает сотня кнопок. */
+const YEAR_DECADES = [
+  { label: "2020-е", from: 2020, to: 2029, chips: true },
+  { label: "2010-е", from: 2010, to: 2019, chips: true },
+  { label: "2000-е", from: 2000, to: 2009, chips: true },
+  { label: "1990-е", from: 1990, to: 1999, chips: true },
+  { label: "до 1990", from: 1950, to: 1989, chips: false },
+];
+const CURRENT_YEAR = 2026;
+
 const RATINGS = [
   9.6, 9.4, 9.2, 9.8, 9.1, 9.7, 9.3, 9.5, 9.0, 9.6, 9.4, 9.8, 9.2, 9.3, 9.7,
 ];
@@ -246,6 +260,9 @@ function CatalogInner() {
   const [categoryStates, setCategoryStates] = useState<Record<string, FilterState>>({});
   const [categoryOpen, setCategoryOpen] = useState(false);
   const [genresOpen, setGenresOpen] = useState(true);
+  /* Активная вкладка-буква в блоке жанров и выбранное десятилетие в блоке годов */
+  const [genreLetter, setGenreLetter] = useState("Все");
+  const [yearDecade, setYearDecade] = useState<string | null>(null);
   const [yearFrom, setYearFrom] = useState("");
   const [yearTo, setYearTo] = useState("");
   const [ratingFrom, setRatingFrom] = useState("");
@@ -265,9 +282,35 @@ function CatalogInner() {
     if (query) setNameSearch(query);
   }, [searchParams]);
 
-  const filteredGenres = GENRES.filter((g) =>
-    g.toLowerCase().includes(genreSearch.toLowerCase()),
+  /* Жанры фильтруются поиском и активной вкладкой-буквой */
+  const filteredGenres = GENRES.filter(
+    (g) =>
+      g.toLowerCase().includes(genreSearch.toLowerCase()) &&
+      (genreLetter === "Все" || g[0].toUpperCase() === genreLetter),
   );
+
+  /* Годы выбранного десятилетия — от текущего года вниз */
+  const decadeYears = (decade: { from: number; to: number }) => {
+    const top = Math.min(decade.to, CURRENT_YEAR);
+    return Array.from({ length: top - decade.from + 1 }, (_, i) => top - i);
+  };
+
+  const selectDecade = (decade: { label: string; from: number; to: number }) => {
+    setYearDecade(decade.label);
+    setYearFrom(String(decade.from));
+    setYearTo(String(Math.min(decade.to, CURRENT_YEAR)));
+  };
+
+  /* Повторный клик по выбранному году снимает фильтр */
+  const selectYear = (year: number) => {
+    if (yearFrom === String(year) && yearTo === String(year)) {
+      setYearFrom("");
+      setYearTo("");
+      return;
+    }
+    setYearFrom(String(year));
+    setYearTo(String(year));
+  };
 
   const toggleGenre = (genre: string) => {
     setGenreStates((prev) => {
@@ -330,10 +373,85 @@ function CatalogInner() {
       () => toggleCategory(category),
     );
 
+  /* Вкладки-буквы над списком жанров — общий блок для десктопной и мобильной панели */
+  const renderGenreLetters = () => (
+    <div className="catalog-filter__tabs" role="tablist" aria-label="Жанры по буквам">
+      {GENRE_LETTERS.map((letter) => (
+        <button
+          key={letter}
+          type="button"
+          role="tab"
+          aria-selected={genreLetter === letter}
+          className={`catalog-filter__tab${genreLetter === letter ? " catalog-filter__tab--active" : ""}`}
+          onClick={() => setGenreLetter(letter)}
+        >
+          {letter}
+        </button>
+      ))}
+    </div>
+  );
+
+  /* Годы, разделённые по десятилетиям: вкладка десятилетия раскрывает плитки годов.
+     У старых периодов (d.chips === false) плиток нет — фильтр работает целым диапазоном. */
+  const renderYearTabs = () => {
+    const decade = YEAR_DECADES.find((d) => d.label === yearDecade) ?? null;
+    return (
+      <>
+        <div className="catalog-filter__tabs" role="tablist" aria-label="Годы по десятилетиям">
+          <button
+            type="button"
+            role="tab"
+            aria-selected={yearDecade === null}
+            className={`catalog-filter__tab${yearDecade === null ? " catalog-filter__tab--active" : ""}`}
+            onClick={() => {
+              setYearDecade(null);
+              setYearFrom("");
+              setYearTo("");
+            }}
+          >
+            Все годы
+          </button>
+          {YEAR_DECADES.map((d) => (
+            <button
+              key={d.label}
+              type="button"
+              role="tab"
+              aria-selected={yearDecade === d.label}
+              className={`catalog-filter__tab${yearDecade === d.label ? " catalog-filter__tab--active" : ""}`}
+              onClick={() => selectDecade(d)}
+            >
+              {d.label}
+            </button>
+          ))}
+        </div>
+        {decade?.chips && (
+          <div className="catalog-filter__year-grid">
+            {decadeYears(decade).map((year) => {
+              const active = yearFrom === String(year) && yearTo === String(year);
+              return (
+                <button
+                  key={year}
+                  type="button"
+                  aria-pressed={active}
+                  className={`catalog-filter__year-chip${active ? " catalog-filter__year-chip--active" : ""}`}
+                  onClick={() => selectYear(year)}
+                >
+                  {year}
+                </button>
+              );
+            })}
+          </div>
+        )}
+      </>
+    );
+  };
+
   const resetFilters = () => {
     setGenreStates({});
     setCategoryStates({});
     setGenreSearch("");
+    setGenreLetter("Все");
+    setYearDecade(null);
     setNameSearch("");
     setYearFrom("");
     setYearTo("");
@@ -584,6 +702,7 @@ function CatalogInner() {
                           onChange={(e) => setGenreSearch(e.target.value)}
                         />
                       </div>
+                      {renderGenreLetters()}
                       <div className="catalog-filter__genres-list">
                         {filteredGenres.map(renderGenreFilter)}
                       </div>
@@ -651,6 +770,7 @@ function CatalogInner() {
                       За 2 года
                     </button>
                   </div>
+                  {renderYearTabs()}
                 </div>
 
                 {/* Rating */}
@@ -830,6 +950,7 @@ function CatalogInner() {
                         onChange={(e) => setGenreSearch(e.target.value)}
                       />
                     </div>
+                    {renderGenreLetters()}
                     <div className="catalog-filter__genres-list">
                       {filteredGenres.map(renderGenreFilter)}
                     </div>
@@ -893,6 +1014,7 @@ function CatalogInner() {
                     За 2 года
                   </button>
                 </div>
+                {renderYearTabs()}
               </div>
 
               <div className="catalog-filter__block">

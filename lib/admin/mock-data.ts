@@ -26,7 +26,8 @@ const TITLES = [
 ];
 const TYPES = ['Манга', 'Манхва', 'Маньхуа', 'Руманга'];
 const PUBLISHERS = ['Shueisha', 'Kakao', 'Naver', 'Kodansha', 'Bilibili'];
-const STATUSES = ['Выходит', 'Завершено', 'Анонс', 'Заморожено'];
+/* Статусы произведения — по формулировке из ТЗ заказчика */
+const STATUSES = ['Выходит', 'Анонс', 'Приостановлено', 'Закрыто'];
 
 export const ADMIN_WORKS: AdminWork[] = TITLES.map((title, i) => ({
   id: i + 1,

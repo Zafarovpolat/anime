@@ -3,6 +3,7 @@
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ReviewModal from "@/components/ReviewModal";
+import RatingModal from "@/components/RatingModal";
 import ReportModal from "@/components/ReportModal";
 import RichTextEditor, { parseRichText, handleSpoilerClick, RichTextEditorHandle } from "@/components/RichTextEditor";
 import {
@@ -23,6 +24,14 @@ const DEFAULT_DATA = {
   bookmarks: "24.4k",
   rating: 9.6,
   ratingCount: "21 401 оценок",
+  /* Возрастное ограничение — плашка на обложке */
+  ageRating: "16+",
+  /* Автор и студия — выводятся в блоке информации */
+  author: "Ким Хён Су",
+  studio: "Naver Webtoon",
+  /* Статус произведения и дата, с которой он действует */
+  status: "Выходит",
+  statusDate: "с 12 марта 2024",
   description: [
     "Чон Еун - рождённый в незаконном браке принц. С самого детства он страдал от полного отсутствия внутренней энергии, что вызывало всеобщую отвращение и презрение к нему. Угнетённый и лишённый мотивации, он проживал жалкое существование, не надеясь на что-либо большее. Еун был изгоем, презираемым шести великими кланами, но однажды все изменилось.",
     'В один день он был окружён десятком убийц, готовых уничтожить его. Подавленный и уже готовый сдаться, Еун чуть не потерял сознание, окутываясь белым светом безнадёжности и отчаяния, но тут на горизонте появилась еле заметная фигура. Этот незнакомец был "потомком" из будущего и моментально уничтожил всех врагов. Затем он вложил странный предмет под названием Наномашина в тело Еуна. С этого момента все изменилось.',
@@ -30,6 +39,14 @@ const DEFAULT_DATA = {
   ],
   totalChapters: 309,
   totalReviews: 47,
+};
+
+/* Класс плашки статуса по значению статуса из данных */
+const STATUS_MOD: Record<string, string> = {
+  "Анонс": "announce",
+  "Выходит": "ongoing",
+  "Приостановлено": "paused",
+  "Закрыто": "closed",
 };
 
 const CHAPTERS_LIST = Array.from({ length: 13 }, (_, i) => ({
@@ -1149,11 +1166,12 @@ export default function MangaPage({ params }: { params: { id: string } }) {
   const [searchQuery, setSearchQuery] = useState("");
   const [reversed, setReversed] = useState(false);
   const [reviewOpen, setReviewOpen] = useState(false);
+  /* Модалка оценки — открывается по клику на оценку, перенесённую на обложку */
+  const [ratingOpen, setRatingOpen] = useState(false);
   const [reportOpen, setReportOpen] = useState(false);
   const [bookmarkDropdownOpen, setBookmarkDropdownOpen] = useState(false);
   const [bookmarkValue, setBookmarkValue] = useState<string | null>(null);
   const [userRating, setUserRating] = useState<number | null>(null);
-  const [hoverRating, setHoverRating] = useState(0);
   const [reviewFilter, setReviewFilter] = useState<"all" | "positive" | "negative" | "neutral">("all");
   const bookmarkWrapRef = useRef<HTMLDivElement>(null);
   const bookmarkBtnRef = useRef<HTMLButtonElement>(null);
@@ -1332,6 +1350,18 @@ export default function MangaPage({ params }: { params: { id: string } }) {
               <div className="manga-inner__left">
                 <div className="manga-inner__cover">
                   <img src={`/images/cover_${coverIdx}.jpg`} alt={data.title} />
+                  {/* Возрастное ограничение — плашка в углу обложки */}
+                  <span className="manga-inner__cover-age">{data.ageRating}</span>
+                  {/* Оценка перенесена на обложку; клик открывает модалку со звёздами */}
+                  <button
+                    type="button"
+                    className="manga-inner__cover-rating"
+                    onClick={() => setRatingOpen(true)}
+                    aria-label="Оценить произведение"
+                  >
+                    <span className="manga-inner__cover-rating-val">{data.rating}</span>
+                    <span className="manga-inner__cover-rating-count">{data.ratingCount}</span>
+                  </button>
                 </div>
                 <div className="manga-inner__left-btns">
                   <div className="manga-inner__bookmark-wrap" ref={bookmarkWrapRef}>
@@ -1424,6 +1454,23 @@ export default function MangaPage({ params }: { params: { id: string } }) {
                     {/* Title */}
                     <h1 className="manga-inner__title">{data.title}</h1>
 
+                    {/* Автор, студия и статус с датой */}
+                    <div className="manga-inner__meta">
+                      <span className="manga-inner__meta-item">
+                        <span className="manga-inner__meta-label">Автор:</span> {data.author}
+                      </span>
+                      <span className="manga-inner__meta-sep" aria-hidden="true">•</span>
+                      <span className="manga-inner__meta-item">
+                        <span className="manga-inner__meta-label">Студия:</span> {data.studio}
+                      </span>
+                      <span
+                        className={`manga-inner__status manga-inner__status--${STATUS_MOD[data.status] ?? "ongoing"}`}
+                      >
+                        {data.status}
+                        <span className="manga-inner__status-date">{data.statusDate}</span>
+                      </span>
+                    </div>
+
                     {/* Stats row */}
                     <div className="manga-inner__stats">
                       <span className="manga-inner__stat">
@@ -1438,50 +1485,8 @@ export default function MangaPage({ params }: { params: { id: string } }) {
                     </div>
                   </div>
 
-                  <div className="manga-inner__rating-group">
-                    {/* Rating block */}
-                    <div className="manga-inner__rating-block">
-                      <div className="manga-inner__rating-score">
-                        {data.rating}
-                      </div>
-                      <a href="#" className="manga-inner__rating-count">
-                        {data.ratingCount}
-                      </a>
-                      <div className="manga-inner__user-rating">
-                        {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((star) => (
-                          <button
-                            key={star}
-                            className={`manga-inner__rating-star${(hoverRating || userRating || 0) >= star ? " manga-inner__rating-star--active" : ""}`}
-                            onMouseEnter={() => setHoverRating(star)}
-                            onMouseLeave={() => setHoverRating(0)}
-                            onClick={() => setUserRating(star)}
-                            aria-label={`Оценить ${star}`}
-                          >
-                            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                              <path d="M8.2091 1.01094L9.44445 3.49535C9.61092 3.83894 10.0578 4.16491 10.4345 4.23538L12.6687 4.6054C14.0969 4.84327 14.4298 5.88285 13.4047 6.92242L11.6611 8.6756C11.372 8.96633 11.2055 9.53898 11.3019 9.95305L11.8013 12.1203C12.1956 13.8294 11.2844 14.499 9.78617 13.6004L7.69214 12.3494C7.3154 12.1203 6.68458 12.1203 6.30783 12.3494L4.21381 13.6004C2.71558 14.4902 1.80439 13.8294 2.19866 12.1203L2.69808 9.95305C2.79445 9.54779 2.62798 8.97514 2.33885 8.6756L0.595308 6.92242C-0.429794 5.89165 -0.0968578 4.85208 1.33128 4.6054L3.56546 4.23538C3.94221 4.17372 4.38905 3.83894 4.55552 3.49535L5.7909 1.01094C6.44802 -0.336981 7.53446 -0.336981 8.2091 1.01094Z" fill="currentColor"/>
-                            </svg>
-                          </button>
-                        ))}
-                        {userRating && (
-                          <>
-                            <span className="manga-inner__user-rating-val">{userRating}</span>
-                            <button
-                              className="manga-inner__rating-clear"
-                              onClick={() => setUserRating(null)}
-                              aria-label="Убрать оценку"
-                            >
-                              <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                                <path d="M1 1L13 13M13 1L1 13" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-                              </svg>
-                            </button>
-                          </>
-                        )}
-                      </div>
-                      <button className="manga-inner__rating-btn" onClick={() => setReviewOpen(true)}>
-                        Написать отзыв
-                      </button>
-                    </div>
-                  </div>
+                  {/* Блок рейтинга из шапки убран: цифровая оценка — на обложке,
+                      звёздный рейтинг — в модальном окне, кнопка отзыва — в табе отзывов */}
                 </div>
 
                 {/* Tabs + Content wrapper */}
@@ -1668,6 +1673,14 @@ export default function MangaPage({ params }: { params: { id: string } }) {
                   {/* ── Tab: Отзывы ── */}
                   {activeTab === "reviews" && (
                     <div className="manga-inner__content">
+                      {/* Кнопка перенесена из шапки страницы в таб отзывов */}
+                      <button
+                        className="manga-inner__rating-btn manga-inner__review-write"
+                        onClick={() => setReviewOpen(true)}
+                      >
+                        Написать отзыв
+                      </button>
+
                       {/* Фильтры */}
                       <div className="manga-inner__review-filters">
                         <button
@@ -1769,6 +1782,15 @@ export default function MangaPage({ params }: { params: { id: string } }) {
       </main>
       <Footer />
       {reviewOpen && <ReviewModal onClose={() => setReviewOpen(false)} />}
+      {ratingOpen && (
+        <RatingModal
+          rating={data.rating}
+          ratingCount={data.ratingCount}
+          value={userRating}
+          onChange={setUserRating}
+          onClose={() => setRatingOpen(false)}
+        />
+      )}
       {reportOpen && <ReportModal onClose={() => setReportOpen(false)} />}
     </>
   );
